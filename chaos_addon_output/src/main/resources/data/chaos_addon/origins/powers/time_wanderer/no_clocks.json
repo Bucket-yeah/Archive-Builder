@@ -1,0 +1,1 @@
+{"type":"neoorigins:action_on_item_use","item_condition":{"type":"neoorigins:ingredient","ingredient":{"item":"minecraft:clock"}},"entity_action":{"type":"neoorigins:execute_command","command":"execute at @s run summon minecraft:tnt ~ ~ ~"},"name":"Часы взрываются","description":"Часы взрываются при попытке использования.","hidden":true}
