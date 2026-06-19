@@ -1,0 +1,1 @@
+- [NeoOrigins data paths](neoorigins-data-paths.md) — origins go in origins/origins/, layers in origins/origin_layers/ — NOT flat origins/ like Origins (Fabric).

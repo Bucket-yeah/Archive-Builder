@@ -61,6 +61,10 @@ _Populate as you build — explicit user instructions worth remembering across s
 ## Gotchas
 
 - `OriginHelper.hasPower(player, "chaos_addon:<origin>/<power>")` is the pattern for all power checks.
-- Power path: `chaos_addon:eater_of_worlds/chaotic_aura` → `data/chaos_addon/powers/eater_of_worlds/chaotic_aura.json`.
+- **NeoOrigins data paths** (differs from Origins/Fabric!):
+  - Origins:      `data/chaos_addon/origins/origins/<name>.json`  → ID `chaos_addon:<name>`
+  - Origin layers:`data/chaos_addon/origins/origin_layers/<name>.json` → ID `chaos_addon:<name>`
+  - Powers:       `data/chaos_addon/powers/<origin>/<power>.json` → ID `chaos_addon:<origin>/<power>`
 - Commands registered in `ModCommands.register()` — see `init/ModCommands.java`.
-- `SoundEvents` fields that are `Holder<SoundEvent>` need `.value()` in `playSound()` calls.
+- `SoundEvents` fields in 1.21.1 are plain `SoundEvent`, **not** `Holder<SoundEvent>` — do NOT call `.value()`.
+- `LivingAttackEvent` was removed in NeoForge 21.1 — use `LivingIncomingDamageEvent` instead.

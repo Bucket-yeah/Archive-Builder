@@ -1,0 +1,16 @@
+{
+  "name": "Инфернальный Пастух",
+  "description": "Лава — твоя купель. Незер — твой дом. Огонь — твоя семья.",
+  "icon": { "item": "minecraft:blaze_powder" },
+  "loading_priority": 0,
+  "powers": [
+    "chaos_addon:infernal_shepherd/fire_diplomacy",
+    "chaos_addon:infernal_shepherd/lava_feeding",
+    "chaos_addon:infernal_shepherd/lava_lord",
+    "chaos_addon:infernal_shepherd/ghast_summon",
+    "chaos_addon:infernal_shepherd/volcanic_burst",
+    "chaos_addon:infernal_shepherd/nether_portal",
+    "chaos_addon:infernal_shepherd/overworld_burn",
+    "chaos_addon:infernal_shepherd/overworld_death_penalty"
+  ]
+}
