@@ -1,5 +1,6 @@
 #!/bin/bash
-export JAVA_HOME=/nix/store/k95pqfzyvrna93hc9a4cg5csl7l4fh0d-openjdk-21.0.7+6/lib/openjdk
+# Use JAVA_HOME if set, otherwise fall back to the known JDK 21 path
+export JAVA_HOME="${JAVA_HOME:-/nix/store/k95pqfzyvrna93hc9a4cg5csl7l4fh0d-openjdk-21.0.7+6/lib/openjdk}"
 export PATH=$JAVA_HOME/bin:$PATH
 cd /home/runner/workspace/chaos_addon_output
 chmod +x gradlew
