@@ -65,6 +65,15 @@ public class SwarmHandler {
         }
 
         tickBugAI(player, level, data);
+
+        // Swarm Sense: highlight low-HP entities nearby
+        if (OriginHelper.hasPower(player, "chaos_addon:swarm_lord/swarm_sense")
+                && player.tickCount % 20 == 0) {
+            level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(15),
+                e -> e != player && e.isAlive() && e.getHealth() < e.getMaxHealth() * 0.5f)
+                .forEach(e -> e.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.GLOWING, 25, 0, true, false)));
+        }
     }
 
     private static void spawnBug(ServerPlayer player, ServerLevel level, SwarmData data) {

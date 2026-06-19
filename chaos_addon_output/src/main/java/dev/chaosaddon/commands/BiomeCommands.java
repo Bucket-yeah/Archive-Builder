@@ -105,13 +105,70 @@ public class BiomeCommands {
                 return 1;
             }));
 
-        // Biome Capture: TODO: complex implementation
+        // Biome Capture: convert surface blocks in radius 20 to biome-specific blocks + effects
         dispatcher.register(Commands.literal("chaos_addon_biome_capture")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
-                player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§5§lБиомный Захват активирован!"));
-                player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 1200, 0, false, true));
+                ServerLevel level = player.serverLevel();
+                BlockPos origin = player.blockPosition();
+
+                String biome = level.getBiome(origin)
+                    .unwrapKey().map(k -> k.location().toString()).orElse("unknown");
+                BiomeData data = player.getData(ModAttachments.BIOME_DATA);
+                data.setCarryBiome(biome);
+
+                net.minecraft.world.level.block.state.BlockState surfaceBlock;
+                if (biome.contains("nether") || biome.contains("basalt") || biome.contains("soul")) {
+                    surfaceBlock = Blocks.NETHERRACK.defaultBlockState();
+                    player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 1200, 1, false, true));
+                } else if (biome.contains("desert") || biome.contains("badlands")) {
+                    surfaceBlock = Blocks.SAND.defaultBlockState();
+                    player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 1200, 1, false, true));
+                    player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 1200, 0, false, true));
+                } else if (biome.contains("ocean") || biome.contains("river")) {
+                    surfaceBlock = net.minecraft.world.level.block.Blocks.CLAY.defaultBlockState();
+                    player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 1200, 0, false, true));
+                    player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 1200, 0, false, true));
+                } else if (biome.contains("snowy") || biome.contains("frozen") || biome.contains("ice")) {
+                    surfaceBlock = net.minecraft.world.level.block.Blocks.SNOW_BLOCK.defaultBlockState();
+                    player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 1200, 1, false, true));
+                } else if (biome.contains("end") || biome.contains("void")) {
+                    surfaceBlock = net.minecraft.world.level.block.Blocks.END_STONE.defaultBlockState();
+                    player.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 1200, 0, false, true));
+                    player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 1200, 2, false, true));
+                } else {
+                    surfaceBlock = Blocks.GRASS_BLOCK.defaultBlockState();
+                    player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 1200, 0, false, true));
+                    player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 1200, 0, false, true));
+                }
+
+                int radius = 20;
+                java.util.List<BlockPos> toConvert = new java.util.ArrayList<>();
+                for (int dx = -radius; dx <= radius; dx++) {
+                    for (int dz = -radius; dz <= radius; dz++) {
+                        if (dx * dx + dz * dz > radius * radius) continue;
+                        BlockPos surface = origin.offset(dx, 0, dz);
+                        for (int dy = 3; dy >= -3; dy--) {
+                            BlockPos check = surface.offset(0, dy, 0);
+                            if (!level.getBlockState(check).isAir()
+                                    && !level.getBlockState(check).getBlock().equals(Blocks.BEDROCK)
+                                    && !level.getBlockState(check).getBlock().equals(net.minecraft.world.level.block.Blocks.WATER)) {
+                                toConvert.add(check);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                final net.minecraft.world.level.block.state.BlockState fs = surfaceBlock;
+                toConvert.forEach(pos -> level.setBlock(pos, fs, 3));
+
+                player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§5§lБиомный Захват: §r" + biome + " §7(60 сек)"));
+                level.sendParticles(net.minecraft.core.particles.ParticleTypes.SPORE_BLOSSOM_AIR,
+                    player.getX(), player.getY() + 1.0, player.getZ(), 200, radius * 0.5, 3.0, radius * 0.5, 0.04);
+                level.playSound(null, origin, net.minecraft.sounds.SoundEvents.ILLUSIONER_PREPARE_MIRROR,
+                    net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 0.6f);
                 return 1;
             }));
     }

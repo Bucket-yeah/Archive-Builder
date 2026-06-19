@@ -259,5 +259,23 @@ public class MiscCombatCommands {
                 }
                 return 1;
             }));
+
+        // Acceleration aftereffect: schedule Slowness V (amplifier 4) after 10s
+        dispatcher.register(Commands.literal("chaos_addon_acceleration")
+            .requires(src -> src.hasPermission(0))
+            .executes(ctx -> {
+                if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                java.util.Timer timer = new java.util.Timer();
+                timer.schedule(new java.util.TimerTask() {
+                    @Override public void run() {
+                        if (!player.isAlive()) { timer.cancel(); return; }
+                        player.addEffect(new MobEffectInstance(
+                            net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,
+                            100, 4, false, true));
+                        timer.cancel();
+                    }
+                }, 10_000L);
+                return 1;
+            }));
     }
 }
