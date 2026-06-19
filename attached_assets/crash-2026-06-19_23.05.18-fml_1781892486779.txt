@@ -1,0 +1,192 @@
+---- Minecraft Crash Report ----
+// I let you down. Sorry :(
+
+Time: 2026-06-19 23:05:18
+Description: Mod loading failures have occurred; consult the issue messages for more details
+
+net.neoforged.neoforge.logging.CrashReportExtender$ModLoadingCrashException: Mod loading has failed
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Render thread
+Stacktrace:
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.ModInfo.<init>(ModInfo.java:62) ~[loader-4.0.42.jar%23152!/:4.0] {}
+-- Mod loading issue --
+Details:
+	Mod file: <No mod information provided>
+	Failure message: File mods\chaos_addon-2.0.0.jar is not a valid mod file
+	Mod version: <No mod information provided>
+	Mod issues URL: <No issues URL found>
+	Exception message: net.neoforged.neoforgespi.locating.InvalidModFileException: Invalid modId found : ${mod_id} (chaos_addon-2.0.0.jar)
+Stacktrace:
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.ModInfo.<init>(ModInfo.java:62) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.ModFileInfo.lambda$new$2(ModFileInfo.java:91) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(Unknown Source) ~[?:?] {}
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.AbstractPipeline.copyInto(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.AbstractPipeline.evaluate(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.AbstractPipeline.evaluateToArrayNode(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.ReferencePipeline.toArray(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.ReferencePipeline.toArray(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.ReferencePipeline.toList(Unknown Source) ~[?:?] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.ModFileInfo.<init>(ModFileInfo.java:92) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.ModFileParser.modsTomlParser(ModFileParser.java:56) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.ModFileParser.readModList(ModFileParser.java:37) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.ModFile.<init>(ModFile.java:77) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.ModFile.<init>(ModFile.java:66) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.readers.JarModsDotTomlModFileReader.createModFile(JarModsDotTomlModFileReader.java:45) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.readers.JarModsDotTomlModFileReader.read(JarModsDotTomlModFileReader.java:88) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.ModDiscoverer$DiscoveryPipeline.addJarContent(ModDiscoverer.java:223) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.ModDiscoverer$DiscoveryPipeline.addPath(ModDiscoverer.java:200) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.neoforgespi.locating.IDiscoveryPipeline.addPath(IDiscoveryPipeline.java:32) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.locators.ModsFolderLocator.findCandidates(ModsFolderLocator.java:70) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.moddiscovery.ModDiscoverer.discoverMods(ModDiscoverer.java:73) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.FMLLoader.beginModScan(FMLLoader.java:131) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/fml_loader@4.0.42/net.neoforged.fml.loading.FMLServiceProvider.beginScanning(FMLServiceProvider.java:84) ~[loader-4.0.42.jar%23152!/:4.0] {}
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.5/cpw.mods.modlauncher.TransformationServiceDecorator.runScan(TransformationServiceDecorator.java:97) ~[modlauncher-11.0.5.jar%23157!/:?] {}
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.5/cpw.mods.modlauncher.TransformationServicesHandler.lambda$runScanningTransformationServices$7(TransformationServicesHandler.java:94) ~[modlauncher-11.0.5.jar%23157!/:?] {}
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(Unknown Source) ~[?:?] {}
+	at java.base/java.util.HashMap$ValueSpliterator.forEachRemaining(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.AbstractPipeline.copyInto(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.AbstractPipeline.evaluate(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.AbstractPipeline.evaluateToArrayNode(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.ReferencePipeline.toArray(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.ReferencePipeline.toArray(Unknown Source) ~[?:?] {}
+	at java.base/java.util.stream.ReferencePipeline.toList(Unknown Source) ~[?:?] {}
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.5/cpw.mods.modlauncher.TransformationServicesHandler.runScanningTransformationServices(TransformationServicesHandler.java:96) ~[modlauncher-11.0.5.jar%23157!/:?] {}
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.5/cpw.mods.modlauncher.TransformationServicesHandler.initializeTransformationServices(TransformationServicesHandler.java:50) ~[modlauncher-11.0.5.jar%23157!/:?] {}
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.5/cpw.mods.modlauncher.Launcher.run(Launcher.java:84) [modlauncher-11.0.5.jar%23157!/:?] {}
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.5/cpw.mods.modlauncher.Launcher.main(Launcher.java:74) [modlauncher-11.0.5.jar%23157!/:?] {}
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.5/cpw.mods.modlauncher.BootstrapLaunchConsumer.accept(BootstrapLaunchConsumer.java:26) [modlauncher-11.0.5.jar%23157!/:?] {}
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.5/cpw.mods.modlauncher.BootstrapLaunchConsumer.accept(BootstrapLaunchConsumer.java:23) [modlauncher-11.0.5.jar%23157!/:?] {}
+	at cpw.mods.bootstraplauncher@2.0.2/cpw.mods.bootstraplauncher.BootstrapLauncher.run(BootstrapLauncher.java:210) [bootstraplauncher-2.0.2.jar:?] {}
+	at cpw.mods.bootstraplauncher@2.0.2/cpw.mods.bootstraplauncher.BootstrapLauncher.main(BootstrapLauncher.java:69) [bootstraplauncher-2.0.2.jar:?] {}
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source) ~[?:?] {}
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source) ~[?:?] {}
+	at com.modrinth.theseus.MinecraftLaunch.relaunch(MinecraftLaunch.java:63) [theseus.jar:?] {}
+	at com.modrinth.theseus.MinecraftLaunch.main(MinecraftLaunch.java:28) [theseus.jar:?] {}
+
+
+-- Dynamic Lighting --
+Details:
+	Description: This section contains information related to dynamic lighting, this may not be related to your crash.
+	Mode: fancy
+	Dynamic Light Sources: 0
+	Spatial Hash Occupancy: 0 / 1024
+
+-- System Details --
+Details:
+	Minecraft Version: 1.21.1
+	Minecraft Version ID: 1.21.1
+	Operating System: Windows 11 (amd64) version 10.0
+	Java Version: 21.0.7, Azul Systems, Inc.
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode, sharing), Azul Systems, Inc.
+	Memory: 562036960 bytes (536 MiB) / 1010827264 bytes (964 MiB) up to 6308233216 bytes (6016 MiB)
+	CPUs: 4
+	Processor Vendor: GenuineIntel
+	Processor Name: Intel(R) N200
+	Identifier: Intel64 Family 6 Model 190 Stepping 0
+	Microarchitecture: unknown
+	Frequency (GHz): 1.00
+	Number of physical packages: 1
+	Number of physical CPUs: 4
+	Number of logical CPUs: 4
+	Graphics card #0 name: Intel(R) UHD Graphics
+	Graphics card #0 vendor: Intel Corporation
+	Graphics card #0 VRAM (MiB): 128.00
+	Graphics card #0 deviceId: VideoController1
+	Graphics card #0 versionInfo: 31.0.101.5333
+	Memory slot #0 capacity (MiB): 8192.00
+	Memory slot #0 clockSpeed (GHz): 3.20
+	Memory slot #0 type: DDR4
+	Virtual memory max (MiB): 16092.68
+	Virtual memory used (MiB): 13122.82
+	Swap memory total (MiB): 8280.47
+	Swap memory used (MiB): 962.55
+	Space in storage for jna.tmpdir (MiB): available: 11143.52, total: 120467.98
+	Space in storage for org.lwjgl.system.SharedLibraryExtractPath (MiB): available: 11143.52, total: 120467.98
+	Space in storage for io.netty.native.workdir (MiB): available: 11143.52, total: 120467.98
+	Space in storage for java.io.tmpdir (MiB): available: 11143.52, total: 120467.98
+	Space in storage for workdir (MiB): available: 11143.52, total: 120467.98
+	JVM Flags: 2 total; -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xmx6016M
+	Yumi MC Core: 1.0.0-beta.1+1.21.1
+	Mods: 
+		appleskin: AppleSkin v3.0.9+mc1.21
+		bookshelf: Bookshelf v21.1.81
+		cloth_config: Cloth Config v15 API v15.0.140
+		curios: Curios API v9.5.1+1.21.1
+		entityculling: EntityCulling v1.10.3
+		extrakeybindsforge: Extra Keybinds Forge v1.0.0
+		ferritecore: Ferrite Core v7.0.3
+		fzzy_config: Fzzy Config v0.7.6+1.21+neoforge
+		geckolib: GeckoLib 4 v4.8.4
+		gjeb: GJEB (GammaJustExtremeBright) v1.3.0.40
+		immediatelyfast: ImmediatelyFast v1.6.10+1.21.1
+		jupiter: Jupiter v2.3.7
+		kotlinforforge: Kotlin For Forge v5.11.0
+		lambdynlights: LambDynamicLights v4.8.9+1.21.1
+		lambdynlights_api: LambDynamicLights (API) v4.8.9+1.21.1
+		lambdynlights_runtime: LambDynamicLights (Runtime) v4.8.9+1.21.1
+		lithium: Lithium v0.15.3+mc1.21.1
+		minecraft: Minecraft v1.21.1
+		neoforge: NeoForge v21.1.233
+		notenoughanimations: NotEnoughAnimations v1.12.3
+		pehkui: Pehkui v3.8.3+1.21-neoforge
+		pride: Pride Lib v1.2.4+1.21.1
+		skinlayers3d: 3d-Skin-Layers v1.11.1
+		smartbrainlib: SmartBrainLib v1.16.11
+		spruceui: SpruceUI v6.2.5+1.21.1
+		transition: TRansition v1.0.20
+		trender: TRender v1.0.14
+		yet_another_config_lib_v3: YetAnotherConfigLib v3.6.3+1.21.1-neoforge
+		yumi_mc_core: Yumi Minecraft Libraries: Foundation v1.0.0-beta.1+1.21.1
+	ModLauncher: 11.0.5+main.901c6ea8
+	ModLauncher launch target: forgeclient
+	ModLauncher services: 
+		sponge-mixin-0.15.2+mixin.0.8.7.jar mixin PLUGINSERVICE 
+		loader-4.0.42.jar slf4jfixer PLUGINSERVICE 
+		loader-4.0.42.jar runtime_enum_extender PLUGINSERVICE 
+		at-modlauncher-10.0.1.jar accesstransformer PLUGINSERVICE 
+		loader-4.0.42.jar runtimedistcleaner PLUGINSERVICE 
+		modlauncher-11.0.5.jar mixin TRANSFORMATIONSERVICE 
+		modlauncher-11.0.5.jar fml TRANSFORMATIONSERVICE 
+	FML Language Providers: 
+		kotlinforforge@5.11.0
+		javafml@4.0
+		lowcodefml@4.0
+		minecraft@4.0
+	Mod List: 
+		skinlayers3d-neoforge-1.11.1-mc1.21.1.jar         |3d-Skin-Layers                |skinlayers3d                  |1.11.1              |Manifest: NOSIGNATURE
+		appleskin-neoforge-mc1.21-3.0.9.jar               |AppleSkin                     |appleskin                     |3.0.9+mc1.21        |Manifest: NOSIGNATURE
+		bookshelf-neoforge-1.21.1-21.1.81.jar             |Bookshelf                     |bookshelf                     |21.1.81             |Manifest: NOSIGNATURE
+		cloth-config-15.0.140-neoforge.jar                |Cloth Config v15 API          |cloth_config                  |15.0.140            |Manifest: NOSIGNATURE
+		curios-neoforge-9.5.1+1.21.1.jar                  |Curios API                    |curios                        |9.5.1+1.21.1        |Manifest: NOSIGNATURE
+		entityculling-neoforge-1.10.3-mc1.21.1.jar        |EntityCulling                 |entityculling                 |1.10.3              |Manifest: NOSIGNATURE
+		extrakeybindsforge-1.21.1-neoforge.jar            |Extra Keybinds Forge          |extrakeybindsforge            |1.0.0               |Manifest: NOSIGNATURE
+		ferritecore-7.0.3-neoforge.jar                    |Ferrite Core                  |ferritecore                   |7.0.3               |Manifest: 41:ce:50:66:d1:a0:05:ce:a1:0e:02:85:9b:46:64:e0:bf:2e:cf:60:30:9a:fe:0c:27:e0:63:66:9a:84:ce:8a
+		fzzy_config-0.7.6+1.21+neoforge.jar               |Fzzy Config                   |fzzy_config                   |0.7.6+1.21+neoforge |Manifest: NOSIGNATURE
+		geckolib-neoforge-1.21.1-4.8.4.jar                |GeckoLib 4                    |geckolib                      |4.8.4               |Manifest: NOSIGNATURE
+		gjeb-neoforge-1.21.1-1.3.0.40.jar                 |GJEB (GammaJustExtremeBright) |gjeb                          |1.3.0.40            |Manifest: f4:a6:0b:ee:cb:8a:1a:ea:9f:9d:45:91:8f:8b:b3:ae:26:f3:bf:05:86:1d:90:9e:f6:32:2a:1a:ed:1d:ce:b0
+		ImmediatelyFast-NeoForge-1.6.10+1.21.1.jar        |ImmediatelyFast               |immediatelyfast               |1.6.10+1.21.1       |Manifest: NOSIGNATURE
+		jupiter-2.3.7-1.21.1-neoforge.jar                 |Jupiter                       |jupiter                       |2.3.7               |Manifest: NOSIGNATURE
+		thedarkcolour.kffmod-5.11.0.jar                   |Kotlin For Forge              |kotlinforforge                |5.11.0              |Manifest: NOSIGNATURE
+		lambdynamiclights-4.8.9+1.21.1.jar                |LambDynamicLights             |lambdynlights                 |4.8.9+1.21.1        |Manifest: NOSIGNATURE
+		lambdynamiclights-api-4.8.9+1.21.1-mojmap.jar     |LambDynamicLights (API)       |lambdynlights_api             |4.8.9+1.21.1        |Manifest: NOSIGNATURE
+		lambdynamiclights-4.8.9+1.21.1-neoforge.jar       |LambDynamicLights (Runtime)   |lambdynlights_runtime         |4.8.9+1.21.1        |Manifest: NOSIGNATURE
+		lithium-neoforge-0.15.3+mc1.21.1.jar              |Lithium                       |lithium                       |0.15.3+mc1.21.1     |Manifest: NOSIGNATURE
+		client-1.21.1-20240808.144430-srg.jar             |Minecraft                     |minecraft                     |1.21.1              |Manifest: a1:d4:5e:04:4f:d3:d6:e0:7b:37:97:cf:77:b0:de:ad:4a:47:ce:8c:96:49:5f:0a:cf:8c:ae:b2:6d:4b:8a:3f
+		neoforge-21.1.233-universal.jar                   |NeoForge                      |neoforge                      |21.1.233            |Manifest: NOSIGNATURE
+		notenoughanimations-neoforge-1.12.3-mc1.21.1.jar  |NotEnoughAnimations           |notenoughanimations           |1.12.3              |Manifest: NOSIGNATURE
+		Pehkui-3.8.3+1.21-neoforge.jar                    |Pehkui                        |pehkui                        |3.8.3+1.21-neoforge |Manifest: NOSIGNATURE
+		pridelib-1.2.4+1.21.1-mojmap.jar                  |Pride Lib                     |pride                         |1.2.4+1.21.1        |Manifest: NOSIGNATURE
+		SmartBrainLib-neoforge-1.21.1-1.16.11.jar         |SmartBrainLib                 |smartbrainlib                 |1.16.11             |Manifest: NOSIGNATURE
+		spruceui-6.2.5+1.21.1-mojmap.jar                  |SpruceUI                      |spruceui                      |6.2.5+1.21.1        |Manifest: NOSIGNATURE
+		TRansition-1.0.20-1.21.1-neoforge-SNAPSHOT.jar    |TRansition                    |transition                    |1.0.20              |Manifest: NOSIGNATURE
+		TRender-1.0.14-1.21.1-neoforge-SNAPSHOT.jar       |TRender                       |trender                       |1.0.14              |Manifest: NOSIGNATURE
+		yet_another_config_lib_v3-3.6.3+1.21.1-neoforge.ja|YetAnotherConfigLib           |yet_another_config_lib_v3     |3.6.3+1.21.1-neoforg|Manifest: NOSIGNATURE
+		yumi-mc-foundation-1.0.0-beta.1+1.21.1-mojmap.jar |Yumi Minecraft Libraries: Foun|yumi_mc_core                  |1.0.0-beta.1+1.21.1 |Manifest: NOSIGNATURE
