@@ -1,0 +1,1 @@
+{"type":"origins:attribute","modifier":{"attribute":"minecraft:generic.safe_fall_distance","operation":"multiply_total","value":-0.5},"name":"Двойной урон от падения","description":"Урон от падения удвоен.","hidden":true}

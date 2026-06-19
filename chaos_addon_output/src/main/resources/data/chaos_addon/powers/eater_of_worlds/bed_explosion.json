@@ -1,0 +1,33 @@
+{
+  "type": "origins:action_on_block_use",
+  "block_condition": {
+    "type": "origins:block",
+    "block": "minecraft:white_bed"
+  },
+  "entity_action": {
+    "type": "origins:and",
+    "actions": [
+      {
+        "type": "origins:execute_command",
+        "command": "execute at @s run summon minecraft:tnt ~ ~ ~"
+      },
+      {
+        "type": "origins:spawn_particles",
+        "particle": { "type": "minecraft:explosion" },
+        "count": 5,
+        "spread": { "x": 1.0, "y": 0.5, "z": 1.0 },
+        "speed": 0.1,
+        "force": true
+      },
+      {
+        "type": "origins:play_sound",
+        "sound": "minecraft:entity.generic.explode",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "name": "Постель-бомба",
+  "description": "Попытка лечь спать вызывает взрыв силой TNT.",
+  "hidden": false
+}

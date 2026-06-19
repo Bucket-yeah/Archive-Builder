@@ -1,0 +1,11 @@
+{
+  "type": "origins:action_over_time",
+  "interval": 20,
+  "entity_action": {
+    "type": "origins:execute_command",
+    "command": "execute as @e[type=!minecraft:player,distance=..15] if score @s chaos_hp_low matches 1.. run effect give @s minecraft:glowing 1 0 true"
+  },
+  "name": "Роевое Чутьё",
+  "description": "Существа с менее чем 50% HP в радиусе 15 блоков подсвечиваются красным.",
+  "hidden": false
+}

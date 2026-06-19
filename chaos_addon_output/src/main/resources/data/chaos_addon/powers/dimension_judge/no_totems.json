@@ -1,0 +1,1 @@
+{"type":"origins:prevent_item_use","item_condition":{"type":"origins:ingredient","ingredient":{"item":"minecraft:totem_of_undying"}},"name":"Нет тотемов","description":"Тотемы бессмертия запрещены.","hidden":true}

@@ -1,0 +1,1 @@
+{"type":"origins:active_self","entity_action":{"type":"origins:execute_command","command":"chaos_addon_infect"},"cooldown":400,"hud_render":{"should_render":true,"bar_index":0},"key":{"key":"key.origins.primary_active"},"name":"Заражение","description":"Клик на моба/игрока с < 50% HP: полный контроль на 60 сек. Максимум 3 существа."}

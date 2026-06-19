@@ -1,0 +1,8 @@
+{
+  "type": "origins:prevent_item_use",
+  "item_condition": {
+    "type": "origins:food"
+  },
+  "name": "Голод Бесконечности",
+  "description": "Нельзя есть обычную еду. 1 уровень опыта = +3 сытости. Без опыта голод падает вдвое быстрее."
+}

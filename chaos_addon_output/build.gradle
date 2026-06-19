@@ -10,42 +10,20 @@ version = project.mod_version
 group = project.mod_group_id
 
 repositories {
-    maven {
-        name = 'Cloth Config'
-        url = 'https://maven.shedaniel.me/'
-    }
-    maven {
-        name = 'Pehkui'
-        url = 'https://jitpack.io'
-    }
-    maven {
-        name = 'Origins NeoForge'
-        url = 'https://mvn.devos.one/snapshots/'
-    }
-    maven {
-        name = 'Cardinal Components'
-        url = 'https://maven.ladysnake.org/releases'
-    }
-    maven {
-        name = 'Additional Entity Attributes'
-        url = 'https://maven.jamieswhiteshirt.com/libs-release'
-    }
-    maven {
-        name = 'Bookshelf'
-        url = 'https://maven.blamejared.com'
-    }
+    maven { name = 'Cloth Config';    url = 'https://maven.shedaniel.me/' }
+    maven { name = 'Pehkui';          url = 'https://jitpack.io' }
+    maven { name = 'Origins';         url = 'https://mvn.devos.one/snapshots/' }
+    maven { name = 'Bookshelf';       url = 'https://maven.blamejared.com' }
+    maven { name = 'GeckoLib';        url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+    maven { name = 'Structure Gel';   url = 'https://maven.minecraftschematic.com/' }
     maven {
         name = 'Modrinth'
-        url = 'https://api.modrinth.com/maven'
-        content {
-            includeGroup 'maven.modrinth'
-        }
+        url  = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
     }
 }
 
-base {
-    archivesName = project.mod_id
-}
+base { archivesName = project.mod_id }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
@@ -53,7 +31,7 @@ minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/
 
 runs {
     configureEach {
-        systemProperty 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.markers',       'REGISTRIES'
         systemProperty 'forge.logging.console.level', 'debug'
         modSource project.sourceSets.main
     }
@@ -64,14 +42,10 @@ runs {
         systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
         programArgument '--nogui'
     }
-    gameTestServer {
-        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
-    }
     data {
-        programArguments.addAll '--mod', project.mod_id,
-                '--all',
-                '--output', file('src/generated/resources/').getAbsolutePath(),
-                '--existing', file('src/main/resources/').getAbsolutePath()
+        programArguments.addAll '--mod', project.mod_id, '--all',
+            '--output', file('src/generated/resources/').absolutePath,
+            '--existing', file('src/main/resources/').absolutePath
     }
 }
 
@@ -80,77 +54,65 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
-    // Origins NeoForge
+    // Origins NeoForge + Jupiter companion
     implementation "io.github.apace100:origins-neoforge:${origins_version}"
 
-    // Pehkui (scale mod)
+    // Pehkui – player/entity scale
     implementation "com.github.Virtuoel:Pehkui:${pehkui_version}"
 
-    // Cloth Config API
-    implementation "me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}"
+    // Cloth Config – in-game configuration GUI
+    compileOnly "me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}"
 
-    // Bookshelf
+    // Bookshelf – JSON/NBT/EXP utilities
     implementation "net.darkhax.bookshelf:Bookshelf-NeoForge-1.21.1:${bookshelf_version}"
 
-    // Additional Entity Attributes (optional - include if available)
-    // compileOnly "com.jamieswhiteshirt:reach-entity-attributes:${reach_entity_attributes_version}"
+    // GeckoLib – animated entity models (echo clones, illusions)
+    implementation "software.bernie.geckolib:geckolib-neoforge-1.21:${geckolib_version}"
+
+    // Structure Gel API – hive structure generation
+    implementation "com.legacy.structure_gel:structuregel-api:${structuregel_version}"
 }
 
 tasks.named('processResources', ProcessResources).configure {
-    var replaceProperties = [
-            minecraft_version   : minecraft_version,
-            minecraft_version_range: minecraft_version_range,
-            neo_version         : neo_version,
-            neo_version_range   : neo_version_range,
-            loader_version_range: loader_version_range,
-            mod_id              : mod_id,
-            mod_name            : mod_name,
-            mod_license         : mod_license,
-            mod_version         : mod_version,
-            mod_authors         : mod_authors,
-            mod_description     : mod_description,
+    def replaceProperties = [
+        minecraft_version      : minecraft_version,
+        minecraft_version_range: minecraft_version_range,
+        neo_version            : neo_version,
+        neo_version_range      : neo_version_range,
+        loader_version_range   : loader_version_range,
+        mod_id                 : mod_id,
+        mod_name               : mod_name,
+        mod_license            : mod_license,
+        mod_version            : mod_version,
+        mod_authors            : mod_authors,
+        mod_description        : mod_description
     ]
     inputs.properties replaceProperties
-
-    filesMatching(['META-INF/neoforge.mods.toml']) {
-        expand replaceProperties
-    }
+    filesMatching(['META-INF/neoforge.mods.toml']) { expand replaceProperties }
 }
 
 tasks.named('jar', Jar).configure {
     manifest {
         attributes([
-                'Specification-Title'     : project.mod_id,
-                'Specification-Vendor'    : project.mod_authors,
-                'Specification-Version'   : '1',
-                'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.jar.archiveVersion,
-                'Implementation-Vendor'   : project.mod_authors,
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            'Specification-Title'     : project.mod_id,
+            'Specification-Vendor'    : project.mod_authors,
+            'Specification-Version'   : '1',
+            'Implementation-Title'    : project.name,
+            'Implementation-Version'  : project.jar.archiveVersion,
+            'Implementation-Vendor'   : project.mod_authors,
+            'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }
 
 publishing {
     publications {
-        register('mavenJava', MavenPublication) {
-            artifact jar
-        }
+        register('mavenJava', MavenPublication) { artifact jar }
     }
     repositories {
-        maven {
-            url "file://${project.projectDir}/repo"
-        }
+        maven { url "file://${project.projectDir}/repo" }
     }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
-
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
-    }
-}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+idea.module { downloadSources = true; downloadJavadoc = true }
