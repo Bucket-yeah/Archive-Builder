@@ -13,7 +13,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.entity.living.LivingAttackEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -120,7 +119,7 @@ public class GeneralPowerHandler {
      * Royal Pheromone: cancel arthropod attacks on the Swarm Lord.
      */
     @SubscribeEvent
-    public static void onRoyalPheromoneAttack(LivingAttackEvent event) {
+    public static void onRoyalPheromoneAttack(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:swarm_lord/royal_pheromone")) return;
         if (event.getSource().getEntity() instanceof Mob attacker

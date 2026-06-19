@@ -313,7 +313,7 @@ public class MiscCombatCommands {
                             e.getX(), e.getY() + 1.0, e.getZ(), 8, 0.4, 0.6, 0.4, 0.01);
                     });
                 level.playSound(null, player.blockPosition(),
-                    SoundEvents.BEACON_ACTIVATE.value(), SoundSource.PLAYERS, 0.8f, 0.5f);
+                    SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.8f, 0.5f);
                 return 1;
             }));
 
