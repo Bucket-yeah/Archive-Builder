@@ -1,5 +1,8 @@
 {
-  "type": "neoorigins:nothing",
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
   "name": "Круговорот Веществ",
   "description": "При разрушении блока 5% шанс получить случайный ресурс вместо обычного дропа.",
   "hidden": false

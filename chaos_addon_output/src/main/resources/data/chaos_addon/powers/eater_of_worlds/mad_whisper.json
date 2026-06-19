@@ -1,5 +1,8 @@
 {
-  "type": "neoorigins:nothing",
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
   "name": "Безумный Шёпот",
   "description": "Все мобы в радиусе 15 блоков имеют 10% шанс каждые 5 сек атаковать случайную цель, игнорируя тебя.",
   "hidden": false

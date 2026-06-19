@@ -1,0 +1,17 @@
+{
+  "name": "Биоморф",
+  "description": "Каждый биом меняет тебя. Ты — живое воплощение среды обитания.",
+  "icon": "minecraft:grass_block",
+  "powers": [
+    "chaos_addon:biomorph/adaptation",
+    "chaos_addon:biomorph/biome_metabolism",
+    "chaos_addon:biomorph/ecosystem_imprinting",
+    "chaos_addon:biomorph/biome_shift",
+    "chaos_addon:biomorph/biome_burst",
+    "chaos_addon:biomorph/biome_capture",
+    "chaos_addon:biomorph/transition_damage",
+    "chaos_addon:biomorph/wrong_biome_blocks"
+  ],
+  "upgrades": [],
+  "tier_powers": []
+}

@@ -1,5 +1,8 @@
 {
-  "type": "neoorigins:nothing",
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
   "name": "Королевская Феромона",
   "description": "Все членистоногие (пауки, чешуйницы) в радиусе 30 блоков нейтральны к тебе.",
   "hidden": false

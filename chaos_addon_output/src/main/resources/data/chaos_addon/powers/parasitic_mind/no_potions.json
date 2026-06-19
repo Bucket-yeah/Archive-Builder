@@ -1,1 +1,9 @@
-{"type":"neoorigins:prevent_item_use","item_condition":{"type":"neoorigins:ingredient","ingredient":{"tag":"minecraft:arrows"}},"name":"Нет зелий/тотемов","description":"Нельзя использовать зелья и тотемы.","hidden":true}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Нет зелий/тотемов",
+  "description": "Нельзя использовать зелья и тотемы.",
+  "hidden": true
+}

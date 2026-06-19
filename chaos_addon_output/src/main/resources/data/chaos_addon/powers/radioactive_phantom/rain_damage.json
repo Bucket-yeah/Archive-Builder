@@ -1,1 +1,25 @@
-{"type":"neoorigins:action_over_time","interval":1,"entity_action":{"type":"neoorigins:if_else","condition":{"type":"neoorigins:in_rain"},"if_action":{"type":"neoorigins:damage","source":{"name":"rain","bypasses_armor":true},"amount":0.5},"else_action":{"type":"neoorigins:nothing"}},"name":"Дождь жжёт","description":"Дождь наносит 0.5❤ каждый тик.","hidden":true}
+{
+  "type": "neoorigins:action_over_time",
+  "interval": 1,
+  "entity_action": {
+    "type": "neoorigins:if_else",
+    "condition": {
+      "type": "neoorigins:in_rain"
+    },
+    "if_action": {
+      "type": "neoorigins:damage",
+      "source": {
+        "name": "rain",
+        "bypasses_armor": true
+      },
+      "amount": 0.5
+    },
+    "else_action": {
+      "type": "neoorigins:and",
+      "actions": []
+    }
+  },
+  "name": "Дождь жжёт",
+  "description": "Дождь наносит 0.5❤ каждый тик.",
+  "hidden": true
+}

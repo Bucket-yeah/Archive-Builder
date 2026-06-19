@@ -1,5 +1,8 @@
 {
-  "type": "neoorigins:nothing",
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
   "name": "Цена Творения",
   "description": "Каждый созданный предмет отнимает 1❤. При HP < 2❤ крафт невозможен.",
   "hidden": false

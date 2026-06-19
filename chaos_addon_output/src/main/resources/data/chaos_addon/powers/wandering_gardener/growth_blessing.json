@@ -1,1 +1,58 @@
-{"type":"neoorigins:active_self","entity_action":{"type":"neoorigins:and","actions":[{"type":"neoorigins:execute_command","command":"chaos_addon_growth_blessing"},{"type":"neoorigins:spawn_particles","particle":{"type":"minecraft:spore_blossom_air"},"count":80,"spread":{"x":3.0,"y":2.0,"z":3.0},"speed":0.08,"force":false},{"type":"neoorigins:spawn_particles","particle":{"type":"minecraft:cherry_leaves"},"count":50,"spread":{"x":2.5,"y":1.5,"z":2.5},"speed":0.06,"force":false},{"type":"neoorigins:play_sound","sound":"minecraft:item.bone_meal.use","volume":1.0,"pitch":0.8},{"type":"neoorigins:play_sound","sound":"minecraft:block.grass.place","volume":0.8,"pitch":1.0}]},"cooldown":600,"hud_render":{"should_render":true,"bar_index":0},"key":{"key":"key.origins.primary_active"},"name":"Благословение Роста","description":"В радиусе 5 блоков мгновенно вырастают случайные растения (2 мин, затем увядают)."}
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_growth_blessing"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:spore_blossom_air"
+        },
+        "count": 80,
+        "spread": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 3.0
+        },
+        "speed": 0.08,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:cherry_leaves"
+        },
+        "count": 50,
+        "spread": {
+          "x": 2.5,
+          "y": 1.5,
+          "z": 2.5
+        },
+        "speed": 0.06,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:item.bone_meal.use",
+        "volume": 1.0,
+        "pitch": 0.8
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.grass.place",
+        "volume": 0.8,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.primary_active"
+  },
+  "name": "Благословение Роста",
+  "description": "В радиусе 5 блоков мгновенно вырастают случайные растения (2 мин, затем увядают).",
+  "cooldown_ticks": 600
+}

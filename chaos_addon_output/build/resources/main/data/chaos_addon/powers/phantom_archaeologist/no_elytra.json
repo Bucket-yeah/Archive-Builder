@@ -1,1 +1,0 @@
-{"type":"neoorigins:prevent_item_use","item_condition":{"type":"neoorigins:ingredient","ingredient":{"item":"minecraft:elytra"}},"name":"Нет элитры","description":"Элитры не работают для этой расы.","hidden":true}

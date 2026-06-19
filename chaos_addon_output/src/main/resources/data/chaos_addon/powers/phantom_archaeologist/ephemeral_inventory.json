@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Эфемерный Инвентарь","description":"При смерти предметы сохраняются в облаке. Нельзя использовать сундуки и шалкеры.","hidden":false}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Эфемерный Инвентарь",
+  "description": "При смерти предметы сохраняются в облаке. Нельзя использовать сундуки и шалкеры.",
+  "hidden": false
+}

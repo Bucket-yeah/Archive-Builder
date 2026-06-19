@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Перегрузка материей","description":"При > 10 стаков предметов в инвентаре — весь получаемый урон увеличен на 30%.","hidden":true}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Перегрузка материей",
+  "description": "При > 10 стаков предметов в инвентаре — весь получаемый урон увеличен на 30%.",
+  "hidden": true
+}

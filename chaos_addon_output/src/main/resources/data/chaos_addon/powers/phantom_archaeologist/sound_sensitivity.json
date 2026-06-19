@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Звуковая Чувствительность","description":"Каждый крупный звуковой эффект наносит 0.5❤ урона. Нельзя использовать элитры.","hidden":false}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Звуковая Чувствительность",
+  "description": "Каждый крупный звуковой эффект наносит 0.5❤ урона. Нельзя использовать элитры.",
+  "hidden": false
+}

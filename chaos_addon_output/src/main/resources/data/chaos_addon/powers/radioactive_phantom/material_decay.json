@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Распад Материалов","description":"Дерево, бумага, шерсть в радиусе 10 блоков постепенно превращаются в уголь за 1 мин.","hidden":true}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Распад Материалов",
+  "description": "Дерево, бумага, шерсть в радиусе 10 блоков постепенно превращаются в уголь за 1 мин.",
+  "hidden": true
+}

@@ -1,0 +1,155 @@
+# Minecraft launcher log started at 2026-06-20 01:27:57
+# Profile: New instance (3) 
+
+
+[01:28:04] [main] [cpw.mods.modlauncher.Launcher/INFO]: ModLauncher running: args [--username, Bucketdll, --version, 1.21.1, --gameDir, C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3), --assetsDir, C:\Users\Stiss\AppData\Roaming\ModrinthApp\meta\assets, --assetIndex, 17, --uuid, ec336c00c6be42609dd4ad967245e775, --accessToken, ❄❄❄❄❄❄❄❄, --clientId, c4502edb-87c6-40cb-b595-64a280cf8906, --xuid, 0, --userType, msa, --versionType, release, --width, 854, --height, 480, --fml.neoForgeVersion, 21.1.233, --fml.fmlVersion, 4.0.42, --fml.mcVersion, 1.21.1, --fml.neoFormVersion, 20240808.144430, --launchTarget, forgeclient]
+[01:28:04] [main] [cpw.mods.modlauncher.Launcher/INFO]: JVM identified as Azul Systems, Inc. OpenJDK 64-Bit Server VM 21.0.7+6-LTS
+[01:28:04] [main] [cpw.mods.modlauncher.Launcher/INFO]: ModLauncher 11.0.5+main.901c6ea8 starting: java version 21.0.7 by Azul Systems, Inc.; OS Windows 11 arch amd64 version 10.0
+[01:28:05] [main] [net.neoforged.fml.loading.ImmediateWindowHandler/INFO]: Loading ImmediateWindowProvider fmlearlywindow
+[01:28:07] [main] [EARLYDISPLAY/INFO]: Trying GL version 4.6
+[01:28:08] [main] [EARLYDISPLAY/INFO]: Requested GL version 4.6 got version 4.6
+[01:28:09] [main] [mixin/INFO]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/Stiss/AppData/Roaming/ModrinthApp/meta/libraries/net/fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/sponge-mixin-0.15.2+mixin.0.8.7.jar%23166!/ Service=ModLauncher Env=CLIENT
+[01:28:10] [pool-2-thread-1] [EARLYDISPLAY/INFO]: GL info: Intel(R) UHD Graphics GL version 4.6.0 - Build 31.0.101.5333, Intel
+[01:28:10] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "client-1.21.1-20240808.144430-srg.jar" [locator: production client provider +net.neoforged:neoforge:21.1.233:client]
+[01:28:10] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "neoforge-21.1.233-universal.jar" [locator: PathBasedLocator[name=neoforge, paths=[C:\Users\Stiss\AppData\Roaming\ModrinthApp\meta\libraries\net\neoforged\neoforge\21.1.233\neoforge-21.1.233-universal.jar]], reader: mod manifest]
+[01:28:10] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "appleskin-neoforge-mc1.21-3.0.9.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:10] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "bookshelf-neoforge-1.21.1-21.1.81.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:10] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "chaos_addon-2.0.0.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:10] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "cloth-config-15.0.140-neoforge.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:10] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "curios-neoforge-9.5.1+1.21.1.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:10] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "entityculling-neoforge-1.10.3-mc1.21.1.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:10] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "extrakeybindsforge-1.21.1-neoforge.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:10] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "ferritecore-7.0.3-neoforge.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "fzzy_config-0.7.6+1.21+neoforge.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "geckolib-neoforge-1.21.1-4.8.4.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "gjeb-neoforge-1.21.1-1.3.0.40.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "ImmediatelyFast-NeoForge-1.6.10+1.21.1.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "jupiter-2.3.7-1.21.1-neoforge.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "kotlinforforge-5.11.0-all.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "lambdynamiclights-4.8.9+1.21.1.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "lithium-neoforge-0.15.3+mc1.21.1.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "neoorigins-2.2.5+1.21.1.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "notenoughanimations-neoforge-1.12.3-mc1.21.1.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "Pehkui-3.8.3+1.21-neoforge.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "skinlayers3d-neoforge-1.11.1-mc1.21.1.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "SmartBrainLib-neoforge-1.21.1-1.16.11.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:11] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "yet_another_config_lib_v3-3.6.3+1.21.1-neoforge.jar" [locator: {mods folder locator at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\mods}, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/INFO]: Found 26 dependencies adding them to mods collection
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found gamelibrary file "mixinextras-neoforge-0.5.3.jar" [parent: neoforge-21.1.233-universal.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found gamelibrary file "yumi-commons-core-1.0.0.jar" [parent: yumi-mc-foundation-1.0.0-beta.1+1.21.1-mojmap.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "net.neoforged.neoforge-coremods-21.1.233.jar" [parent: neoforge-21.1.233-universal.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "thedarkcolour.kfflang-5.11.0.jar" [parent: kotlinforforge-5.11.0-all.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found gamelibrary file "thedarkcolour.kfflib-5.11.0.jar" [parent: kotlinforforge-5.11.0-all.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "TRender-1.0.14-1.21.1-neoforge-SNAPSHOT.jar" [parent: entityculling-neoforge-1.10.3-mc1.21.1.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "thedarkcolour.kffmod-5.11.0.jar" [parent: kotlinforforge-5.11.0-all.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "kotlin-stdlib-2.3.0.jar" [parent: kotlinforforge-5.11.0-all.jar, locator: jarinjar]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "kotlin-reflect-2.3.0.jar" [parent: kotlinforforge-5.11.0-all.jar, locator: jarinjar]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found gamelibrary file "yumi-commons-collections-1.0.0.jar" [parent: yumi-mc-foundation-1.0.0-beta.1+1.21.1-mojmap.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "kotlinx-coroutines-core-jvm-1.10.2.jar" [parent: kotlinforforge-5.11.0-all.jar, locator: jarinjar]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "spruceui-6.2.5+1.21.1-mojmap.jar" [parent: lambdynamiclights-4.8.9+1.21.1-neoforge.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "yumi-mc-foundation-1.0.0-beta.1+1.21.1-mojmap.jar" [parent: lambdynamiclights-4.8.9+1.21.1-neoforge.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "tomlkt-jvm-0.3.7.jar" [parent: fzzy_config-0.7.6+1.21+neoforge.jar, locator: jarinjar]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "kotlinx-coroutines-jdk8-1.10.2.jar" [parent: kotlinforforge-5.11.0-all.jar, locator: jarinjar]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "lambdynamiclights-api-4.8.9+1.21.1-mojmap.jar" [parent: lambdynamiclights-4.8.9+1.21.1-neoforge.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found gamelibrary file "yumi-commons-event-1.0.0.jar" [parent: yumi-mc-foundation-1.0.0-beta.1+1.21.1-mojmap.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "lambdynamiclights-4.8.9+1.21.1-neoforge.jar" [parent: lambdynamiclights-4.8.9+1.21.1.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "TRansition-1.0.20-1.21.1-neoforge-SNAPSHOT.jar" [parent: entityculling-neoforge-1.10.3-mc1.21.1.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "kotlin-stdlib-jdk7-2.3.0.jar" [parent: kotlinforforge-5.11.0-all.jar, locator: jarinjar]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "Reflect-1.6.1+curseforge.jar" [parent: ImmediatelyFast-NeoForge-1.6.10+1.21.1.jar, locator: jarinjar]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "kotlin-stdlib-jdk8-2.3.0.jar" [parent: kotlinforforge-5.11.0-all.jar, locator: jarinjar]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "kotlinx-serialization-core-jvm-1.9.0.jar" [parent: kotlinforforge-5.11.0-all.jar, locator: jarinjar]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found mod file "pridelib-1.2.4+1.21.1-mojmap.jar" [parent: lambdynamiclights-4.8.9+1.21.1-neoforge.jar, locator: jarinjar, reader: mod manifest]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "kotlinx-serialization-json-jvm-1.9.0.jar" [parent: kotlinforforge-5.11.0-all.jar, locator: jarinjar]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Found library file "jankson-1.2.3.jar" [parent: fzzy_config-0.7.6+1.21+neoforge.jar, locator: jarinjar]
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/INFO]: Mod List:
+		Name Version (Mod Id)
+
+		3d-Skin-Layers 1.11.1 (skinlayers3d)
+		AppleSkin 3.0.9+mc1.21 (appleskin)
+		Bookshelf 21.1.81 (bookshelf)
+		Cloth Config v15 API 15.0.140 (cloth_config)
+		Curios API 9.5.1+1.21.1 (curios)
+		EntityCulling 1.10.3 (entityculling)
+		Extra Keybinds Forge 1.0.0 (extrakeybindsforge)
+		Ferrite Core 7.0.3 (ferritecore)
+		Fzzy Config 0.7.6+1.21+neoforge (fzzy_config)
+		GeckoLib 4 4.8.4 (geckolib)
+		GJEB (GammaJustExtremeBright) 1.3.0.40 (gjeb)
+		ImmediatelyFast 1.6.10+1.21.1 (immediatelyfast)
+		Jupiter 2.3.7 (jupiter)
+		Kotlin For Forge 5.11.0 (kotlinforforge)
+		LambDynamicLights 4.8.9+1.21.1 (lambdynlights)
+		LambDynamicLights (API) 4.8.9+1.21.1 (lambdynlights_api)
+		LambDynamicLights (Runtime) 4.8.9+1.21.1 (lambdynlights_runtime)
+		Lithium 0.15.3+mc1.21.1 (lithium)
+		Minecraft 1.21.1 (minecraft)
+		NeoForge 21.1.233 (neoforge)
+		NeoOrigins 2.2.5 (neoorigins)
+		NotEnoughAnimations 1.12.3 (notenoughanimations)
+		Origins: Chaos Addon 2.0.0 (chaos_addon)
+		Pehkui 3.8.3+1.21-neoforge (pehkui)
+		Pride Lib 1.2.4+1.21.1 (pride)
+		SmartBrainLib 1.16.11 (smartbrainlib)
+		SpruceUI 6.2.5+1.21.1 (spruceui)
+		TRansition 1.0.20 (transition)
+		TRender 1.0.14 (trender)
+		YetAnotherConfigLib 3.6.3+1.21.1-neoforge (yet_another_config_lib_v3)
+		Yumi Minecraft Libraries: Foundation 1.0.0-beta.1+1.21.1 (yumi_mc_core)
+[01:28:13] [main] [net.neoforged.fml.loading.moddiscovery.ModFile/ERROR]: Access transformer file META-INF/accesstransformer.cfg provided by mod pride does not exist!
+[01:28:17] [main] [mixin/INFO]: Compatibility level set to JAVA_17
+[01:28:17] [main] [mixin/INFO]: Compatibility level set to JAVA_21
+[01:28:18] [main] [cpw.mods.modlauncher.LaunchServiceHandler/INFO]: Launching target 'forgeclient' with arguments [--version, 1.21.1, --gameDir, C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3), --assetsDir, C:\Users\Stiss\AppData\Roaming\ModrinthApp\meta\assets, --uuid, ec336c00c6be42609dd4ad967245e775, --username, Bucketdll, --assetIndex, 17, --accessToken, ❄❄❄❄❄❄❄❄, --clientId, c4502edb-87c6-40cb-b595-64a280cf8906, --xuid, 0, --userType, msa, --versionType, release, --width, 854, --height, 480]
+[01:28:18] [main] [mixin/WARN]: Reference map 'geckolib.refmap.json' for geckolib.mixins.json could not be read. If this is a development environment you can ignore this message
+[01:28:18] [main] [LithiumConfig/INFO]: Option 'mixin.experimental.entity.block_caching.suffocation' requires 'mixin.util.block_tracking=true' but found 'false'. Setting 'mixin.experimental.entity.block_caching.suffocation=false'.
+[01:28:18] [main] [LithiumConfig/INFO]: Option 'mixin.experimental.entity.block_caching.block_support' requires 'mixin.util.block_tracking=true' but found 'false'. Setting 'mixin.experimental.entity.block_caching.block_support=false'.
+[01:28:18] [main] [LithiumConfig/INFO]: Option 'mixin.experimental.entity.block_caching.block_touching' requires 'mixin.util.block_tracking=true' but found 'false'. Setting 'mixin.experimental.entity.block_caching.block_touching=false'.
+[01:28:18] [main] [LithiumConfig/INFO]: Option 'mixin.experimental.entity.block_caching' requires 'mixin.util.block_tracking=true' but found 'false'. Setting 'mixin.experimental.entity.block_caching=false'.
+[01:28:18] [main] [Lithium/INFO]: Loaded configuration file for Lithium: 148 options available, 0 override(s) found
+[01:28:18] [main] [mixin/WARN]: Reference map 'curios.refmap.json' for curios.neoforge.mixins.json could not be read. If this is a development environment you can ignore this message
+[01:28:18] [main] [mixin/WARN]: Reference map 'curios.refmap.json' for curios.mixins.json could not be read. If this is a development environment you can ignore this message
+[01:28:18] [main] [mixin/WARN]: Reference map 'entityculling.refmap.mixins.json' for entityculling.mixins.json could not be read. If this is a development environment you can ignore this message
+[01:28:19] [main] [mixin/WARN]: Reference map 'bookshelf.refmap.json' for bookshelf.mixins.json could not be read. If this is a development environment you can ignore this message
+[01:28:20] [main] [mixin/WARN]: Reference map '${refmap_target}refmap.json' for ferritecore.predicates.mixin.json could not be read. If this is a development environment you can ignore this message
+[01:28:20] [main] [mixin/WARN]: Reference map '${refmap_target}refmap.json' for ferritecore.fastmap.mixin.json could not be read. If this is a development environment you can ignore this message
+[01:28:20] [main] [mixin/WARN]: Reference map '${refmap_target}refmap.json' for ferritecore.mrl.mixin.json could not be read. If this is a development environment you can ignore this message
+[01:28:20] [main] [mixin/WARN]: Reference map '${refmap_target}refmap.json' for ferritecore.dedupmultipart.mixin.json could not be read. If this is a development environment you can ignore this message
+[01:28:20] [main] [mixin/WARN]: Reference map '${refmap_target}refmap.json' for ferritecore.blockstatecache.mixin.json could not be read. If this is a development environment you can ignore this message
+[01:28:20] [main] [mixin/WARN]: Reference map '${refmap_target}refmap.json' for ferritecore.dedupbakedquad.mixin.json could not be read. If this is a development environment you can ignore this message
+[01:28:20] [main] [mixin/WARN]: Reference map '${refmap_target}refmap.json' for ferritecore.threaddetec.mixin.json could not be read. If this is a development environment you can ignore this message
+[01:28:20] [main] [mixin/WARN]: Reference map '${refmap_target}refmap.json' for ferritecore.modelsides.mixin.json could not be read. If this is a development environment you can ignore this message
+[01:28:20] [main] [mixin/WARN]: Reference map '${refmap_target}refmap.json' for ferritecore.datacomponents.mixin.json could not be read. If this is a development environment you can ignore this message
+[01:28:20] [main] [mixin/WARN]: Reference map '${refmap_target}refmap.json' for ferritecore.accessors.mixin.json could not be read. If this is a development environment you can ignore this message
+[01:28:20] [main] [mixin/WARN]: Reference map 'skinlayers3d.refmap.mixins.json' for skinlayers3d.mixins.json could not be read. If this is a development environment you can ignore this message
+[01:28:26] [main] [mixin/WARN]: Error loading class: net/fabricmc/fabric/impl/client/indigo/renderer/aocalc/AoCalculator (java.lang.ClassNotFoundException: net.fabricmc.fabric.impl.client.indigo.renderer.aocalc.AoCalculator)
+[01:28:26] [main] [mixin/WARN]: Error loading class: yesman/epicfight/client/renderer/patched/entity/PatchedLivingEntityRenderer (java.lang.ClassNotFoundException: yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer)
+[01:28:26] [main] [mixin/WARN]: Error loading class: traben/entity_model_features/models/parts/EMFModelPart (java.lang.ClassNotFoundException: traben.entity_model_features.models.parts.EMFModelPart)
+[01:28:27] [main] [mixin/WARN]: Error loading class: org/jetbrains/annotations/ApiStatus$Internal (java.lang.ClassNotFoundException: org.jetbrains.annotations.ApiStatus$Internal)
+[01:28:27] [main] [MixinExtras|Service/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.3).
+WARN StatusConsoleListener Error parsing URI C:\Users\Stiss\AppData\Roaming\ModrinthApp\meta\log_configs\client-1.12.xml
+WARN StatusConsoleListener Advanced terminal features are not available in this environment
+[01:28:41] [Datafixer Bootstrap/INFO] [mojang/DataFixerBuilder]: 229 Datafixer optimizations took 3528 milliseconds
+[01:29:02] [pool-7-thread-1/INFO] [de.yu.mc.co.im.YumiFoundationMod/]: Initializing mods (entrypoint yumi:init)...
+[01:29:04] [Render thread/WARN] [minecraft/VanillaPackResourcesBuilder]: Assets URL 'union:/C:/Users/Stiss/AppData/Roaming/ModrinthApp/meta/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-srg.jar%23212!/assets/.mcassetsroot' uses unexpected schema
+[01:29:04] [Render thread/WARN] [minecraft/VanillaPackResourcesBuilder]: Assets URL 'union:/C:/Users/Stiss/AppData/Roaming/ModrinthApp/meta/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-srg.jar%23212!/data/.mcassetsroot' uses unexpected schema
+[01:29:04] [Render thread/INFO] [mojang/YggdrasilAuthenticationService]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[01:29:04] [Render thread/INFO] [minecraft/Minecraft]: Setting user: Bucketdll
+[01:29:04] [Render thread/INFO] [LambDynamicLights/]: [LambDynLights] Initializing LambDynamicLights...
+[01:29:04] [Render thread/INFO] [LambDynamicLights|Config/]: [LambDynLights] Configuration loaded.
+[01:29:05] [Render thread/INFO] [minecraft/Minecraft]: Backend library: LWJGL version 3.3.3+5
+[01:29:05] [Render thread/INFO] [ImmediatelyFast/]: Initializing ImmediatelyFast 1.6.10+1.21.1 on Intel(R) UHD Graphics (Intel) with OpenGL 4.6.0 - Build 31.0.101.5333
+[01:29:06] [modloading-worker-0/INFO] [extrakeybindsforge/]: Extra Keybinds Forge initialized!
+[01:29:07] [modloading-worker-0/INFO] [minecraft/LoggedPrintStream]: [STDOUT]: [TRender] Initializing Client...
+[01:29:07] [modloading-worker-0/INFO] [co.ia.ju.Jupiter/]: Config spec system detected, register to Jupiter Config System.
+[01:29:07] [modloading-worker-0/INFO] [co.ia.ju.Jupiter/]: Cloth Config API detected, register to Jupiter Config System.
+[01:29:07] [modloading-worker-0/INFO] [ne.ne.ne.co.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.1.233, for MC 1.21.1
+[01:29:07] [modloading-worker-0/INFO] [co.cy.ne.NeoOrigins/]: NeoOrigins initializing...
+[01:29:07] [modloading-worker-0/INFO] [YetAnotherConfigLib/]: Deserializing YACLConfig from 'C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\config\yacl.json5'
+[01:29:07] [modloading-worker-0/WARN] [YetAnotherConfigLib/]: Found unknown config field 'preloadComplexImageFormats'.
+[01:29:09] [modloading-worker-0/INFO] [th.ko.ne.te.KotlinForForge/]: Kotlin For Forge Enabled!
+[01:29:09] [modloading-worker-0/INFO] [fzzy_config/]: Loaded config fzzy_config:keybinds in 1260ms
+[01:29:11] [Render thread/INFO] [co.cy.ne.NeoOrigins/]: Registered originpacks/ for CLIENT_RESOURCES at C:\Users\Stiss\AppData\Roaming\ModrinthApp\profiles\New instance (3)\config\originpacks
+[01:29:15] [Render thread/INFO] [extrakeybindsforge/]: Registered 7 keybindings
+[01:29:15] [Render thread/INFO] [minecraft/ReloadableResourceManager]: Reloading ResourceManager: vanilla, mod_resources, mod/smartbrainlib, mod/extrakeybindsforge, mod/jupiter, mod/geckolib, mod/lithium, mod/pehkui, mod/trender, mod/kotlinforforge, mod/notenoughanimations, mod/curios, mod/neoforge, mod/spruceui, mod/entityculling, mod/yumi_mc_core, mod/lambdynlights, mod/bookshelf, mod/immediatelyfast, mod/lambdynlights_api, mod/appleskin, mod/ferritecore, mod/lambdynlights_runtime, mod/yet_another_config_lib_v3, mod/transition, mod/neoorigins, mod/chaos_addon, mod/gjeb, mod/skinlayers3d, mod/cloth_config, mod/fzzy_config, mod/pride
+[01:29:17] [NeoForge Version Check/INFO] [ne.ne.fm.VersionChecker/]: [bookshelf] Starting version check at https://updates.blamejared.com/get?n=bookshelf
+
+# Process exited with status: exit code: 0

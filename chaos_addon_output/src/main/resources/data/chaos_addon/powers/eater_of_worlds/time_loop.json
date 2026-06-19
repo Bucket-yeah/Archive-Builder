@@ -1,5 +1,5 @@
 {
-  "type": "neoorigins:active_self",
+  "type": "neoorigins:active_ability",
   "entity_action": {
     "type": "neoorigins:and",
     "actions": [
@@ -9,14 +9,10 @@
       }
     ]
   },
-  "cooldown": 3600,
-  "hud_render": {
-    "should_render": true,
-    "bar_index": 2
-  },
   "key": {
     "key": "key.origins.ternary_active"
   },
   "name": "Временная Петля",
-  "description": "Все существа в радиусе 15 блоков замораживаются (Slow V + Confusion) на 10 сек. Двойной урон по замороженным."
+  "description": "Все существа в радиусе 15 блоков замораживаются (Slow V + Confusion) на 10 сек. Двойной урон по замороженным.",
+  "cooldown_ticks": 3600
 }

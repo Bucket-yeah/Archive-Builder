@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Экосистемный Импринтинг","description":"После 5 минут в биоме — постоянный +5% к скорости в нём.","hidden":false}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Экосистемный Импринтинг",
+  "description": "После 5 минут в биоме — постоянный +5% к скорости в нём.",
+  "hidden": false
+}

@@ -1,5 +1,5 @@
 {
-  "type": "neoorigins:active_self",
+  "type": "neoorigins:active_ability",
   "entity_action": {
     "type": "neoorigins:and",
     "actions": [
@@ -9,14 +9,10 @@
       }
     ]
   },
-  "cooldown": 2400,
-  "hud_render": {
-    "should_render": true,
-    "bar_index": 0
-  },
   "key": {
     "key": "key.origins.primary_active"
   },
   "name": "Сдвиг Реальности",
-  "description": "Меняет местами два случайных блока в радиусе 20 блоков. Стоит 5 уровней опыта."
+  "description": "Меняет местами два случайных блока в радиусе 20 блоков. Стоит 5 уровней опыта.",
+  "cooldown_ticks": 2400
 }

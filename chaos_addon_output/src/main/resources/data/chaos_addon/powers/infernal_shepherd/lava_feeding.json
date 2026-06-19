@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Питание Жарой","description":"Только лава восполняет голод (+1/2 сек). В воде голод падает вдвое быстрее. Реализовано Java.","hidden":false}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Питание Жарой",
+  "description": "Только лава восполняет голод (+1/2 сек). В воде голод падает вдвое быстрее. Реализовано Java.",
+  "hidden": false
+}

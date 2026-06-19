@@ -6,8 +6,12 @@
     "condition": {
       "type": "neoorigins:and",
       "conditions": [
-        { "type": "neoorigins:exposed_to_sun" },
-        { "type": "neoorigins:daytime" }
+        {
+          "type": "neoorigins:exposed_to_sun"
+        },
+        {
+          "type": "neoorigins:daytime"
+        }
       ]
     },
     "if_action": {
@@ -15,21 +19,31 @@
       "actions": [
         {
           "type": "neoorigins:damage",
-          "source": { "name": "sun", "bypasses_armor": true },
+          "source": {
+            "name": "sun",
+            "bypasses_armor": true
+          },
           "amount": 0.5
         },
         {
           "type": "neoorigins:spawn_particles",
-          "particle": { "type": "minecraft:flame" },
+          "particle": {
+            "type": "minecraft:flame"
+          },
           "count": 3,
-          "spread": { "x": 0.3, "y": 0.5, "z": 0.3 },
+          "spread": {
+            "x": 0.3,
+            "y": 0.5,
+            "z": 0.3
+          },
           "speed": 0.05,
           "force": false
         }
       ]
     },
     "else_action": {
-      "type": "neoorigins:nothing"
+      "type": "neoorigins:and",
+      "actions": []
     }
   },
   "name": "Солнечный Ожог",

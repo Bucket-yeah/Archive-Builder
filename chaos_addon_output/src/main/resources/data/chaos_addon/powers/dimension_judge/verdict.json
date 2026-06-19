@@ -1,1 +1,58 @@
-{"type":"neoorigins:active_self","entity_action":{"type":"neoorigins:and","actions":[{"type":"neoorigins:execute_command","command":"chaos_addon_verdict"},{"type":"neoorigins:spawn_particles","particle":{"type":"minecraft:flash"},"count":3,"spread":{"x":5.0,"y":2.0,"z":5.0},"speed":0.0,"force":true},{"type":"neoorigins:spawn_particles","particle":{"type":"minecraft:glow"},"count":30,"spread":{"x":3.0,"y":2.0,"z":3.0},"speed":0.0,"force":false},{"type":"neoorigins:play_sound","sound":"minecraft:entity.evoker.prepare_wololo","volume":1.0,"pitch":1.0},{"type":"neoorigins:play_sound","sound":"minecraft:block.beacon.activate","volume":0.9,"pitch":0.9}]},"cooldown":600,"hud_render":{"should_render":true,"bar_index":0},"key":{"key":"key.origins.primary_active"},"name":"Приговор","description":"Если цель имеет больше HP — получает урон на разницу. Если меньше — ты лечишь её."}
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_verdict"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:flash"
+        },
+        "count": 3,
+        "spread": {
+          "x": 5.0,
+          "y": 2.0,
+          "z": 5.0
+        },
+        "speed": 0.0,
+        "force": true
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:glow"
+        },
+        "count": 30,
+        "spread": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 3.0
+        },
+        "speed": 0.0,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.evoker.prepare_wololo",
+        "volume": 1.0,
+        "pitch": 1.0
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.beacon.activate",
+        "volume": 0.9,
+        "pitch": 0.9
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.primary_active"
+  },
+  "name": "Приговор",
+  "description": "Если цель имеет больше HP — получает урон на разницу. Если меньше — ты лечишь её.",
+  "cooldown_ticks": 600
+}

@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Чужие блоки","description":"Блоки из другого биома при размещении разрушаются через 5 сек.","hidden":true}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Чужие блоки",
+  "description": "Блоки из другого биома при размещении разрушаются через 5 сек.",
+  "hidden": true
+}

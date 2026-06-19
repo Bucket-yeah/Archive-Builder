@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Нет кирок","description":"Обычные кирки ломаются мгновенно. Незеритовая работает, но в 3× медленнее.","hidden":true}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Нет кирок",
+  "description": "Обычные кирки ломаются мгновенно. Незеритовая работает, но в 3× медленнее.",
+  "hidden": true
+}

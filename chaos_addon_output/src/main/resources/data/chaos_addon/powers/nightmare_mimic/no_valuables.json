@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Нет ценностей","description":"Алмазы и незерит мгновенно исчезают из рук (иллюзия).","hidden":true}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Нет ценностей",
+  "description": "Алмазы и незерит мгновенно исчезают из рук (иллюзия).",
+  "hidden": true
+}

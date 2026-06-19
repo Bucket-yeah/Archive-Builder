@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Язык Цветов","description":"Растения \"говорят\" тебе, когда им нужна вода или свет (HUD-сообщения).","hidden":false}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Язык Цветов",
+  "description": "Растения \"говорят\" тебе, когда им нужна вода или свет (HUD-сообщения).",
+  "hidden": false
+}

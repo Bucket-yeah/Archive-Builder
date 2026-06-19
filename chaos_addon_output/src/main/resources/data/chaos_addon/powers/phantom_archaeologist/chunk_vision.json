@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Чанковое Зрение","description":"Видишь границы чанков и знаешь, какие из них загружены.","hidden":false}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Чанковое Зрение",
+  "description": "Видишь границы чанков и знаешь, какие из них загружены.",
+  "hidden": false
+}

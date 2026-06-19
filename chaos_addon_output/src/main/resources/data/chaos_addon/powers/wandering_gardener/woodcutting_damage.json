@@ -1,1 +1,9 @@
-{"type":"neoorigins:nothing","name":"Боль от дерева","description":"Рубка дерева наносит 3❤ урона. Нельзя носить оружие.","hidden":true}
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Боль от дерева",
+  "description": "Рубка дерева наносит 3❤ урона. Нельзя носить оружие.",
+  "hidden": true
+}
