@@ -1,8 +1,8 @@
 {
-  "type": "origins:and",
+  "type": "neoorigins:and",
   "powers": [
     {
-      "type": "origins:effect",
+      "type": "neoorigins:effect",
       "effect": {
         "effect": "minecraft:night_vision",
         "duration": 260,

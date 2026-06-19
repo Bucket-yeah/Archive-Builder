@@ -1,1 +1,1 @@
-{"type":"origins:nothing","name":"Адаптация","description":"В каждом биоме — уникальные баффы и дебаффы. Реализовано через Java BiomorphHandler.","hidden":false}
+{"type":"neoorigins:nothing","name":"Адаптация","description":"В каждом биоме — уникальные баффы и дебаффы. Реализовано через Java BiomorphHandler.","hidden":false}

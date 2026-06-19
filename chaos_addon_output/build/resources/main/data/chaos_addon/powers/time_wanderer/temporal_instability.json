@@ -1,1 +1,1 @@
-{"type":"origins:action_over_time","interval":200,"entity_action":{"type":"origins:execute_command","command":"chaos_addon_time_instability"},"name":"Временная Нестабильность","description":"Каждые 10 сек здоровье, голод или эффекты случайно меняются на ±2❤/±4 пункта.","hidden":false}
+{"type":"neoorigins:action_over_time","interval":200,"entity_action":{"type":"neoorigins:execute_command","command":"chaos_addon_time_instability"},"name":"Временная Нестабильность","description":"Каждые 10 сек здоровье, голод или эффекты случайно меняются на ±2❤/±4 пункта.","hidden":false}

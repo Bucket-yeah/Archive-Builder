@@ -1,5 +1,5 @@
 {
-  "type": "origins:nothing",
+  "type": "neoorigins:nothing",
   "name": "Королевская Феромона",
   "description": "Все членистоногие (пауки, чешуйницы) в радиусе 30 блоков нейтральны к тебе.",
   "hidden": false

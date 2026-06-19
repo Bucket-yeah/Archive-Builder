@@ -1,14 +1,14 @@
 {
-  "type": "origins:attribute",
+  "type": "neoorigins:attribute",
   "modifier": {
     "attribute": "minecraft:generic.armor",
     "operation": "add_value",
     "value": 0
   },
   "condition": {
-    "type": "origins:equipped_item",
+    "type": "neoorigins:equipped_item",
     "equipment_slot": "head",
-    "item_condition": { "type": "origins:armor_class", "armor_class": "helmet" }
+    "item_condition": { "type": "neoorigins:armor_class", "armor_class": "helmet" }
   },
   "name": "Нет шлема",
   "description": "Не может носить шлем (закрывает обзор роя). Шлемы не дают защиты.",

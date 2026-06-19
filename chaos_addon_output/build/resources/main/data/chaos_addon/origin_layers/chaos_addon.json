@@ -2,7 +2,7 @@
   "order": 1,
   "enabled": true,
   "name": "Chaos Origins",
-  "missing_origin": "origins:empty",
+  "missing_origin": "neoorigins:empty",
   "auto_choose": false,
   "allow_random": true,
   "allow_random_unchoosable": false,
