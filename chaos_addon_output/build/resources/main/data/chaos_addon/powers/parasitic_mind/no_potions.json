@@ -1,0 +1,1 @@
+{"type":"origins:prevent_item_use","item_condition":{"type":"origins:ingredient","ingredient":{"tag":"minecraft:arrows"}},"name":"Нет зелий/тотемов","description":"Нельзя использовать зелья и тотемы.","hidden":true}

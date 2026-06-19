@@ -14,20 +14,10 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.WeakHashMap;
 
-/**
- * Miscellaneous power handlers:
- *  - Time Wanderer: hit counter for Déjà Vu (every 5th hit negated)
- *  - Nightmare Mimic: glowing effect (replaces skin change) + phantom dodge chance
- *  - Radioactive Phantom: hunger from kills
- *  - Dimension Judge: "cannot strike first" law
- *  - Ancient Sentinel: sun damage while exposed
- *  - Deep Geomancer: altitude damage above Y=80
- */
 public class GeneralPowerHandler {
 
-    private static final Map<UUID, Integer> HIT_COUNTERS = new java.util.HashMap<>();
+    private static final Map<UUID, Integer> HIT_COUNTERS  = new java.util.HashMap<>();
     private static final Map<UUID, Long>    JUDGE_HIT_TIME = new java.util.HashMap<>();
 
     @SubscribeEvent
@@ -36,23 +26,18 @@ public class GeneralPowerHandler {
         if (!(player.level() instanceof ServerLevel level)) return;
         ChaosAddonConfig cfg = ChaosAddonConfig.get();
 
-        // ── Nightmare Mimic: persistent glowing aura (replaces skin change) ──
         if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/illusory_flesh")) {
             if (player.tickCount % 20 == 0) {
                 player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 25, 0, true, false));
-                // Shimmering particles around player
                 level.sendParticles(net.minecraft.core.particles.ParticleTypes.ENCHANT,
                     player.getX(), player.getY() + 1.0, player.getZ(),
                     8, 0.5, 0.8, 0.5, 0.05);
-                level.sendParticles(net.minecraft.core.particles.ParticleTypes.SPELL,
+                level.sendParticles(net.minecraft.core.particles.ParticleTypes.WITCH,
                     player.getX(), player.getY() + 0.5, player.getZ(),
                     4, 0.4, 0.6, 0.4, 0.0);
             }
         }
 
-        // ── Radioactive Phantom: hunger via mob kills (handled in onKill) ──
-
-        // ── Deep Geomancer: altitude damage above Y=80 ──
         if (OriginHelper.hasPower(player, "chaos_addon:deep_geomancer/stone_flesh")) {
             if (player.blockPosition().getY() > cfg.geoHeightLimit) {
                 if (player.tickCount % cfg.geoHighAltitudeInterval == 0) {
@@ -64,7 +49,6 @@ public class GeneralPowerHandler {
             }
         }
 
-        // ── Wandering Gardener: damage in bad biomes ──
         if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/green_blood")) {
             String biome = level.getBiome(player.blockPosition())
                 .unwrapKey().map(k -> k.location().toString()).orElse("");
@@ -77,7 +61,6 @@ public class GeneralPowerHandler {
         }
     }
 
-    // ── Time Wanderer: Déjà Vu — every 5th hit is negated ──
     @SubscribeEvent
     public static void onAttacked(net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -97,7 +80,6 @@ public class GeneralPowerHandler {
         }
     }
 
-    // ── Dimension Judge: cannot strike first; if attacked, next hit ignores armor ──
     @SubscribeEvent
     public static void onJudgeAttack(AttackEntityEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -107,7 +89,6 @@ public class GeneralPowerHandler {
         Long lastHit = JUDGE_HIT_TIME.get(player.getUUID());
 
         if (lastHit == null || now - lastHit > 100) {
-            // Not recently attacked → cannot strike first
             if (event.getTarget() instanceof LivingEntity target) {
                 event.setCanceled(true);
                 if (player.level() instanceof ServerLevel level) {
@@ -126,7 +107,6 @@ public class GeneralPowerHandler {
         JUDGE_HIT_TIME.put(player.getUUID(), player.level().getGameTime());
     }
 
-    // ── Radioactive Phantom: kill → +2 saturation ──
     @SubscribeEvent
     public static void onKill(LivingDeathEvent event) {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
@@ -134,7 +114,6 @@ public class GeneralPowerHandler {
         player.getFoodData().eat(2, 1.0f);
     }
 
-    // ── Ancient Sentinel: instant drown in any liquid ──
     @SubscribeEvent
     public static void onSentinelTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;

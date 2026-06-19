@@ -121,7 +121,7 @@ public class GeomancerCommands {
                         pt.x, pt.y, pt.z, 5, 0.3, 0.3, 0.3, 0.05);
                 }
                 level.playSound(null, player.blockPosition(),
-                    SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 0.9f, 0.6f);
+                    SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 0.9f, 0.6f);
                 return 1;
             }));
 

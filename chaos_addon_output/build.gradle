@@ -10,17 +10,7 @@ version = project.mod_version
 group = project.mod_group_id
 
 repositories {
-    maven { name = 'Cloth Config';    url = 'https://maven.shedaniel.me/' }
-    maven { name = 'Pehkui';          url = 'https://jitpack.io' }
-    maven { name = 'Origins';         url = 'https://mvn.devos.one/snapshots/' }
-    maven { name = 'Bookshelf';       url = 'https://maven.blamejared.com' }
-    maven { name = 'GeckoLib';        url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
-    maven { name = 'Structure Gel';   url = 'https://maven.minecraftschematic.com/' }
-    maven {
-        name = 'Modrinth'
-        url  = 'https://api.modrinth.com/maven'
-        content { includeGroup 'maven.modrinth' }
-    }
+    maven { name = 'Cloth Config'; url = 'https://maven.shedaniel.me/' }
 }
 
 base { archivesName = project.mod_id }
@@ -54,23 +44,14 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
-    // Origins NeoForge + Jupiter companion
-    implementation "io.github.apace100:origins-neoforge:${origins_version}"
-
-    // Pehkui – player/entity scale
-    implementation "com.github.Virtuoel:Pehkui:${pehkui_version}"
-
-    // Cloth Config – in-game configuration GUI
+    // Cloth Config – in-game configuration GUI (downloaded from maven.shedaniel.me)
     compileOnly "me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}"
 
-    // Bookshelf – JSON/NBT/EXP utilities
-    implementation "net.darkhax.bookshelf:Bookshelf-NeoForge-1.21.1:${bookshelf_version}"
-
-    // GeckoLib – animated entity models (echo clones, illusions)
-    implementation "software.bernie.geckolib:geckolib-neoforge-1.21:${geckolib_version}"
-
-    // Structure Gel API – hive structure generation
-    implementation "com.legacy.structure_gel:structuregel-api:${structuregel_version}"
+    // Local JARs
+    implementation files('libs/neoorigins-2.2.5+1.21.1.jar')
+    implementation files('libs/Pehkui-3.8.3+1.21-neoforge.jar')
+    implementation files('libs/bookshelf-neoforge-1.21.1-21.1.81.jar')
+    implementation files('libs/geckolib-neoforge-1.21.1-4.8.4.jar')
 }
 
 tasks.named('processResources', ProcessResources).configure {

@@ -1,0 +1,6 @@
+{
+  "type": "origins:nothing",
+  "name": "Распад",
+  "description": "Без портала в радиусе 100 блоков — теряешь 0.5❤ каждые 30 сек.",
+  "hidden": false
+}

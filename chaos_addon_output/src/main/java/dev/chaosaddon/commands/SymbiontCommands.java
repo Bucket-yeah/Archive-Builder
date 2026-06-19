@@ -27,7 +27,6 @@ public class SymbiontCommands {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
-        // Spore Harvest: yield resource based on depth
         dispatcher.register(Commands.literal("chaos_addon_spore_harvest")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -65,7 +64,6 @@ public class SymbiontCommands {
                 return 1;
             }));
 
-        // Moss Teleport: teleport to nearest moss block in network
         dispatcher.register(Commands.literal("chaos_addon_moss_teleport")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -79,15 +77,13 @@ public class SymbiontCommands {
                     return 0;
                 }
 
-                // Teleport to nearest moss block in network within 50 blocks
                 BlockPos best = positions.stream()
-                    .filter(p -> p.distSqr(player.blockPosition()) > 25) // not too close
+                    .filter(p -> p.distSqr(player.blockPosition()) > 25)
                     .min((a, b) -> Integer.compare(
                         (int) a.distSqr(player.blockPosition()),
                         (int) b.distSqr(player.blockPosition())))
                     .orElse(positions.get(0));
 
-                // Check bone meal in inventory
                 boolean hasBoneMeal = player.getInventory().hasAnyOf(
                     java.util.Set.of(Items.BONE_MEAL));
                 if (!hasBoneMeal) {
@@ -105,7 +101,6 @@ public class SymbiontCommands {
                 return 1;
             }));
 
-        // Spore Fog: heal allies, damage enemies around
         dispatcher.register(Commands.literal("chaos_addon_spore_fog")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -118,19 +113,17 @@ public class SymbiontCommands {
                     e -> e.isAlive());
 
                 for (LivingEntity e : entities) {
-                    boolean isAlly = (e instanceof net.minecraft.world.entity.TamableAnimal animal && animal.isTamed())
+                    boolean isAlly = (e instanceof net.minecraft.world.entity.TamableAnimal animal && animal.isTame())
                         || e.getTags().contains("chaos_gardener_pet")
                         || e.getTags().contains("chaos_hive_ally");
                     if (isAlly) {
                         e.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 300, 0, false, true));
                     } else if (e != player) {
-                        // Schedule 15 sec of 1 HP/sec damage
                         e.addEffect(new MobEffectInstance(MobEffects.WITHER, 300, 0, false, true));
                         e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 300, 1, false, true));
                     }
                 }
 
-                // Player self buff
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 300, 1, false, true));
 
                 level.sendParticles(ParticleTypes.CLOUD,

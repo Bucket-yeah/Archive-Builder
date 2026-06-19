@@ -57,9 +57,3 @@ description    = """${mod_description}"""
     ordering    = "NONE"
     side        = "CLIENT"
 
-[[dependencies.chaos_addon]]
-    modId       = "structure_gel"
-    type        = "optional"
-    versionRange = "[2.16,)"
-    ordering    = "AFTER"
-    side        = "BOTH"

@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.AABB;
 
 /** chaos_addon_cache_memory, chaos_addon_defrag, chaos_addon_chunk_scan */
 public class ArchaeologistCommands {
@@ -29,9 +30,9 @@ public class ArchaeologistCommands {
                 TimeData data = player.getData(ModAttachments.TIME_DATA);
 
                 if (!data.hasSave()) {
-                    // Save state
-                    net.minecraft.nbt.CompoundTag inv = new net.minecraft.nbt.CompoundTag();
-                    player.getInventory().save(inv);
+                    net.minecraft.nbt.CompoundTag _pnbt = new net.minecraft.nbt.CompoundTag();
+                    player.saveWithoutId(_pnbt);
+                    net.minecraft.nbt.ListTag inv = _pnbt.getList("Inventory", 10);
                     data.save(inv, player.getHealth(), player.getFoodData().getFoodLevel(),
                         player.getX(), player.getY(), player.getZ());
 
@@ -42,8 +43,7 @@ public class ArchaeologistCommands {
                     level.playSound(null, player.blockPosition(),
                         SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.PLAYERS, 0.8f, 1.3f);
                 } else {
-                    // Restore state
-                    net.minecraft.nbt.CompoundTag inv = data.savedInventory();
+                    net.minecraft.nbt.ListTag inv = data.savedInventory();
                     if (inv != null) player.getInventory().load(inv);
                     player.setHealth(data.savedHealth());
                     player.getFoodData().eat(data.savedFood() - player.getFoodData().getFoodLevel(), 0.0f);
@@ -69,19 +69,20 @@ public class ArchaeologistCommands {
                 BlockPos pos = player.blockPosition();
 
                 LevelChunk chunk = level.getChunkAt(pos);
-                level.getEntitiesOfClass(LivingEntity.class,
-                    net.minecraft.world.phys.AABB.of(chunk.getPos().getWorldBounds()),
+                AABB chunkBounds = new AABB(
+                    chunk.getPos().getMinBlockX(), level.getMinBuildHeight(), chunk.getPos().getMinBlockZ(),
+                    chunk.getPos().getMaxBlockX() + 1, level.getMaxBuildHeight(), chunk.getPos().getMaxBlockZ() + 1
+                );
+                level.getEntitiesOfClass(LivingEntity.class, chunkBounds,
                     e -> e != player && e.isAlive())
                     .forEach(LivingEntity::kill);
 
-                // Reset chunk-placed structures (blocks in chunk area)
                 for (int x = 0; x < 16; x++) {
                     for (int z = 0; z < 16; z++) {
                         for (int y = level.getMinBuildHeight(); y < level.getMaxBuildHeight(); y++) {
                             BlockPos bp = new BlockPos(chunk.getPos().getMinBlockX() + x, y,
                                 chunk.getPos().getMinBlockZ() + z);
                             net.minecraft.world.level.block.state.BlockState bs = level.getBlockState(bp);
-                            // Remove player-placed signs, torches, etc.
                             if (bs.getBlock() instanceof net.minecraft.world.level.block.TorchBlock) {
                                 level.removeBlock(bp, false);
                             }
@@ -102,8 +103,11 @@ public class ArchaeologistCommands {
                 ServerLevel level = player.serverLevel();
                 LevelChunk chunk = level.getChunkAt(player.blockPosition());
 
-                int entityCount = level.getEntitiesOfClass(LivingEntity.class,
-                    net.minecraft.world.phys.AABB.of(chunk.getPos().getWorldBounds()),
+                AABB chunkBounds = new AABB(
+                    chunk.getPos().getMinBlockX(), level.getMinBuildHeight(), chunk.getPos().getMinBlockZ(),
+                    chunk.getPos().getMaxBlockX() + 1, level.getMaxBuildHeight(), chunk.getPos().getMaxBlockZ() + 1
+                );
+                int entityCount = level.getEntitiesOfClass(LivingEntity.class, chunkBounds,
                     e -> true).size();
 
                 player.sendSystemMessage(Component.literal(String.format(

@@ -101,7 +101,7 @@ public class BiomeCommands {
                 level.sendParticles(ParticleTypes.CHERRY_LEAVES,
                     player.getX(), player.getY() + 1.0, player.getZ(),
                     80, radius * 0.5, 2.0, radius * 0.5, 0.1);
-                level.playSound(null, origin, SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 0.9f, 0.8f);
+                level.playSound(null, origin, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 0.9f, 0.8f);
                 return 1;
             }));
 

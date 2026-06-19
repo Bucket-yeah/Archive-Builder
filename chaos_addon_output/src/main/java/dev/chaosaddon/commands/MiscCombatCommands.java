@@ -22,21 +22,11 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Misc combat commands grouped here to avoid file proliferation:
- * chaos_addon_ghast_summon, chaos_addon_volcanic_burst, chaos_addon_nether_portal,
- * chaos_addon_woven_nightmare, chaos_addon_reality_dream, chaos_addon_illusory_world,
- * chaos_addon_decay_wave, chaos_addon_radio_leap, chaos_addon_mutagen_blast,
- * chaos_addon_redstone_overload, chaos_addon_golem_assemble, chaos_addon_redstone_pulse,
- * chaos_addon_time_instability, chaos_addon_golden_touch (fallback), chaos_addon_verdict_annihilate_tick
- */
 public class MiscCombatCommands {
 
     private static final Random RNG = new Random();
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-
-        // ── Infernal Shepherd ──
 
         dispatcher.register(Commands.literal("chaos_addon_ghast_summon")
             .requires(src -> src.hasPermission(0))
@@ -48,7 +38,7 @@ public class MiscCombatCommands {
                 if (ghast == null) return 0;
                 ghast.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
                 ghast.addTag("chaos_infernal_pet");
-                ghast.getPersistentData().putInt("chaos_despawn_ticks", 400); // 20s
+                ghast.getPersistentData().putInt("chaos_despawn_ticks", 400);
                 ghast.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
                 level.addFreshEntity(ghast);
                 level.sendParticles(ParticleTypes.FLAME, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 60, 1.0, 2.0, 1.0, 0.2);
@@ -64,14 +54,14 @@ public class MiscCombatCommands {
                 BlockPos origin = player.blockPosition();
                 level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(5),
                     e -> e != player && e.isAlive())
-                    .forEach(e -> { e.hurt(player.damageSources().inFire(), 4.0f); e.setSecondsOnFire(10); });
+                    .forEach(e -> { e.hurt(player.damageSources().inFire(), 4.0f); e.igniteForSeconds(10); });
                 for (int dx = -3; dx <= 3; dx++) for (int dz = -3; dz <= 3; dz++) {
                     BlockPos gp = origin.offset(dx, -1, dz);
                     if (RNG.nextFloat() < 0.4f && level.isEmptyBlock(gp.above()))
                         level.setBlock(gp.above(), net.minecraft.world.level.block.Blocks.FIRE.defaultBlockState(), 3);
                 }
                 level.sendParticles(ParticleTypes.FLAME, origin.getX() + 0.5, origin.getY() + 1.0, origin.getZ() + 0.5, 60, 3.0, 2.0, 3.0, 0.3);
-                level.playSound(null, origin, SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 0.9f, 0.7f);
+                level.playSound(null, origin, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 0.9f, 0.7f);
                 return 1;
             }));
 
@@ -81,12 +71,10 @@ public class MiscCombatCommands {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
                 ServerLevel level = player.serverLevel();
                 BlockPos origin = player.blockPosition();
-                // Build minimal 2×3 nether portal
                 for (int y = 0; y < 3; y++) {
                     level.setBlock(origin.offset(0, y, 0), net.minecraft.world.level.block.Blocks.NETHER_PORTAL.defaultBlockState(), 3);
                     level.setBlock(origin.offset(1, y, 0), net.minecraft.world.level.block.Blocks.NETHER_PORTAL.defaultBlockState(), 3);
                 }
-                // Pull entities in
                 level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(10),
                     e -> e != player && e.isAlive())
                     .forEach(e -> { Vec3 dir = origin.getCenter().subtract(e.position()).normalize().scale(1.5); e.setDeltaMovement(dir.x, 0.4, dir.z); });
@@ -95,14 +83,11 @@ public class MiscCombatCommands {
                 return 1;
             }));
 
-        // ── Nightmare Mimic ──
-
         dispatcher.register(Commands.literal("chaos_addon_woven_nightmare")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
                 ServerLevel level = player.serverLevel();
-                // Spawn 5 tiny phantoms (silverfish) as decoys
                 for (int i = 0; i < 5; i++) {
                     double ox = (RNG.nextDouble() - 0.5) * 4;
                     double oz = (RNG.nextDouble() - 0.5) * 4;
@@ -114,7 +99,7 @@ public class MiscCombatCommands {
                     sf.getPersistentData().putInt("chaos_despawn_ticks", 200);
                     level.addFreshEntity(sf);
                 }
-                level.sendParticles(ParticleTypes.SPELL, player.getX(), player.getY() + 1.0, player.getZ(), 50, 3.0, 2.0, 3.0, 0.15);
+                level.sendParticles(ParticleTypes.WITCH, player.getX(), player.getY() + 1.0, player.getZ(), 50, 3.0, 2.0, 3.0, 0.15);
                 level.playSound(null, player.blockPosition(), SoundEvents.ILLUSIONER_PREPARE_MIRROR, SoundSource.PLAYERS, 1.0f, 0.8f);
                 return 1;
             }));
@@ -150,12 +135,10 @@ public class MiscCombatCommands {
                         e.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 400, 0, false, true));
                         e.addEffect(new MobEffectInstance(MobEffects.CONFUSION,  400, 0, false, true));
                     });
-                level.sendParticles(ParticleTypes.ENCHANT_GLYPH, player.getX(), player.getY() + 2.0, player.getZ(), 80, 10.0, 5.0, 10.0, 0.1);
+                level.sendParticles(ParticleTypes.ENCHANT, player.getX(), player.getY() + 2.0, player.getZ(), 80, 10.0, 5.0, 10.0, 0.1);
                 level.playSound(null, player.blockPosition(), SoundEvents.ILLUSIONER_PREPARE_BLINDNESS, SoundSource.PLAYERS, 1.0f, 0.7f);
                 return 1;
             }));
-
-        // ── Radioactive Phantom ──
 
         dispatcher.register(Commands.literal("chaos_addon_decay_wave")
             .requires(src -> src.hasPermission(0))
@@ -182,10 +165,8 @@ public class MiscCombatCommands {
                 ServerLevel level = player.serverLevel();
                 Vec3 look = player.getLookAngle().normalize().scale(10);
                 double tx = player.getX() + look.x, ty = player.getY() + look.y, tz = player.getZ() + look.z;
-                // Leave toxic cloud at old position
                 BlockPos oldPos = player.blockPosition();
                 player.teleportTo(tx, ty, tz);
-                // Tag a fake entity tracker for cloud (use actual particle burst)
                 level.sendParticles(ParticleTypes.CLOUD, oldPos.getX() + 0.5, oldPos.getY() + 1.0, oldPos.getZ() + 0.5, 30, 1.0, 1.5, 1.0, 0.04);
                 level.sendParticles(ParticleTypes.SMOKE,  oldPos.getX() + 0.5, oldPos.getY() + 1.0, oldPos.getZ() + 0.5, 20, 0.8, 1.2, 0.8, 0.05);
                 level.playSound(null, player.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.8f, 1.2f);
@@ -210,12 +191,10 @@ public class MiscCombatCommands {
                 level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(15),
                     e -> e != player && e.isAlive())
                     .forEach(e -> { for (int i = 0; i < 2; i++) e.addEffect(effects[RNG.nextInt(effects.length)]); });
-                level.sendParticles(ParticleTypes.EFFECT, player.getX(), player.getY() + 1.0, player.getZ(), 80, 8.0, 4.0, 8.0, 0.15);
+                level.sendParticles(ParticleTypes.CRIT, player.getX(), player.getY() + 1.0, player.getZ(), 80, 8.0, 4.0, 8.0, 0.15);
                 level.playSound(null, player.blockPosition(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 1.0f, 0.7f);
                 return 1;
             }));
-
-        // ── Chaos Engineer ──
 
         dispatcher.register(Commands.literal("chaos_addon_redstone_overload")
             .requires(src -> src.hasPermission(0))
@@ -225,7 +204,7 @@ public class MiscCombatCommands {
                 level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(20),
                     e -> e != player && e.isAlive())
                     .forEach(e -> { e.hurt(player.damageSources().magic(), 3.0f); e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1, false, true)); });
-                level.sendParticles(ParticleTypes.ELECTRICAL_SPARK, player.getX(), player.getY() + 1.0, player.getZ(), 80, 10.0, 3.0, 10.0, 0.2);
+                level.sendParticles(ParticleTypes.ELECTRIC_SPARK, player.getX(), player.getY() + 1.0, player.getZ(), 80, 10.0, 3.0, 10.0, 0.2);
                 level.playSound(null, player.blockPosition(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 1.0f, 0.8f);
                 return 1;
             }));
@@ -235,7 +214,6 @@ public class MiscCombatCommands {
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
                 ServerLevel level = player.serverLevel();
-                // Check for 4 iron blocks in inventory
                 boolean hasIron = player.getInventory().countItem(Items.IRON_BLOCK) >= 4
                     || player.getInventory().countItem(Items.IRON_INGOT) >= 16;
                 if (!hasIron) {
@@ -263,13 +241,11 @@ public class MiscCombatCommands {
                 level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(30),
                     e -> e != player && e.isAlive())
                     .forEach(e -> e.hurt(player.damageSources().magic(), 3.0f));
-                level.sendParticles(ParticleTypes.ELECTRICAL_SPARK, player.getX(), player.getY() + 1.0, player.getZ(), 100, 15.0, 5.0, 15.0, 0.3);
+                level.sendParticles(ParticleTypes.ELECTRIC_SPARK, player.getX(), player.getY() + 1.0, player.getZ(), 100, 15.0, 5.0, 15.0, 0.3);
                 level.sendParticles(ParticleTypes.FIREWORK, player.getX(), player.getY() + 1.0, player.getZ(), 30, 10.0, 3.0, 10.0, 0.2);
                 level.playSound(null, player.blockPosition(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 1.2f, 0.6f);
                 return 1;
             }));
-
-        // ── Time Wanderer ──
 
         dispatcher.register(Commands.literal("chaos_addon_time_instability")
             .requires(src -> src.hasPermission(0))

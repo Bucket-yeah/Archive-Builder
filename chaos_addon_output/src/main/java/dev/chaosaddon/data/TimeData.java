@@ -1,15 +1,14 @@
 package dev.chaosaddon.data;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 
 /**
  * Stores a "saved state" for the Phantom Archaeologist's Cache Memory power.
  * Saves inventory NBT, health, food level, and position.
  */
 public class TimeData {
-    private CompoundTag savedInventory;
+    private ListTag savedInventory;
     private float savedHealth;
     private int   savedFood;
     private double savedX, savedY, savedZ;
@@ -17,15 +16,15 @@ public class TimeData {
 
     public TimeData() { hasSave = false; }
 
-    public boolean hasSave()    { return hasSave; }
-    public CompoundTag savedInventory() { return savedInventory; }
-    public float savedHealth()  { return savedHealth; }
-    public int   savedFood()    { return savedFood; }
-    public double savedX()      { return savedX; }
-    public double savedY()      { return savedY; }
-    public double savedZ()      { return savedZ; }
+    public boolean hasSave()       { return hasSave; }
+    public ListTag savedInventory() { return savedInventory; }
+    public float savedHealth()     { return savedHealth; }
+    public int   savedFood()       { return savedFood; }
+    public double savedX()         { return savedX; }
+    public double savedY()         { return savedY; }
+    public double savedZ()         { return savedZ; }
 
-    public void save(CompoundTag inv, float hp, int food, double x, double y, double z) {
+    public void save(ListTag inv, float hp, int food, double x, double y, double z) {
         this.savedInventory = inv;
         this.savedHealth    = hp;
         this.savedFood      = food;

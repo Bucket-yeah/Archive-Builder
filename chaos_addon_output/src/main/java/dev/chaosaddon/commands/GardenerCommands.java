@@ -26,12 +26,11 @@ public class GardenerCommands {
 
     private static final net.minecraft.world.level.block.Block[] PLANTS = {
         Blocks.DANDELION, Blocks.POPPY, Blocks.AZURE_BLUET, Blocks.RED_TULIP,
-        Blocks.OAK_SAPLING, Blocks.FERN, Blocks.GRASS, Blocks.SUNFLOWER
+        Blocks.OAK_SAPLING, Blocks.FERN, Blocks.SHORT_GRASS, Blocks.SUNFLOWER
     };
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
-        // Growth Blessing: grow plants in radius 5
         dispatcher.register(Commands.literal("chaos_addon_growth_blessing")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -64,7 +63,6 @@ public class GardenerCommands {
                 return 1;
             }));
 
-        // Summon Rain: weather change + growth boost
         dispatcher.register(Commands.literal("chaos_addon_summon_rain")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -80,11 +78,10 @@ public class GardenerCommands {
                     100, 25.0, 5.0, 25.0, 0.3);
                 level.playSound(null, player.blockPosition(),
                     SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 1.0f, 0.6f);
-                player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§9§lДождь призван! Рост растений ×10 на 20 сек."));
+                player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§9§lДождь призван!"));
                 return 1;
             }));
 
-        // Summon Dryad: iron golem tagged as dryad
         dispatcher.register(Commands.literal("chaos_addon_summon_dryad")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -101,7 +98,7 @@ public class GardenerCommands {
                 golem.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE).setBaseValue(5.0);
                 golem.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
                 golem.addTag("chaos_gardener_pet");
-                golem.getPersistentData().putInt("chaos_despawn_ticks", 1200); // 60 sec
+                golem.getPersistentData().putInt("chaos_despawn_ticks", 1200);
                 level.addFreshEntity(golem);
 
                 level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,

@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.CaveSpider;
 import net.minecraft.world.entity.monster.Silverfish;
@@ -22,16 +23,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-/**
- * Handles the Swarm Lord's bug minions.
- *  - Spawns scaled-down Silverfish (75%) and Cave Spiders (25%) every N ticks.
- *  - Bugs follow the player, attack nearby enemies, auto-loot items.
- *  - Water kills all bugs and deals damage per bug lost.
- */
 public class SwarmHandler {
 
     private static final Random RNG = new Random();
-    private static final float BUG_SCALE = 0.25f; // Pehkui scale factor
+    private static final float BUG_SCALE = 0.25f;
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -42,13 +37,11 @@ public class SwarmHandler {
         ChaosAddonConfig cfg = ChaosAddonConfig.get();
         SwarmData data = player.getData(ModAttachments.SWARM_DATA);
 
-        // Remove dead bugs from tracking list
         data.bugUUIDs().removeIf(uuid -> {
             var entity = level.getEntity(uuid);
             return entity == null || !entity.isAlive();
         });
 
-        // Handle player in water: kill all bugs
         if (player.isInWater()) {
             int count = data.bugUUIDs().size();
             data.bugUUIDs().forEach(uuid -> {
@@ -60,19 +53,17 @@ public class SwarmHandler {
                 float dmg = count * cfg.swarmWaterBugDamage;
                 player.hurt(player.damageSources().generic(), dmg);
                 level.playSound(null, player.blockPosition(),
-                    net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE,
+                    net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE.value(),
                     net.minecraft.sounds.SoundSource.PLAYERS, 0.5f, 1.8f);
             }
             return;
         }
 
-        // Spawn new bug if below max
         if (player.tickCount % cfg.swarmSpawnInterval == 0
                 && data.bugUUIDs().size() < cfg.swarmMaxBugs) {
             spawnBug(player, level, data);
         }
 
-        // Make bugs follow player and attack enemies
         tickBugAI(player, level, data);
     }
 
@@ -99,7 +90,6 @@ public class SwarmHandler {
             bug = cs;
         }
 
-        // Apply Pehkui scale (0.25x = very small)
         try {
             ScaleTypes.BASE.getScaleData(bug).setScale(BUG_SCALE);
         } catch (Exception ignored) {}
@@ -108,7 +98,6 @@ public class SwarmHandler {
         bug.setCustomNameVisible(false);
         data.bugUUIDs().add(bug.getUUID());
 
-        // Spawn particles + sound
         level.sendParticles(net.minecraft.core.particles.ParticleTypes.GLOW,
             bug.getX(), bug.getY() + 0.3, bug.getZ(), 6, 0.2, 0.2, 0.2, 0.0);
         level.playSound(null, pos, net.minecraft.sounds.SoundEvents.VEX_CHARGE,
@@ -130,19 +119,16 @@ public class SwarmHandler {
             double distToPlayer = bug.distanceTo(player);
 
             if (!nearbyEnemies.isEmpty() && bug.tickCount % 20 == 0) {
-                // Attack nearest enemy
                 LivingEntity target = nearbyEnemies.stream()
                     .min((a, b) -> Double.compare(a.distanceTo(bug), b.distanceTo(bug)))
                     .orElse(null);
-                if (target != null) {
-                    bug.setTarget(target instanceof net.minecraft.world.entity.Mob m ? target : null);
-                    bug.hurt(bug.damageSources().mobAttack(bug), 0.0f); // trigger aggro
+                if (target != null && bug instanceof Mob mobBug) {
+                    mobBug.setTarget(target);
                     target.hurt(bug.damageSources().mobAttack(bug),
                         ChaosAddonConfig.get().swarmBugDamage);
                 }
             }
 
-            // Auto-loot items nearby
             if (bug.tickCount % 10 == 0) {
                 level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
                     bug.getBoundingBox().inflate(3),
@@ -150,14 +136,12 @@ public class SwarmHandler {
                 ).forEach(item -> {
                     if (player.getInventory().add(item.getItem())) {
                         item.discard();
-                        // little sparkle
                         level.sendParticles(net.minecraft.core.particles.ParticleTypes.ENCHANT,
                             item.getX(), item.getY(), item.getZ(), 5, 0.2, 0.2, 0.2, 0.05);
                     }
                 });
             }
 
-            // Return to player if too far
             if (distToPlayer > 20) {
                 bug.teleportTo(playerPos.x + RNG.nextDouble() - 0.5,
                                playerPos.y, playerPos.z + RNG.nextDouble() - 0.5);
@@ -168,7 +152,6 @@ public class SwarmHandler {
     @SubscribeEvent
     public static void onBugDeath(LivingDeathEvent event) {
         if (event.getEntity().level() instanceof ServerLevel level) {
-            // Play death pop when a swarm bug dies
             var name = event.getEntity().getCustomName();
             if (name != null && name.getString().contains("Swarm Bug")) {
                 level.sendParticles(net.minecraft.core.particles.ParticleTypes.ITEM_SLIME,

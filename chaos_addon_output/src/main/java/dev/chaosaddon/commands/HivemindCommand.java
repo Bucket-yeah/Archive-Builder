@@ -18,7 +18,6 @@ import net.minecraft.world.entity.LivingEntity;
 public class HivemindCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        // Collective Mind: teleport all infected to player + boost them
         dispatcher.register(Commands.literal("chaos_addon_hivemind")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -39,11 +38,10 @@ public class HivemindCommand {
                 level.playSound(null, player.blockPosition(),
                     SoundEvents.WITHER_SPAWN,    SoundSource.HOSTILE, 1.0f, 0.8f);
                 level.playSound(null, player.blockPosition(),
-                    SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 0.8f, 1.5f);
+                    SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 0.8f, 1.5f);
                 return 1;
             }));
 
-        // Parasite Explosion: all infected explode
         dispatcher.register(Commands.literal("chaos_addon_parasite_explode")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -53,8 +51,10 @@ public class HivemindCommand {
 
                 data.infectedUUIDs().forEach(uuid -> {
                     if (!(level.getEntity(uuid) instanceof LivingEntity mob)) return;
-                    level.explode(mob, mob.getX(), mob.getY(), mob.getZ(), 2.5f,
-                        net.minecraft.world.level.Explosion.BlockInteraction.NONE);
+                    level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,
+                        mob.getBoundingBox().inflate(3),
+                        e -> e != mob && e.isAlive())
+                        .forEach(e -> e.hurt(mob.damageSources().magic(), 6.0f));
                     level.sendParticles(ParticleTypes.FLAME,
                         mob.getX(), mob.getY() + 0.5, mob.getZ(), 25, 0.5, 0.5, 0.5, 0.15);
                     level.sendParticles(ParticleTypes.SMOKE,
@@ -64,7 +64,7 @@ public class HivemindCommand {
                 data.infectedUUIDs().clear();
 
                 level.playSound(null, player.blockPosition(),
-                    SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 1.0f, 0.6f);
+                    SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 1.0f, 0.6f);
                 level.playSound(null, player.blockPosition(),
                     SoundEvents.BLAZE_SHOOT,     SoundSource.HOSTILE, 0.8f, 0.8f);
                 return 1;

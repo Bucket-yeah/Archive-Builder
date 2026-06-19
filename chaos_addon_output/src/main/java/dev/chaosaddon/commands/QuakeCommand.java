@@ -50,9 +50,9 @@ public class QuakeCommand {
                 level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
                     player.getX(), player.getY(), player.getZ(), 40, radius, 0.5, radius, 0.05);
                 level.playSound(null, player.blockPosition(),
-                    SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 1.0f, 0.5f);
+                    SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.0f, 0.5f);
                 level.playSound(null, player.blockPosition(),
-                    SoundEvents.AMBIENT_CAVE,    SoundSource.PLAYERS, 0.6f, 0.8f);
+                    SoundEvents.AMBIENT_CAVE.value(),    SoundSource.PLAYERS, 0.6f, 0.8f);
                 return 1;
             }));
 
@@ -94,7 +94,7 @@ public class QuakeCommand {
                 level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
                     player.getX(), player.getY(), player.getZ(), 100, radius, 2.0, radius, 0.05);
                 level.playSound(null, player.blockPosition(),
-                    SoundEvents.GENERIC_EXPLODE,   SoundSource.PLAYERS, 1.5f, 0.4f);
+                    SoundEvents.GENERIC_EXPLODE.value(),   SoundSource.PLAYERS, 1.5f, 0.4f);
                 level.playSound(null, player.blockPosition(),
                     SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 1.0f, 0.5f);
                 return 1;
