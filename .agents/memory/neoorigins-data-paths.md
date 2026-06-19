@@ -1,19 +1,19 @@
 ---
 name: NeoOrigins data paths and origin JSON format
-description: NeoOrigins 2.2.5 uses nested origins/origins/ paths AND a different JSON schema from Origins (Fabric).
+description: NeoOrigins 2.2.5 uses flat origins/ paths (NOT nested origins/origins/) AND a different JSON schema from Origins (Fabric).
 ---
 
 ## Rule — File paths
 
-NeoOrigins uses **nested** directory structure inside the JAR data pack:
+NeoOrigins uses a **flat** directory structure inside the JAR data pack:
 
 | Type | Correct path | Origin ID |
 |------|-------------|-----------|
-| Origins | `data/<ns>/origins/origins/<name>.json` | `<ns>:<name>` |
+| Origins | `data/<ns>/origins/<name>.json` | `<ns>:<name>` |
 | Origin layers | `data/<ns>/origins/origin_layers/<name>.json` | `<ns>:<name>` |
 | Powers | `data/<ns>/powers/<origin>/<power>.json` | `<ns>:<origin>/<power>` |
 
-**Why:** NeoOrigins groups all origin-related data under `data/<ns>/origins/`. Verified by inspecting `neoorigins-2.2.5+1.21.1.jar`.
+**Why:** The actual built JAR (confirmed via clean build, no cache) shows origins at the flat `origins/` path. The old `origins/origins/` nested path was a stale cache artifact — do NOT use it.
 
 ## Rule — Origin JSON schema (NeoOrigins 2.2.5)
 

@@ -26,7 +26,8 @@ Outputs a `.jar` in `chaos_addon_output/build/libs/`.
   - `config/` — TOML config
   - `util/` — OriginHelper, etc.
 - `chaos_addon_output/src/main/resources/data/chaos_addon/`
-  - `origins/origins/` — origin definitions (JSON)
+  - `origins/` — origin definitions (JSON, flat — NOT nested `origins/origins/`)
+  - `origins/origin_layers/` — origin layer definitions (JSON)
   - `powers/` — power definitions (JSON, loaded by NeoOrigins)
 
 ## Origins & their handlers
@@ -62,7 +63,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 - `OriginHelper.hasPower(player, "chaos_addon:<origin>/<power>")` is the pattern for all power checks.
 - **NeoOrigins data paths** (differs from Origins/Fabric!):
-  - Origins:      `data/chaos_addon/origins/origins/<name>.json`  → ID `chaos_addon:<name>`
+  - Origins:      `data/chaos_addon/origins/<name>.json`  → ID `chaos_addon:<name>`
   - Origin layers:`data/chaos_addon/origins/origin_layers/<name>.json` → ID `chaos_addon:<name>`
   - Powers:       `data/chaos_addon/powers/<origin>/<power>.json` → ID `chaos_addon:<origin>/<power>`
 - Commands registered in `ModCommands.register()` — see `init/ModCommands.java`.
