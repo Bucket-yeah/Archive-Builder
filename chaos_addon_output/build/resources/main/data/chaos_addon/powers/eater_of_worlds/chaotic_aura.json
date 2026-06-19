@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Хаотическая аура",
+  "description": "Каждые 30 секунд в радиусе 10 блоков блоки с 20% шансом превращаются в случайные.",
+  "hidden": false
+}

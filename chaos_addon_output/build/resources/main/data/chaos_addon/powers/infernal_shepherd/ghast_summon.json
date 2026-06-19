@@ -1,0 +1,58 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_ghast_summon"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:flame"
+        },
+        "count": 80,
+        "spread": {
+          "x": 2.0,
+          "y": 3.0,
+          "z": 2.0
+        },
+        "speed": 0.2,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:soul_fire_flame"
+        },
+        "count": 40,
+        "spread": {
+          "x": 1.5,
+          "y": 2.5,
+          "z": 1.5
+        },
+        "speed": 0.1,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.blaze.shoot",
+        "volume": 1.0,
+        "pitch": 0.6
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.ghast.shoot",
+        "volume": 0.9,
+        "pitch": 0.7
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.primary_active"
+  },
+  "name": "Призыв Гасты",
+  "description": "Создаёт временную неуязвимую гасту на 20 сек, атакующую врагов.",
+  "cooldown_ticks": 1200
+}

@@ -1,0 +1,15 @@
+{
+  "type": "neoorigins:multiple",
+  "fall_immunity": {
+    "type": "neoorigins:attribute_modifier",
+    "attribute": "minecraft:generic.safe_fall_distance",
+    "amount": 1024.0,
+    "operation": "add_value"
+  },
+  "lava_immunity": {
+    "type": "neoorigins:prevent_action",
+    "action": "fire"
+  },
+  "name": "Эфемерная Плоть",
+  "description": "Нет урона от падения и лавы. Длительность зелий сокращена вдвое."
+}

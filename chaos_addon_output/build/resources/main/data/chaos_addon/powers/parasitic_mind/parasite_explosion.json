@@ -1,0 +1,13 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:execute_command",
+    "command": "chaos_addon_parasite_explode"
+  },
+  "key": {
+    "key": "key.origins.ternary_active"
+  },
+  "name": "Паразитический Взрыв",
+  "description": "Все заражённые взрываются: 5❤ врагам в радиусе 10 блоков, поджигают на 5 сек.",
+  "cooldown_ticks": 2400
+}

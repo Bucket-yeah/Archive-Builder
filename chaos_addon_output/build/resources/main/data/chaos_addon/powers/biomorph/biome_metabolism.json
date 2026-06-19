@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Метаболизм Биома",
+  "description": "Можно есть только пищу текущего биома. Иное — 1❤ урона и голод.",
+  "hidden": false
+}

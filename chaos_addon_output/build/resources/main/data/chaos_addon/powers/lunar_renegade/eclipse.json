@@ -1,0 +1,13 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:execute_command",
+    "command": "chaos_addon_eclipse"
+  },
+  "key": {
+    "key": "key.origins.secondary_active"
+  },
+  "name": "Затмение",
+  "description": "На 30 сек: берсерк-режим (как полнолуние). Все игроки в радиусе 30 блоков — слепота и слабость.",
+  "cooldown_ticks": 6000
+}

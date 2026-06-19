@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Привязь Мха",
+  "description": "Нельзя удаляться от мха более чем на 20 блоков — иначе 0.5❤/сек. Вода смывает мох и наносит урон.",
+  "hidden": false
+}

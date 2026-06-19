@@ -1,0 +1,17 @@
+{
+  "name": "Пожиратель Миров",
+  "description": "Ты поглощаешь реальность. Хаос — твоя пища, а бездна — твой слуга.",
+  "icon": "minecraft:nether_star",
+  "powers": [
+    "chaos_addon:eater_of_worlds/chaotic_aura",
+    "chaos_addon:eater_of_worlds/hunger_of_infinity",
+    "chaos_addon:eater_of_worlds/mad_whisper",
+    "chaos_addon:eater_of_worlds/reality_shift",
+    "chaos_addon:eater_of_worlds/abyss_summon",
+    "chaos_addon:eater_of_worlds/time_loop",
+    "chaos_addon:eater_of_worlds/sun_burn",
+    "chaos_addon:eater_of_worlds/bed_explosion"
+  ],
+  "upgrades": [],
+  "tier_powers": []
+}

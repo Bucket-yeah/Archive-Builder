@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Без брони",
+  "description": "Можно носить только кожаную броню. При > 10 стаков предметов урон увеличен на 30%.",
+  "hidden": false
+}

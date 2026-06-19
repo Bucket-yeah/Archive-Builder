@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Сеть Мха",
+  "description": "Размещённые блоки покрываются мхом. Видишь содержимое (руда, мобы) в радиусе 30 блоков от любого мха.",
+  "hidden": false
+}

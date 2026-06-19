@@ -1,0 +1,44 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_time_loop"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:sculk_soul"
+        },
+        "count": 40,
+        "spread": {
+          "x": 4.0,
+          "y": 2.0,
+          "z": 4.0
+        },
+        "speed": 0.08,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.elder_guardian.curse",
+        "volume": 0.9,
+        "pitch": 0.5
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.portal.ambient",
+        "volume": 0.7,
+        "pitch": 0.6
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.ternary_active"
+  },
+  "name": "Временная Петля",
+  "description": "Зона радиусом 15 блоков: все заморожены + Confusion на 10 сек.",
+  "cooldown_ticks": 3600
+}

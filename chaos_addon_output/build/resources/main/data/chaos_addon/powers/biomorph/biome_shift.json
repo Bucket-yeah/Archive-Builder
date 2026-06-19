@@ -1,0 +1,44 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_biome_shift"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:spore_blossom_air"
+        },
+        "count": 60,
+        "spread": {
+          "x": 2.0,
+          "y": 2.0,
+          "z": 2.0
+        },
+        "speed": 0.08,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.evoker.prepare_wololo",
+        "volume": 0.8,
+        "pitch": 0.9
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.beacon.activate",
+        "volume": 0.6,
+        "pitch": 1.1
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.primary_active"
+  },
+  "name": "Смена Биома",
+  "description": "На 30 сек несёшь выбранный биом с собой и получаешь его баффы.",
+  "cooldown_ticks": 3600
+}

@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Нет элитры",
+  "description": "Элитры не работают для этой расы.",
+  "hidden": true
+}

@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Голод Бесконечности",
+  "description": "Нельзя есть обычную еду. 1 уровень опыта = +3 сытости. Без опыта голод падает вдвое быстрее.",
+  "hidden": true
+}

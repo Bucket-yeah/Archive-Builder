@@ -1,0 +1,58 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_radio_leap"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:cloud"
+        },
+        "count": 30,
+        "spread": {
+          "x": 1.5,
+          "y": 0.8,
+          "z": 1.5
+        },
+        "speed": 0.1,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:smoke"
+        },
+        "count": 25,
+        "spread": {
+          "x": 1.2,
+          "y": 0.6,
+          "z": 1.2
+        },
+        "speed": 0.08,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.enderman.teleport",
+        "volume": 0.8,
+        "pitch": 1.2
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.fire.extinguish",
+        "volume": 0.6,
+        "pitch": 1.4
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.secondary_active"
+  },
+  "name": "Радиоактивный Скачок",
+  "description": "Телепорт на 10 блоков вперёд. Оставляет облако (2❤/сек, 5 сек).",
+  "cooldown_ticks": 300
+}

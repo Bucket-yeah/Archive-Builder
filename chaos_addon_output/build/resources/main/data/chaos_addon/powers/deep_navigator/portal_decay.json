@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Распад",
+  "description": "Без портала в радиусе 100 блоков — теряешь 0.5❤ каждые 30 сек.",
+  "hidden": false
+}

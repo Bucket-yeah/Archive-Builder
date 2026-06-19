@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Рудное Зрение",
+  "description": "Контуры руд в радиусе 15 блоков — только при фокусировке взгляда 2+ сек.",
+  "hidden": false
+}

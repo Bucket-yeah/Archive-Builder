@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Всевидящее Oko",
+  "description": "Видишь HP, броню, эффекты и предметы всех игроков в радиусе 50 блоков.",
+  "hidden": false
+}

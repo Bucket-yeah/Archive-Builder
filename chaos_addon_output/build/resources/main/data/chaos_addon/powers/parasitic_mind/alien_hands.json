@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:generic.attack_damage",
+  "amount": -1.0,
+  "operation": "add_multiplied_total",
+  "name": "Чужие Руки",
+  "description": "Скорость добычи блоков = 0. Нет прямой атаки. Всё через подчинённых.",
+  "hidden": false
+}

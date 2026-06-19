@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Земляная Связь",
+  "description": "Ломаешь камень и землю голыми руками (скорость алмазной кирки). Дерево и руды (кроме угля/редстоуна) — нельзя.",
+  "hidden": false
+}

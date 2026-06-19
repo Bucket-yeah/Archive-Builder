@@ -1,0 +1,13 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:execute_command",
+    "command": "chaos_addon_hivemind"
+  },
+  "key": {
+    "key": "key.origins.secondary_active"
+  },
+  "name": "Коллективный Разум",
+  "description": "Все заражённые телепортируются к тебе, получают +50% урон на 10 сек, затем гибнут (2❤ врагам рядом).",
+  "cooldown_ticks": 1800
+}

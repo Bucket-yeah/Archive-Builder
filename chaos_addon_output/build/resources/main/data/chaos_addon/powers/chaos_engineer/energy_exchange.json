@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Энергообмен",
+  "description": "Здоровье восстанавливается редстоуном: 1 редстоун = +2❤. Обычная еда не работает.",
+  "hidden": false
+}

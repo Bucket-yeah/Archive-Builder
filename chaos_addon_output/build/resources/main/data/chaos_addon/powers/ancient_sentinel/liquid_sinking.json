@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Тонет в жидкостях",
+  "description": "В воде или лаве — мгновенно тонет (4 урона каждые 0.5 сек). Java GeneralPowerHandler.",
+  "hidden": true
+}

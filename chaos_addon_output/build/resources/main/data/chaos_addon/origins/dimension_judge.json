@@ -1,0 +1,17 @@
+{
+  "name": "Судья Измерений",
+  "description": "Ты видишь правду за каждым ударом. Баланс — твой закон.",
+  "icon": "minecraft:end_portal_frame",
+  "powers": [
+    "chaos_addon:dimension_judge/lawfulness",
+    "chaos_addon:dimension_judge/all_seeing_eye",
+    "chaos_addon:dimension_judge/balance_of_power",
+    "chaos_addon:dimension_judge/verdict",
+    "chaos_addon:dimension_judge/annihilate",
+    "chaos_addon:dimension_judge/equalize",
+    "chaos_addon:dimension_judge/no_totems",
+    "chaos_addon:dimension_judge/no_regen_potion"
+  ],
+  "upgrades": [],
+  "tier_powers": []
+}

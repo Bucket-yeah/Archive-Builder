@@ -1,0 +1,18 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_reality_shift"
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.primary_active"
+  },
+  "name": "Сдвиг Реальности",
+  "description": "Меняет местами два случайных блока в радиусе 20 блоков. Стоит 5 уровней опыта.",
+  "cooldown_ticks": 2400
+}

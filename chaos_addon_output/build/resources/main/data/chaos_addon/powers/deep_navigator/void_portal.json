@@ -1,0 +1,58 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_void_portal"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:sculk_charge"
+        },
+        "count": 60,
+        "spread": {
+          "x": 2.0,
+          "y": 2.0,
+          "z": 2.0
+        },
+        "speed": 0.15,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:smoke"
+        },
+        "count": 80,
+        "spread": {
+          "x": 2.5,
+          "y": 2.0,
+          "z": 2.5
+        },
+        "speed": 0.1,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.wither.spawn",
+        "volume": 1.0,
+        "pitch": 0.5
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.ender_dragon.death",
+        "volume": 0.7,
+        "pitch": 0.4
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.ternary_active"
+  },
+  "name": "Портал в Пустоту",
+  "description": "Засасывает всех в радиусе 10 блоков, нанося 5❤ урона и телепортируя в случайную точку мира.",
+  "cooldown_ticks": 3600
+}

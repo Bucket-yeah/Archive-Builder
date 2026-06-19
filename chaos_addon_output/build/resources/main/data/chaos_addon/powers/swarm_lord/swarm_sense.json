@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Роевое Чутьё",
+  "description": "Существа с менее чем 50% HP в радиусе 15 блоков подсвечиваются (обрабатывается Java-обработчиком).",
+  "hidden": false
+}

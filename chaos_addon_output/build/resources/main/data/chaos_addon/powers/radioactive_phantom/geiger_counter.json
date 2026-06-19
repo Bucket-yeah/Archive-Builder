@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Счётчик Гейгера",
+  "description": "Видишь визуальный уровень радиации вокруг (яркость glow-частиц пропорциональна близости к тебе).",
+  "hidden": false
+}

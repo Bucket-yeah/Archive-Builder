@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:generic.attack_damage",
+  "amount": -1.0,
+  "operation": "add_multiplied_base",
+  "name": "Мирная Душа",
+  "description": "Прямой урон = 0. Вместо боя — приручение: семена/яблоки/морковь делают мобов союзниками (до 5).",
+  "hidden": false
+}
