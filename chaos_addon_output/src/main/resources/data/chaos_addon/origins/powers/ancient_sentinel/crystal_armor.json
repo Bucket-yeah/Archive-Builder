@@ -12,39 +12,25 @@
     "actions": [
       {
         "type": "neoorigins:apply_effect",
-        "effect": {
-          "effect": "minecraft:resistance",
-          "duration": 400,
-          "amplifier": 4,
-          "ambient": false,
-          "show_particles": true
-        }
+        "effect": "minecraft:resistance",
+        "duration": 400,
+        "amplifier": 4
       },
       {
         "type": "neoorigins:apply_effect",
-        "effect": {
-          "effect": "minecraft:regeneration",
-          "duration": 400,
-          "amplifier": 0,
-          "ambient": false,
-          "show_particles": true
-        }
+        "effect": "minecraft:regeneration",
+        "duration": 400,
+        "amplifier": 0
       },
       {
         "type": "neoorigins:apply_effect",
-        "effect": {
-          "effect": "minecraft:slowness",
-          "duration": 400,
-          "amplifier": 9,
-          "ambient": false,
-          "show_particles": false
-        }
+        "effect": "minecraft:slowness",
+        "duration": 400,
+        "amplifier": 9
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:spell"
-        },
+        "particle": "minecraft:spell",
         "count": 40,
         "spread": {
           "x": 0.8,
@@ -56,9 +42,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:glow"
-        },
+        "particle": "minecraft:glow",
         "count": 20,
         "spread": {
           "x": 0.6,

@@ -16,9 +16,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:spore_blossom_air"
-        },
+        "particle": "minecraft:spore_blossom_air",
         "count": 120,
         "spread": {
           "x": 15.0,

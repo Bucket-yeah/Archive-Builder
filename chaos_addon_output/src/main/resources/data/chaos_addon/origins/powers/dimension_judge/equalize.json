@@ -16,9 +16,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:enchant_glyph"
-        },
+        "particle": "minecraft:enchant_glyph",
         "count": 80,
         "spread": {
           "x": 15.0,
@@ -30,9 +28,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:glow"
-        },
+        "particle": "minecraft:glow",
         "count": 50,
         "spread": {
           "x": 12.0,

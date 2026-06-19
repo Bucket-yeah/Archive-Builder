@@ -16,9 +16,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:explosion"
-        },
+        "particle": "minecraft:explosion",
         "count": 20,
         "spread": {
           "x": 1.5,
@@ -30,9 +28,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:firework"
-        },
+        "particle": "minecraft:firework",
         "count": 30,
         "spread": {
           "x": 2.0,

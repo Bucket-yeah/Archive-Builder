@@ -16,9 +16,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:end_rod"
-        },
+        "particle": "minecraft:end_rod",
         "count": 60,
         "spread": {
           "x": 2.0,
@@ -30,9 +28,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:enchant"
-        },
+        "particle": "minecraft:enchant",
         "count": 40,
         "spread": {
           "x": 1.5,

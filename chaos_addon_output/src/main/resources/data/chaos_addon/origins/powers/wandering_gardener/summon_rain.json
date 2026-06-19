@@ -16,9 +16,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:rain"
-        },
+        "particle": "minecraft:rain",
         "count": 100,
         "spread": {
           "x": 25.0,
@@ -30,9 +28,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:splash"
-        },
+        "particle": "minecraft:splash",
         "count": 60,
         "spread": {
           "x": 20.0,

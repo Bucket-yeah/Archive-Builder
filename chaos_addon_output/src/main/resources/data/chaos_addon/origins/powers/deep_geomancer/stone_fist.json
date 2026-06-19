@@ -16,9 +16,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:sonic_boom"
-        },
+        "particle": "minecraft:sonic_boom",
         "count": 3,
         "spread": {
           "x": 0.3,
@@ -30,9 +28,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:flame"
-        },
+        "particle": "minecraft:flame",
         "count": 20,
         "spread": {
           "x": 3.0,

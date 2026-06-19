@@ -16,29 +16,19 @@
       },
       {
         "type": "neoorigins:apply_effect",
-        "effect": {
-          "effect": "minecraft:speed",
-          "duration": 200,
-          "amplifier": 3,
-          "ambient": false,
-          "show_particles": true
-        }
+        "effect": "minecraft:speed",
+        "duration": 200,
+        "amplifier": 3
       },
       {
         "type": "neoorigins:apply_effect",
-        "effect": {
-          "effect": "minecraft:haste",
-          "duration": 200,
-          "amplifier": 3,
-          "ambient": false,
-          "show_particles": true
-        }
+        "effect": "minecraft:haste",
+        "duration": 200,
+        "amplifier": 3
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:sonic_boom"
-        },
+        "particle": "minecraft:sonic_boom",
         "count": 5,
         "spread": {
           "x": 0.5,
@@ -50,9 +40,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:sculk_charge"
-        },
+        "particle": "minecraft:sculk_charge",
         "count": 30,
         "spread": {
           "x": 0.8,

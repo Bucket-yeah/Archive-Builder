@@ -16,9 +16,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:portal"
-        },
+        "particle": "minecraft:portal",
         "count": 80,
         "spread": {
           "x": 1.5,
@@ -30,9 +28,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:dragon_breath"
-        },
+        "particle": "minecraft:dragon_breath",
         "count": 40,
         "spread": {
           "x": 1.0,

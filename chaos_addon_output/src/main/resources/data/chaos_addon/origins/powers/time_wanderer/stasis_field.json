@@ -16,19 +16,13 @@
       },
       {
         "type": "neoorigins:apply_effect",
-        "effect": {
-          "effect": "minecraft:slowness",
-          "duration": 160,
-          "amplifier": 9,
-          "ambient": false,
-          "show_particles": false
-        }
+        "effect": "minecraft:slowness",
+        "duration": 160,
+        "amplifier": 9
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:glow"
-        },
+        "particle": "minecraft:glow",
         "count": 60,
         "spread": {
           "x": 5.0,

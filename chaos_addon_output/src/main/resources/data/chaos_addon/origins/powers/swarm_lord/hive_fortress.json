@@ -12,19 +12,13 @@
     "actions": [
       {
         "type": "neoorigins:apply_effect",
-        "effect": {
-          "effect": "minecraft:resistance",
-          "duration": 100,
-          "amplifier": 2,
-          "ambient": false,
-          "show_particles": true
-        }
+        "effect": "minecraft:resistance",
+        "duration": 100,
+        "amplifier": 2
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:spore_blossom_air"
-        },
+        "particle": "minecraft:spore_blossom_air",
         "count": 50,
         "spread": {
           "x": 1.5,
