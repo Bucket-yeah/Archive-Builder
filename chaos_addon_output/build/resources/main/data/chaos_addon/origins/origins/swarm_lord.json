@@ -1,8 +1,7 @@
 {
   "name": "Повелитель Роя",
   "description": "Рой — это ты, ты — это рой. Каждый жучок — твоё продолжение.",
-  "icon": { "item": "minecraft:honeycomb" },
-  "loading_priority": 0,
+  "icon": "minecraft:honeycomb",
   "powers": [
     "chaos_addon:swarm_lord/swarm_production",
     "chaos_addon:swarm_lord/swarm_sense",
@@ -12,5 +11,7 @@
     "chaos_addon:swarm_lord/swarm_shield",
     "chaos_addon:swarm_lord/no_helmet",
     "chaos_addon:swarm_lord/water_vulnerability"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

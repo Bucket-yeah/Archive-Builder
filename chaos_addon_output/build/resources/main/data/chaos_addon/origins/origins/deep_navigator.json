@@ -1,8 +1,7 @@
 {
   "name": "Глубинный Навигатор",
   "description": "Ты скользишь между измерениями, как нож сквозь туман.",
-  "icon": { "item": "minecraft:ender_eye" },
-  "loading_priority": 0,
+  "icon": "minecraft:ender_eye",
   "powers": [
     "chaos_addon:deep_navigator/dimensional_sight",
     "chaos_addon:deep_navigator/ethereal_flesh",
@@ -12,5 +11,7 @@
     "chaos_addon:deep_navigator/void_portal",
     "chaos_addon:deep_navigator/no_natural_regen",
     "chaos_addon:deep_navigator/portal_decay"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

@@ -1,8 +1,7 @@
 {
   "name": "Лунный Отступник",
   "description": "Луна определяет твою судьбу. Ночь — твоё царство.",
-  "icon": { "item": "minecraft:end_crystal" },
-  "loading_priority": 0,
+  "icon": "minecraft:end_crystal",
   "powers": [
     "chaos_addon:lunar_renegade/lunar_cycle",
     "chaos_addon:lunar_renegade/silver_light",
@@ -12,5 +11,7 @@
     "chaos_addon:lunar_renegade/silver_shield",
     "chaos_addon:lunar_renegade/day_penalty",
     "chaos_addon:lunar_renegade/sun_burn"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

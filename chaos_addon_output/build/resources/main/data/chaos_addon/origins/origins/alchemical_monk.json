@@ -1,8 +1,7 @@
 {
   "name": "Алхимический Монах",
   "description": "Всё имеет цену. Твоя кровь — чернила великой трансмутации.",
-  "icon": { "item": "minecraft:brewing_stand" },
-  "loading_priority": 0,
+  "icon": "minecraft:brewing_stand",
   "powers": [
     "chaos_addon:alchemical_monk/material_imbalance",
     "chaos_addon:alchemical_monk/price_of_creation",
@@ -12,5 +11,7 @@
     "chaos_addon:alchemical_monk/flesh_transmutation",
     "chaos_addon:alchemical_monk/no_armor",
     "chaos_addon:alchemical_monk/overloaded_damage"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

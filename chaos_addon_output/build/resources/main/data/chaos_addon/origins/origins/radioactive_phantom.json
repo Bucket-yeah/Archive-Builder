@@ -1,8 +1,7 @@
 {
   "name": "Радиоактивный Фантом",
   "description": "Ты — ходячий реактор. Близость к тебе смертельна.",
-  "icon": { "item": "minecraft:experience_bottle" },
-  "loading_priority": 0,
+  "icon": "minecraft:experience_bottle",
   "powers": [
     "chaos_addon:radioactive_phantom/radiation_field",
     "chaos_addon:radioactive_phantom/flesh_rot",
@@ -12,5 +11,7 @@
     "chaos_addon:radioactive_phantom/mutagenic_blast",
     "chaos_addon:radioactive_phantom/material_decay",
     "chaos_addon:radioactive_phantom/rain_damage"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

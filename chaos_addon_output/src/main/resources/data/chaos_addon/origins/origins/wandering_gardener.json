@@ -1,8 +1,7 @@
 {
   "name": "Странствующий Садовник",
   "description": "Жизнь прорастает там, где ты ступаешь. Мир — твой сад.",
-  "icon": { "item": "minecraft:oak_sapling" },
-  "loading_priority": 0,
+  "icon": "minecraft:oak_sapling",
   "powers": [
     "chaos_addon:wandering_gardener/green_blood",
     "chaos_addon:wandering_gardener/peaceful_soul",
@@ -12,5 +11,7 @@
     "chaos_addon:wandering_gardener/summon_dryad",
     "chaos_addon:wandering_gardener/no_weapons",
     "chaos_addon:wandering_gardener/woodcutting_damage"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

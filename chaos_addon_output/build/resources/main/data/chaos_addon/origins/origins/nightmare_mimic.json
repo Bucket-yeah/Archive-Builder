@@ -1,8 +1,7 @@
 {
   "name": "Кошмарный Мим",
   "description": "Реальность — лишь иллюзия, которую ты контролируешь лучше всех.",
-  "icon": { "item": "minecraft:totem_of_undying" },
-  "loading_priority": 0,
+  "icon": "minecraft:totem_of_undying",
   "powers": [
     "chaos_addon:nightmare_mimic/illusory_flesh",
     "chaos_addon:nightmare_mimic/false_loot",
@@ -12,5 +11,7 @@
     "chaos_addon:nightmare_mimic/illusory_world",
     "chaos_addon:nightmare_mimic/no_valuables",
     "chaos_addon:nightmare_mimic/double_hunger"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

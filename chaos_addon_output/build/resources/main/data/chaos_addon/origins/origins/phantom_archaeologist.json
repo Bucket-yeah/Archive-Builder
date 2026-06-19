@@ -1,8 +1,7 @@
 {
   "name": "Фантомный Археолог",
   "description": "Смерть — это лишь откат к прошлой сессии. Ты живёшь в облаке.",
-  "icon": { "item": "minecraft:filled_map" },
-  "loading_priority": 0,
+  "icon": "minecraft:filled_map",
   "powers": [
     "chaos_addon:phantom_archaeologist/chunk_vision",
     "chaos_addon:phantom_archaeologist/ephemeral_inventory",
@@ -12,5 +11,7 @@
     "chaos_addon:phantom_archaeologist/chunk_scanner",
     "chaos_addon:phantom_archaeologist/sound_sensitivity",
     "chaos_addon:phantom_archaeologist/no_elytra"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

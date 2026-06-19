@@ -1,8 +1,7 @@
 {
   "name": "Глубинный Геомант",
   "description": "Земля поёт тебе. Руды светятся в твоих глазах. Ты — дитя недр.",
-  "icon": { "item": "minecraft:diamond_pickaxe" },
-  "loading_priority": 0,
+  "icon": "minecraft:diamond_pickaxe",
   "powers": [
     "chaos_addon:deep_geomancer/ore_vision",
     "chaos_addon:deep_geomancer/stone_flesh",
@@ -12,5 +11,7 @@
     "chaos_addon:deep_geomancer/stone_fist",
     "chaos_addon:deep_geomancer/no_pickaxes",
     "chaos_addon:deep_geomancer/altitude_damage"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

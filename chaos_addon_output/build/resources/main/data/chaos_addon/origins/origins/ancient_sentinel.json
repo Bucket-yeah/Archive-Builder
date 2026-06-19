@@ -1,8 +1,7 @@
 {
   "name": "Древний Страж",
   "description": "Горы — твоя плоть. Камень — твоя кровь. Ты неподвижная сила земли.",
-  "icon": { "item": "minecraft:stone" },
-  "loading_priority": 0,
+  "icon": "minecraft:stone",
   "powers": [
     "chaos_addon:ancient_sentinel/mountain_stride",
     "chaos_addon:ancient_sentinel/earth_bond",
@@ -12,5 +11,7 @@
     "chaos_addon:ancient_sentinel/earthquake",
     "chaos_addon:ancient_sentinel/liquid_sinking",
     "chaos_addon:ancient_sentinel/no_mobility"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

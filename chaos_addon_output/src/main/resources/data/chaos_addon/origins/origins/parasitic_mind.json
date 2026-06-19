@@ -1,8 +1,7 @@
 {
   "name": "Паразитический Разум",
   "description": "Зачем сражаться, когда можно управлять? Тела — всего лишь инструменты.",
-  "icon": { "item": "minecraft:rotten_flesh" },
-  "loading_priority": 0,
+  "icon": "minecraft:rotten_flesh",
   "powers": [
     "chaos_addon:parasitic_mind/alien_hands",
     "chaos_addon:parasitic_mind/telepathic_network",
@@ -12,5 +11,7 @@
     "chaos_addon:parasitic_mind/parasite_explosion",
     "chaos_addon:parasitic_mind/no_direct_attack",
     "chaos_addon:parasitic_mind/no_potions"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

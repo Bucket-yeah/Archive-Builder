@@ -1,8 +1,7 @@
 {
   "name": "Инженер Хаоса",
   "description": "Редстоун — твоя кровь. Хаотические схемы — твоё дыхание.",
-  "icon": { "item": "minecraft:redstone" },
-  "loading_priority": 0,
+  "icon": "minecraft:redstone",
   "powers": [
     "chaos_addon:chaos_engineer/energy_exchange",
     "chaos_addon:chaos_engineer/redstone_vision",
@@ -12,5 +11,7 @@
     "chaos_addon:chaos_engineer/redstone_pulse",
     "chaos_addon:chaos_engineer/no_potions",
     "chaos_addon:chaos_engineer/no_redstone_penalty"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }

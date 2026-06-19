@@ -1,8 +1,7 @@
 {
   "name": "Мицелиальный Симбионт",
   "description": "Мох — твои корни. Споры — твои мысли. Сеть — твой разум.",
-  "icon": { "item": "minecraft:brown_mushroom" },
-  "loading_priority": 0,
+  "icon": "minecraft:brown_mushroom",
   "powers": [
     "chaos_addon:mycelial_symbiont/moss_network",
     "chaos_addon:mycelial_symbiont/spore_feeding",
@@ -12,5 +11,7 @@
     "chaos_addon:mycelial_symbiont/spore_fog",
     "chaos_addon:mycelial_symbiont/moss_tether",
     "chaos_addon:mycelial_symbiont/water_kills_moss"
-  ]
+  ],
+  "upgrades": [],
+  "tier_powers": []
 }
