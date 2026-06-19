@@ -8,7 +8,8 @@
     "chaos_addon:star_oracle/star_aura",
     "chaos_addon:star_oracle/melee_vulnerability",
     "chaos_addon:star_oracle/meteor_strike",
-    "chaos_addon:star_oracle/celestial_guardian"
+    "chaos_addon:star_oracle/celestial_guardian",
+    "chaos_addon:star_oracle/star_apocalypse"
   ],
   "upgrades": [],
   "tier_powers": []

@@ -1,0 +1,32 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_star_apocalypse"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:end_rod"
+        },
+        "count": 60,
+        "spread": {
+          "x": 3.0,
+          "y": 4.0,
+          "z": 3.0
+        },
+        "speed": 0.1,
+        "force": true
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.secondary_active"
+  },
+  "name": "Звёздный Апокалипсис",
+  "description": "10 секунд заклинания (Замедление V), затем 20 метеоров падают в радиусе 30 блоков за 15 секунд. Каждый наносит 8❤ в радиусе 5 блоков и поджигает землю. Опасен для союзников!",
+  "cooldown_ticks": 1200
+}

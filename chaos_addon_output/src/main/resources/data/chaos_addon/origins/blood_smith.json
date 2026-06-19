@@ -7,7 +7,10 @@
     "chaos_addon:blood_smith/blood_armor",
     "chaos_addon:blood_smith/survival_instinct",
     "chaos_addon:blood_smith/blood_golem",
-    "chaos_addon:blood_smith/blood_blade"
+    "chaos_addon:blood_smith/blood_blade",
+    "chaos_addon:blood_smith/blood_sacrifice",
+    "chaos_addon:blood_smith/blood_sensitivity",
+    "chaos_addon:blood_smith/no_natural_regen"
   ],
   "upgrades": [],
   "tier_powers": []

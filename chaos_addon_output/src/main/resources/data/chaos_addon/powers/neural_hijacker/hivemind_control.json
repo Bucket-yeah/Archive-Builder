@@ -1,0 +1,68 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_hivemind"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:glow"
+        },
+        "count": 60,
+        "spread": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 3.0
+        },
+        "speed": 0.05,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:flame"
+        },
+        "count": 20,
+        "spread": {
+          "x": 2.0,
+          "y": 1.5,
+          "z": 2.0
+        },
+        "speed": 0.08,
+        "force": false
+      },
+      {
+        "type": "neoorigins:apply_effect",
+        "effect": {
+          "effect": "minecraft:invisibility",
+          "duration": 300,
+          "amplifier": 0,
+          "ambient": false,
+          "show_particles": false
+        }
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.elder_guardian.curse",
+        "volume": 1.0,
+        "pitch": 0.6
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.evoker.cast_spell",
+        "volume": 0.8,
+        "pitch": 0.8
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.tertiary_active"
+  },
+  "name": "Разум-Улей",
+  "description": "30 сек: все заражённые объединяются в единый разум, атакуют одну цель синхронно. 5+ заражённых = 20❤ за 2 сек. Ты получаешь Невидимость.",
+  "cooldown_ticks": 600
+}

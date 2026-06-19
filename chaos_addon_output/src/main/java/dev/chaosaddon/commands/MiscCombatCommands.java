@@ -196,14 +196,61 @@ public class MiscCombatCommands {
                 return 1;
             }));
 
+        dispatcher.register(Commands.literal("chaos_addon_eat_redstone")
+            .requires(src -> src.hasPermission(0))
+            .executes(ctx -> {
+                if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                if (!dev.chaosaddon.util.OriginHelper.hasPower(player, "chaos_addon:chaos_engineer/energy_exchange")) return 0;
+                var inv = player.getInventory();
+                int consumed = 0;
+                // Consume up to 4 redstone dust at a time
+                for (int i = 0; i < inv.getContainerSize() && consumed < 4; i++) {
+                    var stack = inv.getItem(i);
+                    if (stack.is(net.minecraft.world.item.Items.REDSTONE)) {
+                        int take = Math.min(4 - consumed, stack.getCount());
+                        stack.shrink(take);
+                        consumed += take;
+                    }
+                }
+                if (consumed == 0) {
+                    player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§cНет редстоуна в инвентаре!"));
+                    return 0;
+                }
+                // Each redstone dust = +2 HP
+                float heal = consumed * 2.0f;
+                player.setHealth(Math.min(player.getMaxHealth(), player.getHealth() + heal));
+                // Also restore 2 food points per dust
+                player.getFoodData().eat(consumed, consumed * 0.5f);
+                int energy = player.getPersistentData().getInt("chaos_engineer_energy") + consumed;
+                player.getPersistentData().putInt("chaos_engineer_energy", Math.min(64, energy));
+                player.serverLevel().sendParticles(ParticleTypes.ELECTRIC_SPARK,
+                    player.getX(), player.getY() + 1.0, player.getZ(), 20, 0.5, 1.0, 0.5, 0.1);
+                player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                    "§aПоглощено §c" + consumed + " §aредстоуна → §c+" + (int)heal + "§a❤"));
+                return consumed;
+            }));
+
         dispatcher.register(Commands.literal("chaos_addon_redstone_overload")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                // Require at least 16 energy (redstone eaten)
+                int energy = player.getPersistentData().getInt("chaos_engineer_energy");
+                if (energy < 16) {
+                    player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                        "§cНедостаточно энергии! Нужно §c16§c, есть §c" + energy + "§c. Ешьте редстоун!"));
+                    return 0;
+                }
+                player.getPersistentData().putInt("chaos_engineer_energy", energy - 16);
                 ServerLevel level = player.serverLevel();
                 level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(20),
                     e -> e != player && e.isAlive())
-                    .forEach(e -> { e.hurt(player.damageSources().magic(), 3.0f); e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1, false, true)); });
+                    .forEach(e -> {
+                        e.hurt(player.damageSources().magic(), 3.0f);
+                        e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1, false, true));
+                        // Random electrical effects
+                        if (RNG.nextBoolean()) e.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, true));
+                    });
                 level.sendParticles(ParticleTypes.ELECTRIC_SPARK, player.getX(), player.getY() + 1.0, player.getZ(), 80, 10.0, 3.0, 10.0, 0.2);
                 level.playSound(null, player.blockPosition(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 1.0f, 0.8f);
                 return 1;
@@ -214,12 +261,20 @@ public class MiscCombatCommands {
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
                 ServerLevel level = player.serverLevel();
+                // Energy check: golem costs 8 energy
+                int eng = player.getPersistentData().getInt("chaos_engineer_energy");
+                if (eng < 8) {
+                    player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                        "§cНедостаточно энергии! Нужно §c8§c, есть §c" + eng + "§c. Ешьте редстоун!"));
+                    return 0;
+                }
                 boolean hasIron = player.getInventory().countItem(Items.IRON_BLOCK) >= 4
                     || player.getInventory().countItem(Items.IRON_INGOT) >= 16;
                 if (!hasIron) {
                     player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§cНужно 4 блока железа или 16 слитков!"));
                     return 0;
                 }
+                player.getPersistentData().putInt("chaos_engineer_energy", eng - 8);
                 BlockPos pos = player.blockPosition().offset(2, 0, 0);
                 var golem = EntityType.IRON_GOLEM.create(level);
                 if (golem == null) return 0;

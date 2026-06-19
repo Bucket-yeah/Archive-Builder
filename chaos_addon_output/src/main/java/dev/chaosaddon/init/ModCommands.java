@@ -19,6 +19,7 @@ public class ModCommands {
         RealityShiftCommand.register(dispatcher);
         AbyssSummonCommand.register(dispatcher);
         TimeLoopCommand.register(dispatcher);
+        RealityCollapseCommand.register(dispatcher);
 
         // ── Swarm Lord ──
         SwarmAttackCommand.register(dispatcher);
@@ -67,5 +68,10 @@ public class ModCommands {
         BloodSmithCommands.register(dispatcher);
         StarOracleCommands.register(dispatcher);
         MirrorPhantomCommands.register(dispatcher);
+
+        // ── Additional commands ──
+        SilverShieldCommand.register(dispatcher);
+        DeadLegionCommand.register(dispatcher);
+        StarApocalypseCommand.register(dispatcher);
     }
 }

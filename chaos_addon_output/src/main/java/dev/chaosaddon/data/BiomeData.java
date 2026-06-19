@@ -24,6 +24,8 @@ public class BiomeData {
     public int getBiomeTime(String biome) { return biomeTicks.getOrDefault(biome, 0); }
     public String carryBiome() { return carryBiome; }
     public void setCarryBiome(String b) { carryBiome = b; }
+    public int getUniqueBiomeCount() { return (int) biomeTicks.entrySet().stream()
+        .filter(e -> e.getValue() >= 3600).count(); } // biomes spent 3+ min in
 
     public static final Codec<BiomeData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
         Codec.unboundedMap(Codec.STRING, Codec.INT).fieldOf("biome_ticks").forGetter(d -> d.biomeTicks),

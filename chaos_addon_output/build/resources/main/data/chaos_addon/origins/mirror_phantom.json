@@ -7,7 +7,10 @@
     "chaos_addon:mirror_phantom/disguise",
     "chaos_addon:mirror_phantom/death_echo",
     "chaos_addon:mirror_phantom/perfect_copy",
-    "chaos_addon:mirror_phantom/mirror_world"
+    "chaos_addon:mirror_phantom/mirror_world",
+    "chaos_addon:mirror_phantom/stolen_identity",
+    "chaos_addon:mirror_phantom/fragile_form",
+    "chaos_addon:mirror_phantom/sun_vulnerability"
   ],
   "upgrades": [],
   "tier_powers": []

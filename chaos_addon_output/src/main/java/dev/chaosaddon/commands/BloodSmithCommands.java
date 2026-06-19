@@ -12,8 +12,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.IronGolem;
@@ -41,6 +43,10 @@ public class BloodSmithCommands {
         dispatcher.register(Commands.literal("chaos_addon_blood_blade")
             .requires(src -> src.hasPermission(0))
             .executes(BloodSmithCommands::bloodBlade));
+
+        dispatcher.register(Commands.literal("chaos_addon_blood_sacrifice")
+            .requires(src -> src.hasPermission(0))
+            .executes(BloodSmithCommands::bloodSacrifice));
     }
 
     private static int bloodGolem(CommandContext<CommandSourceStack> ctx) {
@@ -152,6 +158,79 @@ public class BloodSmithCommands {
         player.displayClientMessage(
             net.minecraft.network.chat.Component.literal("§c🗡 Кровавый Клинок! (-" + cost + " зарядов)"),
             false);
+        return 1;
+    }
+
+    private static int bloodSacrifice(CommandContext<CommandSourceStack> ctx) {
+        if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+        ServerLevel level = player.serverLevel();
+
+        // Cost: 40 charges + 4 HP sacrifice
+        int cost = player.getHealth() <= 4.0f ? 20 : 40;
+        if (!BloodSmithHandler.spendCharges(player, cost)) {
+            player.displayClientMessage(
+                net.minecraft.network.chat.Component.literal(
+                    "§4Недостаточно зарядов для жертвы! Нужно " + cost), false);
+            return 0;
+        }
+        // Sacrifice HP
+        if (player.getHealth() <= 4.0f) {
+            player.displayClientMessage(
+                net.minecraft.network.chat.Component.literal("§4Слишком мало HP для жертвы!"), false);
+            BloodSmithHandler.spendCharges(player, -cost); // refund
+            return 0;
+        }
+        player.hurt(player.damageSources().magic(), 4.0f);
+
+        // Summon "Blood Titan" — use Iron Golem with enhanced stats
+        BlockPos pos = player.blockPosition().offset(3, 0, 0);
+        IronGolem titan = EntityType.IRON_GOLEM.create(level);
+        if (titan == null) return 0;
+
+        titan.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
+        titan.addTag("chaos_blood_titan");
+        titan.setGlowingTag(true);
+
+        // 80 HP
+        var maxHp = titan.getAttribute(Attributes.MAX_HEALTH);
+        if (maxHp != null) {
+            ResourceLocation hpMod = ResourceLocation.fromNamespaceAndPath("chaos_addon", "blood_titan_hp");
+            maxHp.removeModifier(hpMod);
+            maxHp.addTransientModifier(new AttributeModifier(hpMod, -20.0, AttributeModifier.Operation.ADD_VALUE));
+        }
+        titan.setHealth(80.0f);
+
+        // 10 attack damage
+        var atk = titan.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (atk != null) {
+            ResourceLocation atkMod = ResourceLocation.fromNamespaceAndPath("chaos_addon", "blood_titan_atk");
+            atk.removeModifier(atkMod);
+            atk.addTransientModifier(new AttributeModifier(atkMod, 4.0, AttributeModifier.Operation.ADD_VALUE));
+        }
+
+        titan.getPersistentData().putInt("chaos_despawn_ticks", 400); // 20 sec
+        titan.getPersistentData().putBoolean("chaos_blood_titan", true);
+        titan.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
+        level.addFreshEntity(titan);
+
+        // Apply weakness to player while titan lives
+        player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 400, 1, false, true));
+
+        // FX
+        for (int i = 0; i < 12; i++) {
+            double angle = (Math.PI * 2 / 12) * i;
+            level.sendParticles(ParticleTypes.FALLING_DRIPSTONE_LAVA,
+                pos.getX() + Math.cos(angle) * 2.0, pos.getY() + 1.5, pos.getZ() + Math.sin(angle) * 2.0,
+                5, 0, 1.0, 0, 0.1);
+        }
+        level.sendParticles(ParticleTypes.EXPLOSION_EMITTER,
+            pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 2, 0.5, 0.5, 0.5, 0.0);
+        level.playSound(null, pos, SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 0.8f, 0.7f);
+        level.playSound(null, pos, SoundEvents.IRON_GOLEM_DEATH, SoundSource.PLAYERS, 1.0f, 0.5f);
+
+        player.displayClientMessage(
+            net.minecraft.network.chat.Component.literal(
+                "§4💀 Кровавый Титан призван! (-" + cost + " зарядов, -4❤ жертва)"), false);
         return 1;
     }
 }

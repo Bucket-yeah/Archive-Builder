@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": -10.0,
+  "operation": "add_value",
+  "name": "Зависимость от Хозяина",
+  "description": "Максимальное HP = 10❤. Без заражённых хозяев рядом — медленно теряешь HP (-0.5❤/20 сек).",
+  "hidden": false
+}

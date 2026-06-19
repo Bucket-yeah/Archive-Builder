@@ -1,1 +1,2 @@
 - [NeoOrigins data paths](neoorigins-data-paths.md) — origins go in origins/origins/, layers in origins/origin_layers/ — NOT flat origins/ like Origins (Fabric).
+- [NeoForge 1.21.1 API quirks](neoforge-1211-quirks.md) — ItemStack.isEdible() removed; use item.has(DataComponents.FOOD). LivingAttackEvent removed; use LivingIncomingDamageEvent.

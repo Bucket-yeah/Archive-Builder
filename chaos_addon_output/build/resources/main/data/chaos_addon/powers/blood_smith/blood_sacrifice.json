@@ -1,0 +1,58 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_blood_sacrifice"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:dragon_breath"
+        },
+        "count": 80,
+        "spread": {
+          "x": 3.0,
+          "y": 4.0,
+          "z": 3.0
+        },
+        "speed": 0.15,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:explosion_emitter"
+        },
+        "count": 3,
+        "spread": {
+          "x": 1.5,
+          "y": 0.5,
+          "z": 1.5
+        },
+        "speed": 0.0,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.wither.spawn",
+        "volume": 0.8,
+        "pitch": 0.7
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.iron_golem.death",
+        "volume": 1.0,
+        "pitch": 0.5
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.tertiary_active"
+  },
+  "name": "Жертва Крови",
+  "description": "Жертвует 4❤ HP → призывает Кровавого Титана (80❤, 10❤ урон) на 20 сек. При гибели — взрыв 5❤ в радиусе 10 блоков. Пока Титан жив: Слабость II.",
+  "cooldown_ticks": 600
+}

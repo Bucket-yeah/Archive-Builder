@@ -8,7 +8,8 @@
     "chaos_addon:necrovore/death_feast",
     "chaos_addon:necrovore/no_normal_food",
     "chaos_addon:necrovore/raise_dead",
-    "chaos_addon:necrovore/devour_soul"
+    "chaos_addon:necrovore/devour_soul",
+    "chaos_addon:necrovore/dead_legion"
   ],
   "upgrades": [],
   "tier_powers": []

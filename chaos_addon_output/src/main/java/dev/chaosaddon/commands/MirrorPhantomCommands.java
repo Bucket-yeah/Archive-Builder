@@ -19,6 +19,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -39,6 +40,10 @@ public class MirrorPhantomCommands {
         dispatcher.register(Commands.literal("chaos_addon_mirror_world")
             .requires(src -> src.hasPermission(0))
             .executes(MirrorPhantomCommands::mirrorWorld));
+
+        dispatcher.register(Commands.literal("chaos_addon_stolen_identity")
+            .requires(src -> src.hasPermission(0))
+            .executes(MirrorPhantomCommands::stolenIdentity));
     }
 
     private static int perfectCopy(CommandContext<CommandSourceStack> ctx) {
@@ -145,6 +150,94 @@ public class MirrorPhantomCommands {
 
         player.displayClientMessage(
             net.minecraft.network.chat.Component.literal("§d🪞 Зеркальный Мир активен (8 сек)!"), false);
+        return 1;
+    }
+
+    private static int stolenIdentity(CommandContext<CommandSourceStack> ctx) {
+        if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+        ServerLevel level = player.serverLevel();
+
+        // Find nearest living entity within 10 blocks
+        Optional<LivingEntity> nearest = level.getEntitiesOfClass(
+            LivingEntity.class,
+            player.getBoundingBox().inflate(10),
+            e -> e != player && e.isAlive())
+            .stream()
+            .min(Comparator.comparingDouble(e -> e.distanceTo(player)));
+
+        if (nearest.isEmpty()) {
+            player.displayClientMessage(
+                net.minecraft.network.chat.Component.literal("§4Нет цели рядом!"), false);
+            return 0;
+        }
+
+        LivingEntity target = nearest.get();
+
+        // Steal HP, speed, damage for 15 sec (300 ticks)
+        float targetMaxHp = target.getMaxHealth();
+        float currentHpRatio = player.getHealth() / player.getMaxHealth();
+
+        // Health modifier
+        ResourceLocation hpMod = ResourceLocation.fromNamespaceAndPath("chaos_addon", "stolen_identity_hp");
+        ResourceLocation spdMod = ResourceLocation.fromNamespaceAndPath("chaos_addon", "stolen_identity_spd");
+        ResourceLocation atkMod = ResourceLocation.fromNamespaceAndPath("chaos_addon", "stolen_identity_atk");
+
+        var maxHpAttr = player.getAttribute(Attributes.MAX_HEALTH);
+        if (maxHpAttr != null) {
+            maxHpAttr.removeModifier(hpMod);
+            double hpDelta = targetMaxHp - player.getMaxHealth();
+            if (hpDelta != 0) {
+                maxHpAttr.addTransientModifier(new AttributeModifier(
+                    hpMod, hpDelta, AttributeModifier.Operation.ADD_VALUE));
+                player.setHealth(Math.min(player.getMaxHealth(), targetMaxHp * currentHpRatio + 2));
+            }
+        }
+
+        // Speed modifier from target
+        var speedAttr = target.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (speedAttr != null) {
+            var playerSpeedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
+            if (playerSpeedAttr != null) {
+                playerSpeedAttr.removeModifier(spdMod);
+                double spdDelta = speedAttr.getValue() - playerSpeedAttr.getBaseValue();
+                if (Math.abs(spdDelta) > 0.01) {
+                    playerSpeedAttr.addTransientModifier(new AttributeModifier(
+                        spdMod, spdDelta, AttributeModifier.Operation.ADD_VALUE));
+                }
+            }
+        }
+
+        // Attack damage from target
+        var atkAttr = target.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (atkAttr != null) {
+            var playerAtk = player.getAttribute(Attributes.ATTACK_DAMAGE);
+            if (playerAtk != null) {
+                playerAtk.removeModifier(atkMod);
+                double atkDelta = atkAttr.getValue() - playerAtk.getBaseValue();
+                if (atkDelta > 0) {
+                    playerAtk.addTransientModifier(new AttributeModifier(
+                        atkMod, atkDelta, AttributeModifier.Operation.ADD_VALUE));
+                }
+            }
+        }
+
+        // Mark expiry in NBT
+        player.getPersistentData().putInt("chaos_stolen_identity_ticks", 300); // 15 sec
+
+        // FX
+        level.sendParticles(ParticleTypes.DRAGON_BREATH,
+            player.getX(), player.getY() + 1.0, player.getZ(), 60, 1.5, 2.0, 1.5, 0.1);
+        level.sendParticles(ParticleTypes.SCULK_CHARGE_POP,
+            player.getX(), player.getY() + 1.0, player.getZ(), 30, 1.0, 1.5, 1.0, 0.08);
+        level.playSound(null, player.blockPosition(),
+            SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.PLAYERS, 0.6f, 0.8f);
+        level.playSound(null, player.blockPosition(),
+            SoundEvents.ENDER_DRAGON_HURT, SoundSource.PLAYERS, 0.5f, 1.4f);
+
+        String targetName = target.getType().getDescription().getString();
+        player.displayClientMessage(
+            net.minecraft.network.chat.Component.literal(
+                "§5🪞 Украдена личность: " + targetName + " (15 сек)!"), false);
         return 1;
     }
 }

@@ -65,6 +65,9 @@ public class StarOracleHandler {
                 fireMeteorShower(player, level, 5, 15);
             }
         }
+
+        // Star Apocalypse: process pending meteor rain
+        dev.chaosaddon.commands.StarApocalypseCommand.processMeteors(player, level);
     }
 
     /** Cosmic body: amplify melee damage, suppress fire damage halving */

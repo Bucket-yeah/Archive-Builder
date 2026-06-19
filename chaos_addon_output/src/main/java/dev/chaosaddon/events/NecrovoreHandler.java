@@ -65,6 +65,11 @@ public class NecrovoreHandler {
             ie.setPickUpDelay(10);
             level.addFreshEntity(ie);
 
+            // Also increment NBT soul count (used by Dead Legion command)
+            int currentCount = player.getPersistentData().getInt("chaos_soul_count");
+            player.getPersistentData().putInt("chaos_soul_count",
+                Math.min(MAX_SOULS, currentCount + 1));
+
             // FX
             level.sendParticles(ParticleTypes.SOUL,
                 dead.getX(), dead.getY() + 0.8, dead.getZ(),

@@ -40,6 +40,12 @@ public class ChaosAddon {
         NeoForge.EVENT_BUS.register(StarOracleHandler.class);
         NeoForge.EVENT_BUS.register(MirrorPhantomHandler.class);
 
+        // ── Missing origin handlers ──
+        NeoForge.EVENT_BUS.register(InfernalShepherdHandler.class);
+        NeoForge.EVENT_BUS.register(WanderingGardenerHandler.class);
+        NeoForge.EVENT_BUS.register(DeepNavigatorHandler.class);
+        NeoForge.EVENT_BUS.register(ChaosEngineerHandler.class);
+
         // ── Commands ──
         NeoForge.EVENT_BUS.register(ModCommands.class);
     }

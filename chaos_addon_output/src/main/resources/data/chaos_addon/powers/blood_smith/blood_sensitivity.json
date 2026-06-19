@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:armor",
+  "amount": -4.0,
+  "operation": "add_value",
+  "name": "Кровавая Чувствительность",
+  "description": "Доспехи не дают полного эффекта: -4 к броне. Зато при получении урона накапливаются кровяные заряды.",
+  "hidden": false
+}
