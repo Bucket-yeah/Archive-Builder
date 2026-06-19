@@ -1,1 +1,1 @@
-{"type":"origins:action_over_time","interval":20,"entity_action":{"type":"origins:execute_command","command":"effect give @s minecraft:hunger 2 0 true"},"name":"Вечный Голод","description":"Голод падает вдвое быстрее. Иллюзорная пища не насыщает.","hidden":true}
+{"type":"neoorigins:action_over_time","interval":20,"entity_action":{"type":"neoorigins:execute_command","command":"effect give @s minecraft:hunger 2 0 true"},"name":"Вечный Голод","description":"Голод падает вдвое быстрее. Иллюзорная пища не насыщает.","hidden":true}

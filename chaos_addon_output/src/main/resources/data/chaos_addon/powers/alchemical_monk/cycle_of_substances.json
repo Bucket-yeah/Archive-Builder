@@ -1,5 +1,5 @@
 {
-  "type": "origins:nothing",
+  "type": "neoorigins:nothing",
   "name": "Круговорот Веществ",
   "description": "При разрушении блока 5% шанс получить случайный ресурс вместо обычного дропа.",
   "hidden": false

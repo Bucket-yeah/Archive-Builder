@@ -1,10 +1,10 @@
 {
-  "type": "origins:active_self",
+  "type": "neoorigins:active_self",
   "entity_action": {
-    "type": "origins:and",
+    "type": "neoorigins:and",
     "actions": [
       {
-        "type": "origins:apply_effect",
+        "type": "neoorigins:apply_effect",
         "effect": {
           "effect": "minecraft:resistance",
           "duration": 100,
@@ -14,12 +14,12 @@
         }
       },
       {
-        "type": "origins:spawn_particles",
+        "type": "neoorigins:spawn_particles",
         "particle": { "type": "minecraft:spore_blossom_air" },
         "count": 50, "spread": { "x": 1.5, "y": 1.0, "z": 1.5 }, "speed": 0.05, "force": false
       },
       {
-        "type": "origins:play_sound",
+        "type": "neoorigins:play_sound",
         "sound": "minecraft:block.respawn_anchor.charge", "volume": 1.0, "pitch": 0.8
       }
     ]

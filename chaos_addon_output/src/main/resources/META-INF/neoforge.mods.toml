@@ -23,9 +23,9 @@ description    = """${mod_description}"""
     side        = "BOTH"
 
 [[dependencies.chaos_addon]]
-    modId       = "origins"
+    modId       = "neoorigins"
     type        = "required"
-    versionRange = "[0.1-alpha.2,)"
+    versionRange = "[2.2,)"
     ordering    = "AFTER"
     side        = "BOTH"
 
