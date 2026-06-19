@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": -10.0,
+  "operation": "add_value",
+  "name": "Паразитическое Тело",
+  "description": "Максимальное здоровье снижено до 10 HP. Броня не работает. Каждые 10 секунд рядом с заражённым хозяином восстанавливается 1 HP.",
+  "hidden": false
+}

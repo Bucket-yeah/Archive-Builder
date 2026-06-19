@@ -1,0 +1,15 @@
+{
+  "name": "Некровор",
+  "description": "Ты пожираешь мёртвых и командуешь армией нежити. Чем больше убиваешь — тем сильнее становишься.",
+  "icon": "minecraft:bone",
+  "powers": [
+    "chaos_addon:necrovore/soul_drop",
+    "chaos_addon:necrovore/undead_diplomacy",
+    "chaos_addon:necrovore/death_feast",
+    "chaos_addon:necrovore/no_normal_food",
+    "chaos_addon:necrovore/raise_dead",
+    "chaos_addon:necrovore/devour_soul"
+  ],
+  "upgrades": [],
+  "tier_powers": []
+}

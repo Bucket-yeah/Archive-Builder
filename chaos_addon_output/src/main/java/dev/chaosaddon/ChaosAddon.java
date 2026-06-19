@@ -21,7 +21,7 @@ public class ChaosAddon {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(ChaosAddonConfig::onLoad);
 
-        // Register all server-side event handlers
+        // ── Original 18 races ──
         NeoForge.EVENT_BUS.register(ChaoticAuraHandler.class);
         NeoForge.EVENT_BUS.register(HungerXPHandler.class);
         NeoForge.EVENT_BUS.register(SwarmHandler.class);
@@ -32,12 +32,20 @@ public class ChaosAddon {
         NeoForge.EVENT_BUS.register(GeneralPowerHandler.class);
         NeoForge.EVENT_BUS.register(AlchemistHandler.class);
         NeoForge.EVENT_BUS.register(ArchaeologistHandler.class);
+
+        // ── 5 New races (v3.0.0) ──
+        NeoForge.EVENT_BUS.register(NecrovoreHandler.class);
+        NeoForge.EVENT_BUS.register(NeuralHijackerHandler.class);
+        NeoForge.EVENT_BUS.register(BloodSmithHandler.class);
+        NeoForge.EVENT_BUS.register(StarOracleHandler.class);
+        NeoForge.EVENT_BUS.register(MirrorPhantomHandler.class);
+
+        // ── Commands ──
         NeoForge.EVENT_BUS.register(ModCommands.class);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            // Any synchronous setup that needs to run on the main thread
         });
     }
 }

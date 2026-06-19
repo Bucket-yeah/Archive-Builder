@@ -1,0 +1,18 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_devour_soul"
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.secondary_active"
+  },
+  "name": "Поглощение Душ",
+  "description": "Поглощает до 3 Душ из инвентаря: каждая восстанавливает 3 HP и даёт Силу II на 6 секунд.",
+  "cooldown_ticks": 400
+}

@@ -295,20 +295,112 @@ public class GeneralPowerHandler {
     }
 
     /**
-     * Despawn helper: mimic decoys and other tagged mobs with a despawn counter.
+     * Despawn helper: tagged mobs with a despawn counter (all races).
      */
     @SubscribeEvent
     public static void onEntityDespawnTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof LivingEntity entity)) return;
         if (!entity.getTags().contains("chaos_mimic_decoy")
             && !entity.getTags().contains("chaos_infernal_pet")
-            && !entity.getTags().contains("chaos_engineer_golem")) return;
+            && !entity.getTags().contains("chaos_engineer_golem")
+            && !entity.getTags().contains("chaos_blood_golem")
+            && !entity.getTags().contains("chaos_celestial_guardian")
+            && !entity.getTags().contains("chaos_mirror_copy")) return;
 
         int ticks = entity.getPersistentData().getInt("chaos_despawn_ticks");
         if (ticks <= 0) {
+            if (entity.level() instanceof ServerLevel level) {
+                level.sendParticles(net.minecraft.core.particles.ParticleTypes.SMOKE,
+                    entity.getX(), entity.getY() + 1.0, entity.getZ(),
+                    10, 0.4, 0.5, 0.4, 0.02);
+            }
             entity.kill();
         } else {
             entity.getPersistentData().putInt("chaos_despawn_ticks", ticks - 1);
+        }
+    }
+
+    /**
+     * Mirror World timer: remove tag after 8 seconds.
+     * Blood Blade timer: remove tag after 6 seconds.
+     */
+    @SubscribeEvent
+    public static void onPlayerTagTimers(PlayerTickEvent.Post event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        // Mirror World timer
+        if (player.getTags().contains("chaos_mirror_world")) {
+            int ticks = player.getPersistentData().getInt("chaos_mirror_world_ticks");
+            if (ticks <= 0) {
+                player.removeTag("chaos_mirror_world");
+                player.getPersistentData().remove("chaos_mirror_world_ticks");
+            } else {
+                player.getPersistentData().putInt("chaos_mirror_world_ticks", ticks - 1);
+            }
+        }
+
+        // Blood Blade timer — leave cloud when player hits something
+        if (player.getTags().contains("chaos_blood_blade_active")) {
+            int ticks = player.getPersistentData().getInt("chaos_blood_blade_ticks");
+            if (ticks <= 0) {
+                player.removeTag("chaos_blood_blade_active");
+                player.getPersistentData().remove("chaos_blood_blade_ticks");
+            } else {
+                player.getPersistentData().putInt("chaos_blood_blade_ticks", ticks - 1);
+                // Trail particles while active
+                if (ticks % 5 == 0) {
+                    level.sendParticles(net.minecraft.core.particles.ParticleTypes.FALLING_DRIPSTONE_LAVA,
+                        player.getX(), player.getY() + 0.8, player.getZ(),
+                        3, 0.2, 0.3, 0.2, 0.02);
+                }
+            }
+        }
+    }
+
+    /**
+     * Blood Blade: when player attacks, leave a blood cloud at the hit location.
+     */
+    @SubscribeEvent
+    public static void onBloodBladeAttack(AttackEntityEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!player.getTags().contains("chaos_blood_blade_active")) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+        if (!(event.getTarget() instanceof LivingEntity target)) return;
+
+        // Create cloud of blood particles at target
+        level.sendParticles(net.minecraft.core.particles.ParticleTypes.FALLING_DRIPSTONE_LAVA,
+            target.getX(), target.getY() + 0.5, target.getZ(),
+            20, 0.6, 0.4, 0.6, 0.05);
+
+        // Tag the area — periodic damage to mobs in blood cloud
+        // Store cloud position in target's data for 3 seconds
+        target.addTag("chaos_blood_cloud");
+        target.getPersistentData().putInt("chaos_blood_cloud_ticks", 60);
+    }
+
+    /**
+     * Blood cloud tick: damage entities in cloud.
+     */
+    @SubscribeEvent
+    public static void onBloodCloudTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) return;
+        if (!entity.getTags().contains("chaos_blood_cloud")) return;
+
+        int ticks = entity.getPersistentData().getInt("chaos_blood_cloud_ticks");
+        if (ticks <= 0) {
+            entity.removeTag("chaos_blood_cloud");
+            entity.getPersistentData().remove("chaos_blood_cloud_ticks");
+        } else {
+            entity.getPersistentData().putInt("chaos_blood_cloud_ticks", ticks - 1);
+            if (ticks % 20 == 0) {
+                entity.hurt(entity.damageSources().magic(), 1.0f);
+                if (entity.level() instanceof ServerLevel level) {
+                    level.sendParticles(net.minecraft.core.particles.ParticleTypes.FALLING_DRIPSTONE_LAVA,
+                        entity.getX(), entity.getY() + 0.5, entity.getZ(),
+                        8, 0.3, 0.3, 0.3, 0.02);
+                }
+            }
         }
     }
 }

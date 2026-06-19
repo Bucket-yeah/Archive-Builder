@@ -1,0 +1,18 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_neural_seizure"
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.primary_active"
+  },
+  "name": "Захват Нервной Системы",
+  "description": "Захватывает ближайшее существо (HP < 60%) на 25 секунд. Максимум 3 цели. Захваченные получают +20% к урону.",
+  "cooldown_ticks": 100
+}

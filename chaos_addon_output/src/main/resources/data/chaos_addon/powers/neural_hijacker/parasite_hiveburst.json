@@ -1,0 +1,18 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_hiveburst"
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.secondary_active"
+  },
+  "name": "Паразитический Взрыв",
+  "description": "Все захваченные существа взрываются нанося 5 HP урона в радиусе 6 блоков каждый. Создают споровое облако заражения.",
+  "cooldown_ticks": 240
+}

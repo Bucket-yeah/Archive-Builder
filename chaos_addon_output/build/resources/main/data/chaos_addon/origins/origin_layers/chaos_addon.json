@@ -24,6 +24,11 @@
     "chaos_addon:dimension_judge",
     "chaos_addon:mycelial_symbiont",
     "chaos_addon:deep_geomancer",
-    "chaos_addon:wandering_gardener"
+    "chaos_addon:wandering_gardener",
+    "chaos_addon:necrovore",
+    "chaos_addon:neural_hijacker",
+    "chaos_addon:blood_smith",
+    "chaos_addon:star_oracle",
+    "chaos_addon:mirror_phantom"
   ]
 }

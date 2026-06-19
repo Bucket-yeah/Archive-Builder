@@ -1,0 +1,18 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_blood_blade"
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.secondary_active"
+  },
+  "name": "Кровавый Клинок",
+  "description": "Тратит 15 зарядов. Дает Силу III на 6 секунд. Каждый удар оставляет кровавое облако наносящее 1 HP/сек врагам в нём.",
+  "cooldown_ticks": 160
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Кровавый Кузнец",
+  "description": "Твоя кровь — это ресурс. Каждый удар по тебе заряжает тебя энергией. Трать её на создание голема и клинка из крови.",
+  "icon": "minecraft:fermented_spider_eye",
+  "powers": [
+    "chaos_addon:blood_smith/blood_bank",
+    "chaos_addon:blood_smith/blood_armor",
+    "chaos_addon:blood_smith/survival_instinct",
+    "chaos_addon:blood_smith/blood_golem",
+    "chaos_addon:blood_smith/blood_blade"
+  ],
+  "upgrades": [],
+  "tier_powers": []
+}

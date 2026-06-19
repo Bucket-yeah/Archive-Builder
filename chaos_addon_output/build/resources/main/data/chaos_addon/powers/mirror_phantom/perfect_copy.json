@@ -1,0 +1,18 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_perfect_copy"
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.primary_active"
+  },
+  "name": "Идеальная Копия",
+  "description": "Создаёт точную копию ближайшего существа в 5 блоках (с его HP и уроном). Копия атакует врагов 15 секунд, затем исчезает.",
+  "cooldown_ticks": 200
+}

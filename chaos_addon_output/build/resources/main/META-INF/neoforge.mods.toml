@@ -4,9 +4,9 @@ license = "MIT"
 
 [[mods]]
 modId          = "chaos_addon"
-version        = "2.0.0"
+version        = "3.0.0"
 displayName    = "Origins: Chaos Addon"
-description    = """18 unique chaos races that radically change survival and PvP."""
+description    = """23 unique chaos races that radically change survival and PvP."""
 
 [[dependencies.chaos_addon]]
     modId       = "neoforge"

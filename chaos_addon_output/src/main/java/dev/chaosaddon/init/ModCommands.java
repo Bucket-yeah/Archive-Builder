@@ -22,43 +22,50 @@ public class ModCommands {
 
         // ── Swarm Lord ──
         SwarmAttackCommand.register(dispatcher);
-        HivemindCommand.register(dispatcher);    // also registers chaos_addon_parasite_explode
+        HivemindCommand.register(dispatcher);
 
         // ── Deep Navigator ──
-        NavigatorCommands.register(dispatcher);  // portal_rift, reality_anchor, void_portal
+        NavigatorCommands.register(dispatcher);
 
         // ── Alchemical Monk ──
-        AlchemistCommands.register(dispatcher);  // golden_touch, phil_blast, transmute_flesh
+        AlchemistCommands.register(dispatcher);
 
         // ── Phantom Archaeologist ──
-        ArchaeologistCommands.register(dispatcher); // cache_memory, defrag, chunk_scan
+        ArchaeologistCommands.register(dispatcher);
 
         // ── Parasitic Mind ──
         InfectionCommand.register(dispatcher);
 
         // ── Biomorph ──
-        BiomeCommands.register(dispatcher);      // biome_shift, biome_burst, biome_capture
+        BiomeCommands.register(dispatcher);
 
         // ── Lunar Renegade ──
         LunarDashCommand.register(dispatcher);
         EclipseCommand.register(dispatcher);
 
         // ── Ancient Sentinel ──
-        QuakeCommand.register(dispatcher);       // plate_thrust + earthquake
+        QuakeCommand.register(dispatcher);
 
         // ── Dimension Judge ──
-        JudgeCommands.register(dispatcher);      // verdict, annihilate, equalize
+        JudgeCommands.register(dispatcher);
 
         // ── Mycelial Symbiont ──
-        SymbiontCommands.register(dispatcher);   // spore_harvest, moss_teleport, spore_fog
+        SymbiontCommands.register(dispatcher);
 
         // ── Deep Geomancer ──
-        GeomancerCommands.register(dispatcher);  // ore_extract, rock_shift, stone_fist
+        GeomancerCommands.register(dispatcher);
 
         // ── Wandering Gardener ──
-        GardenerCommands.register(dispatcher);   // growth_blessing, summon_rain, summon_dryad
+        GardenerCommands.register(dispatcher);
 
         // ── Misc (Infernal Shepherd, Nightmare Mimic, Radioactive Phantom, Chaos Engineer, Time Wanderer) ──
         MiscCombatCommands.register(dispatcher);
+
+        // ── NEW v3.0.0 races ──
+        NecrovoreCommands.register(dispatcher);
+        NeuralHijackerCommands.register(dispatcher);
+        BloodSmithCommands.register(dispatcher);
+        StarOracleCommands.register(dispatcher);
+        MirrorPhantomCommands.register(dispatcher);
     }
 }

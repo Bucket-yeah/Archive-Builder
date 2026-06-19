@@ -1,0 +1,14 @@
+{
+  "name": "Зеркальный Призрак",
+  "description": "Ты из пространства отражений. Копируешь облик мобов, отражаешь дебаффы, создаёшь копии существ и зеркальные зоны.",
+  "icon": "minecraft:phantom_membrane",
+  "powers": [
+    "chaos_addon:mirror_phantom/mirror_nature",
+    "chaos_addon:mirror_phantom/disguise",
+    "chaos_addon:mirror_phantom/death_echo",
+    "chaos_addon:mirror_phantom/perfect_copy",
+    "chaos_addon:mirror_phantom/mirror_world"
+  ],
+  "upgrades": [],
+  "tier_powers": []
+}

@@ -1,0 +1,6 @@
+{
+  "type": "neoorigins:nothing",
+  "name": "Кровавый Доспех",
+  "description": "Каждые 10 секунд получаешь 4 HP поглощения (Absorption). Первые 4 HP урона поглощаются щитом без потери HP.",
+  "hidden": false
+}
