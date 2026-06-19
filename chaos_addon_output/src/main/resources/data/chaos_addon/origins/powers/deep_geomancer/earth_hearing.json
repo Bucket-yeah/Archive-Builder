@@ -1,6 +1,0 @@
-{
-  "type": "neoorigins:simple",
-  "name": "Земляной Слух",
-  "description": "Слышишь мобов в радиусе 20 блоков под землёй.",
-  "hidden": false
-}

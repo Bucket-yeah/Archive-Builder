@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:generic.attack_damage",
-  "amount": -1.0,
-  "operation": "add_multiplied_base",
-  "name": "Нет прямой атаки",
-  "description": "Урон напрямую = 0.",
-  "hidden": true
-}

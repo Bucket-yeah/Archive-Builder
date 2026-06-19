@@ -7,16 +7,20 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.living.LivingAttackEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -33,6 +37,7 @@ public class GeneralPowerHandler {
         if (!(player.level() instanceof ServerLevel level)) return;
         ChaosAddonConfig cfg = ChaosAddonConfig.get();
 
+        // Illusory Flesh glow FX
         if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/illusory_flesh")) {
             if (player.tickCount % 20 == 0) {
                 player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 25, 0, true, false));
@@ -45,6 +50,7 @@ public class GeneralPowerHandler {
             }
         }
 
+        // Stone Flesh altitude damage
         if (OriginHelper.hasPower(player, "chaos_addon:deep_geomancer/stone_flesh")) {
             if (player.blockPosition().getY() > cfg.geoHeightLimit) {
                 if (player.tickCount % cfg.geoHighAltitudeInterval == 0) {
@@ -56,6 +62,7 @@ public class GeneralPowerHandler {
             }
         }
 
+        // Green Blood bad-biome damage
         if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/green_blood")) {
             String biome = level.getBiome(player.blockPosition())
                 .unwrapKey().map(k -> k.location().toString()).orElse("");
@@ -66,11 +73,76 @@ public class GeneralPowerHandler {
                 player.hurt(player.damageSources().generic(), cfg.gardenBadBiomeDamage);
             }
         }
+
+        // Mad Whisper: every 60 ticks, 15% chance per nearby mob to re-target random entity
+        if (OriginHelper.hasPower(player, "chaos_addon:eater_of_worlds/mad_whisper")) {
+            if (player.tickCount % 60 == 0) {
+                List<LivingEntity> nearby = level.getEntitiesOfClass(
+                    LivingEntity.class, player.getBoundingBox().inflate(12),
+                    e -> e != player && e.isAlive() && e instanceof Mob);
+                if (!nearby.isEmpty()) {
+                    List<LivingEntity> targets = level.getEntitiesOfClass(
+                        LivingEntity.class, player.getBoundingBox().inflate(12),
+                        e -> e.isAlive());
+                    for (LivingEntity mob : nearby) {
+                        if (RNG.nextFloat() < 0.15f && !targets.isEmpty()) {
+                            LivingEntity newTarget = targets.get(RNG.nextInt(targets.size()));
+                            if (newTarget != mob && mob instanceof Mob m) {
+                                m.setTarget(newTarget);
+                                level.sendParticles(ParticleTypes.ANGRY_VILLAGER,
+                                    mob.getX(), mob.getY() + 1.5, mob.getZ(),
+                                    3, 0.3, 0.3, 0.3, 0.0);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Royal Pheromone: every 40 ticks, clear target on nearby arthropods that target the player
+        if (OriginHelper.hasPower(player, "chaos_addon:swarm_lord/royal_pheromone")) {
+            if (player.tickCount % 40 == 0) {
+                level.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(10),
+                    e -> e.isAlive() && e.getType().is(EntityTypeTags.ARTHROPOD))
+                    .forEach(mob -> {
+                        if (mob.getTarget() == player) {
+                            mob.setTarget(null);
+                            level.sendParticles(ParticleTypes.HEART,
+                                mob.getX(), mob.getY() + 1.5, mob.getZ(),
+                                2, 0.3, 0.2, 0.3, 0.0);
+                        }
+                    });
+            }
+        }
     }
 
     /**
-     * Illusory Flesh (Nightmare Mimic): 40% chance to cancel incoming damage,
-     * spawning a phantom decoy Silverfish instead.
+     * Royal Pheromone: cancel arthropod attacks on the Swarm Lord.
+     */
+    @SubscribeEvent
+    public static void onRoyalPheromoneAttack(LivingAttackEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:swarm_lord/royal_pheromone")) return;
+        if (event.getSource().getEntity() instanceof Mob attacker
+                && attacker.getType().is(EntityTypeTags.ARTHROPOD)) {
+            event.setCanceled(true);
+        }
+    }
+
+    /**
+     * Stasis Field: entities tagged "chaos_stasis" take 2x damage.
+     */
+    @SubscribeEvent
+    public static void onStasisDamage(LivingIncomingDamageEvent event) {
+        if (!event.getEntity().getTags().contains("chaos_stasis")) return;
+        if (event.getSource().getEntity() instanceof ServerPlayer player
+                && OriginHelper.hasPower(player, "chaos_addon:time_wanderer/stasis_field")) {
+            event.setAmount(event.getAmount() * 2.0f);
+        }
+    }
+
+    /**
+     * Illusory Flesh: 40% chance to cancel incoming damage, spawning a decoy Silverfish.
      */
     @SubscribeEvent
     public static void onIllusoryFlesh(LivingIncomingDamageEvent event) {
@@ -203,6 +275,23 @@ public class GeneralPowerHandler {
                     entity.getX(), entity.getY() + 1.5, entity.getZ(),
                     5, 0.3, 0.3, 0.3, 0.05);
             }
+        }
+    }
+
+    /**
+     * Stasis tag expiry: remove chaos_stasis tag after 160 ticks.
+     */
+    @SubscribeEvent
+    public static void onStasisTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) return;
+        if (!entity.getTags().contains("chaos_stasis")) return;
+
+        int remaining = entity.getPersistentData().getInt("chaos_stasis_ticks");
+        if (remaining <= 0) {
+            entity.removeTag("chaos_stasis");
+            entity.getPersistentData().remove("chaos_stasis_ticks");
+        } else {
+            entity.getPersistentData().putInt("chaos_stasis_ticks", remaining - 1);
         }
     }
 

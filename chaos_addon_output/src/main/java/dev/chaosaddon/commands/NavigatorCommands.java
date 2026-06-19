@@ -125,10 +125,11 @@ public class NavigatorCommands {
 
                 for (LivingEntity e : entities) {
                     e.hurt(player.damageSources().magic(), 5.0f);
-                    // Teleport to random location
                     int rx = origin.getX() + RNG.nextInt(200) - 100;
                     int rz = origin.getZ() + RNG.nextInt(200) - 100;
-                    e.teleportTo(rx, origin.getY(), rz);
+                    // 50% chance: teleport to lava depth (Y=11), otherwise random surface
+                    double ry = (RNG.nextFloat() < 0.5f) ? 11.0 : origin.getY();
+                    e.teleportTo(rx, ry, rz);
                     level.sendParticles(ParticleTypes.PORTAL,
                         e.getX(), e.getY() + 0.5, e.getZ(), 20, 0.5, 0.5, 0.5, 0.3);
                 }

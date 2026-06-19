@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:generic.armor",
-  "amount": 0,
-  "operation": "add_value",
-  "name": "Нет шлема",
-  "description": "Не может носить шлем (закрывает обзор роя). Шлемы не дают защиты.",
-  "hidden": true
-}

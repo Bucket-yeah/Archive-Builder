@@ -1,6 +1,0 @@
-{
-  "type": "neoorigins:simple",
-  "name": "Цена Творения",
-  "description": "Каждый созданный предмет отнимает 1❤. При HP < 2❤ крафт невозможен.",
-  "hidden": false
-}

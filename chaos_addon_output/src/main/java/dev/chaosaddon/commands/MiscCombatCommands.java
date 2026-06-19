@@ -251,12 +251,69 @@ public class MiscCombatCommands {
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
-                int roll = RNG.nextInt(3);
+                ServerLevel level = player.serverLevel();
+                int roll = RNG.nextInt(6);
                 switch (roll) {
-                    case 0 -> { player.setHealth(Math.min(player.getMaxHealth(), player.getHealth() + 2)); }
-                    case 1 -> { player.hurt(player.damageSources().generic(), 2.0f); }
-                    case 2 -> { player.getFoodData().eat(4, 2.0f); }
+                    case 0 -> {
+                        float heal = 1 + RNG.nextInt(3);
+                        player.setHealth(Math.min(player.getMaxHealth(), player.getHealth() + heal));
+                        level.sendParticles(ParticleTypes.HEART, player.getX(), player.getY() + 1.5, player.getZ(), 5, 0.5, 0.5, 0.5, 0.0);
+                    }
+                    case 1 -> {
+                        float dmg = 1 + RNG.nextInt(3);
+                        player.hurt(player.damageSources().generic(), dmg);
+                        level.sendParticles(ParticleTypes.CRIT, player.getX(), player.getY() + 1.0, player.getZ(), 5, 0.3, 0.5, 0.3, 0.0);
+                    }
+                    case 2 -> {
+                        player.getFoodData().eat(4, 2.0f);
+                        level.sendParticles(ParticleTypes.HAPPY_VILLAGER, player.getX(), player.getY() + 1.0, player.getZ(), 6, 0.5, 0.5, 0.5, 0.0);
+                    }
+                    case 3 -> {
+                        player.getFoodData().addExhaustion(4.0f);
+                        level.sendParticles(ParticleTypes.SMOKE, player.getX(), player.getY() + 1.0, player.getZ(), 8, 0.4, 0.5, 0.4, 0.03);
+                    }
+                    case 4 -> {
+                        MobEffectInstance[] good = {
+                            new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 1, false, true),
+                            new MobEffectInstance(MobEffects.REGENERATION, 100, 0, false, true),
+                            new MobEffectInstance(MobEffects.DAMAGE_BOOST, 100, 1, false, true),
+                            new MobEffectInstance(MobEffects.ABSORPTION, 100, 1, false, true)
+                        };
+                        player.addEffect(good[RNG.nextInt(good.length)]);
+                        level.sendParticles(ParticleTypes.GLOW, player.getX(), player.getY() + 1.0, player.getZ(), 10, 0.4, 0.8, 0.4, 0.0);
+                    }
+                    case 5 -> {
+                        MobEffectInstance[] bad = {
+                            new MobEffectInstance(MobEffects.BLINDNESS, 80, 0, false, true),
+                            new MobEffectInstance(MobEffects.CONFUSION, 80, 0, false, true),
+                            new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 2, false, true),
+                            new MobEffectInstance(MobEffects.WEAKNESS, 80, 1, false, true)
+                        };
+                        player.addEffect(bad[RNG.nextInt(bad.length)]);
+                        level.sendParticles(ParticleTypes.WITCH, player.getX(), player.getY() + 1.0, player.getZ(), 10, 0.4, 0.8, 0.4, 0.05);
+                    }
                 }
+                return 1;
+            }));
+
+        // Stasis Field: freeze all nearby entities, tag them for 2x damage
+        dispatcher.register(Commands.literal("chaos_addon_stasis")
+            .requires(src -> src.hasPermission(0))
+            .executes(ctx -> {
+                if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                ServerLevel level = player.serverLevel();
+                level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(15),
+                    e -> e != player && e.isAlive())
+                    .forEach(e -> {
+                        e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 160, 4, false, true));
+                        e.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 160, 0, false, true));
+                        e.addTag("chaos_stasis");
+                        e.getPersistentData().putInt("chaos_stasis_ticks", 160);
+                        level.sendParticles(ParticleTypes.CLOUD,
+                            e.getX(), e.getY() + 1.0, e.getZ(), 8, 0.4, 0.6, 0.4, 0.01);
+                    });
+                level.playSound(null, player.blockPosition(),
+                    SoundEvents.BEACON_ACTIVATE.value(), SoundSource.PLAYERS, 0.8f, 0.5f);
                 return 1;
             }));
 

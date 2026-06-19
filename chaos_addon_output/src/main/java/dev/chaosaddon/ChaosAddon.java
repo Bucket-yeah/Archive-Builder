@@ -30,6 +30,8 @@ public class ChaosAddon {
         NeoForge.EVENT_BUS.register(BiomorphHandler.class);
         NeoForge.EVENT_BUS.register(RadioactiveHandler.class);
         NeoForge.EVENT_BUS.register(GeneralPowerHandler.class);
+        NeoForge.EVENT_BUS.register(AlchemistHandler.class);
+        NeoForge.EVENT_BUS.register(ArchaeologistHandler.class);
         NeoForge.EVENT_BUS.register(ModCommands.class);
     }
 

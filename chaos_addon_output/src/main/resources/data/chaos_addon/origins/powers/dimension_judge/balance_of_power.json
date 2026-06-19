@@ -1,6 +1,0 @@
-{
-  "type": "neoorigins:simple",
-  "name": "Баланс Сил",
-  "description": "При равном HP — атака отменяется. Оба получают 1❤ урона.",
-  "hidden": false
-}
