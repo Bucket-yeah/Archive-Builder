@@ -1,18 +1,59 @@
 {
-  "type": "neoorigins:active_self",
+  "type": "neoorigins:active_ability",
+  "cooldown_ticks": 4800,
+  "name": "Якорь Реальности",
+  "description": "Создаёт статичный двусторонний портал между тобой и точкой взгляда (до 50 блоков). Работает 30 сек.",
+  "hud_render": {
+    "should_render": true,
+    "bar_index": 1
+  },
   "entity_action": {
     "type": "neoorigins:and",
     "actions": [
-      { "type": "neoorigins:execute_command", "command": "chaos_addon_reality_anchor" },
-      { "type": "neoorigins:spawn_particles", "particle": { "type": "minecraft:end_rod" }, "count": 60, "spread": { "x": 2.0, "y": 3.0, "z": 2.0 }, "speed": 0.05, "force": false },
-      { "type": "neoorigins:spawn_particles", "particle": { "type": "minecraft:enchant" }, "count": 40, "spread": { "x": 1.5, "y": 2.0, "z": 1.5 }, "speed": 0.1, "force": false },
-      { "type": "neoorigins:play_sound", "sound": "minecraft:block.portal.ambient", "volume": 1.0, "pitch": 0.8 },
-      { "type": "neoorigins:play_sound", "sound": "minecraft:item.totem.use", "volume": 0.9, "pitch": 1.1 }
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_reality_anchor"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:end_rod"
+        },
+        "count": 60,
+        "spread": {
+          "x": 2.0,
+          "y": 3.0,
+          "z": 2.0
+        },
+        "speed": 0.05,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:enchant"
+        },
+        "count": 40,
+        "spread": {
+          "x": 1.5,
+          "y": 2.0,
+          "z": 1.5
+        },
+        "speed": 0.1,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.portal.ambient",
+        "volume": 1.0,
+        "pitch": 0.8
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:item.totem.use",
+        "volume": 0.9,
+        "pitch": 1.1
+      }
     ]
-  },
-  "cooldown": 4800,
-  "hud_render": { "should_render": true, "bar_index": 1 },
-  "key": { "key": "key.origins.secondary_active" },
-  "name": "Якорь Реальности",
-  "description": "Создаёт статичный двусторонний портал между тобой и точкой взгляда (до 50 блоков). Работает 30 сек."
+  }
 }

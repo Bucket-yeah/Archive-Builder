@@ -1,1 +1,53 @@
-{"type":"neoorigins:active_self","entity_action":{"type":"neoorigins:and","actions":[{"type":"neoorigins:execute_command","command":"chaos_addon_spore_harvest"},{"type":"neoorigins:spawn_particles","particle":{"type":"minecraft:spore_blossom_air"},"count":50,"spread":{"x":1.0,"y":0.5,"z":1.0},"speed":0.1,"force":false},{"type":"neoorigins:spawn_particles","particle":{"type":"minecraft:cherry_leaves"},"count":30,"spread":{"x":0.8,"y":0.4,"z":0.8},"speed":0.08,"force":false},{"type":"neoorigins:play_sound","sound":"minecraft:item.bone_meal.use","volume":0.8,"pitch":1.0}]},"cooldown":600,"hud_render":{"should_render":true,"bar_index":0},"key":{"key":"key.origins.primary_active"},"name":"Споровый Урожай","description":"Клик на блок → случайный ресурс в зависимости от глубины (Y=12: 40% алмаз)."}
+{
+  "type": "neoorigins:active_ability",
+  "cooldown_ticks": 600,
+  "name": "Споровый Урожай",
+  "description": "Клик на блок → случайный ресурс в зависимости от глубины (Y=12: 40% алмаз).",
+  "hud_render": {
+    "should_render": true,
+    "bar_index": 0
+  },
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_spore_harvest"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:spore_blossom_air"
+        },
+        "count": 50,
+        "spread": {
+          "x": 1.0,
+          "y": 0.5,
+          "z": 1.0
+        },
+        "speed": 0.1,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:cherry_leaves"
+        },
+        "count": 30,
+        "spread": {
+          "x": 0.8,
+          "y": 0.4,
+          "z": 0.8
+        },
+        "speed": 0.08,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:item.bone_meal.use",
+        "volume": 0.8,
+        "pitch": 1.0
+      }
+    ]
+  }
+}

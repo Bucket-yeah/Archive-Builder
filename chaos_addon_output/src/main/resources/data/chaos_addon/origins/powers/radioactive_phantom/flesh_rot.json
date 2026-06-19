@@ -1,1 +1,6 @@
-{"type":"neoorigins:nothing","name":"Гниение Плоти","description":"Нельзя есть. Голод восполняется убийством мобов (+2 сытости). Java GeneralPowerHandler.","hidden":false}
+{
+  "type": "neoorigins:simple",
+  "name": "Гниение Плоти",
+  "description": "Нельзя есть. Голод восполняется убийством мобов (+2 сытости). Java GeneralPowerHandler.",
+  "hidden": false
+}

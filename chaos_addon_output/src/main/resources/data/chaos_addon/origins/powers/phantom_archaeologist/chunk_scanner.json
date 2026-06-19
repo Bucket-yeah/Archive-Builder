@@ -1,1 +1,39 @@
-{"type":"neoorigins:active_self","entity_action":{"type":"neoorigins:and","actions":[{"type":"neoorigins:execute_command","command":"chaos_addon_chunk_scan"},{"type":"neoorigins:spawn_particles","particle":{"type":"minecraft:end_rod"},"count":30,"spread":{"x":0.5,"y":2.0,"z":0.5},"speed":0.05,"force":false},{"type":"neoorigins:play_sound","sound":"minecraft:block.beacon.power_select","volume":0.6,"pitch":1.5}]},"cooldown":1200,"hud_render":{"should_render":true,"bar_index":2},"key":{"key":"key.origins.ternary_active"},"name":"Чанковый Сканер","description":"Показывает информацию о текущем чанке (размер, время выгрузки, мобы)."}
+{
+  "type": "neoorigins:active_ability",
+  "cooldown_ticks": 1200,
+  "name": "Чанковый Сканер",
+  "description": "Показывает информацию о текущем чанке (размер, время выгрузки, мобы).",
+  "hud_render": {
+    "should_render": true,
+    "bar_index": 2
+  },
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_chunk_scan"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": {
+          "type": "minecraft:end_rod"
+        },
+        "count": 30,
+        "spread": {
+          "x": 0.5,
+          "y": 2.0,
+          "z": 0.5
+        },
+        "speed": 0.05,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.beacon.power_select",
+        "volume": 0.6,
+        "pitch": 1.5
+      }
+    ]
+  }
+}

@@ -1,12 +1,14 @@
 {
-  "type": "neoorigins:active_self",
+  "type": "neoorigins:active_ability",
+  "cooldown_ticks": 600,
+  "name": "Жертва Рою",
+  "description": "Все жуки мгновенно атакуют ближайшего врага (5❤ + 0.5❤ за жука). Цель получает Замедление III.",
+  "hud_render": {
+    "should_render": true,
+    "bar_index": 0
+  },
   "entity_action": {
     "type": "neoorigins:execute_command",
     "command": "chaos_addon_swarm_attack"
-  },
-  "cooldown": 600,
-  "hud_render": { "should_render": true, "bar_index": 0 },
-  "key": { "key": "key.origins.primary_active" },
-  "name": "Жертва Рою",
-  "description": "Все жуки мгновенно атакуют ближайшего врага (5❤ + 0.5❤ за жука). Цель получает Замедление III."
+  }
 }

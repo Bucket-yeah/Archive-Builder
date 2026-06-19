@@ -1,1 +1,6 @@
-{"type":"neoorigins:nothing","name":"Нет зелий","description":"Зелья взрываются при попытке использования.","hidden":true}
+{
+  "type": "neoorigins:simple",
+  "name": "Нет зелий",
+  "description": "Зелья взрываются при попытке использования.",
+  "hidden": true
+}

@@ -1,5 +1,5 @@
 {
-  "type": "neoorigins:nothing",
+  "type": "neoorigins:simple",
   "name": "Пространственная Память",
   "description": "Координаты всех пройденных порталов сохраняются и отображаются на F3.",
   "hidden": false

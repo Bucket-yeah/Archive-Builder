@@ -1,1 +1,6 @@
-{"type":"neoorigins:nothing","name":"Шок перехода","description":"При смене биома — 1❤ урона. Реализовано через BiomorphHandler.","hidden":true}
+{
+  "type": "neoorigins:simple",
+  "name": "Шок перехода",
+  "description": "При смене биома — 1❤ урона. Реализовано через BiomorphHandler.",
+  "hidden": true
+}

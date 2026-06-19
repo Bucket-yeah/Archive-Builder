@@ -1,18 +1,5 @@
 {
-  "type": "neoorigins:and",
-  "powers": [
-    {
-      "type": "neoorigins:effect",
-      "effect": {
-        "effect": "minecraft:night_vision",
-        "duration": 260,
-        "amplifier": 0,
-        "ambient": true,
-        "show_particles": false,
-        "show_icon": false
-      }
-    }
-  ],
+  "type": "neoorigins:simple",
   "name": "Межпространственное Зрение",
   "description": "Видишь ближайший портал в радиусе 200 блоков. Постоянное ночное зрение. Порталы подсвечиваются фиолетовым."
 }

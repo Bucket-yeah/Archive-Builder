@@ -1,5 +1,5 @@
 {
-  "type": "neoorigins:nothing",
+  "type": "neoorigins:simple",
   "name": "Материальный Дисбаланс",
   "description": "Нельзя использовать верстак, печь, кузницу. Все крафты — через личный Алхимический круг.",
   "hidden": false

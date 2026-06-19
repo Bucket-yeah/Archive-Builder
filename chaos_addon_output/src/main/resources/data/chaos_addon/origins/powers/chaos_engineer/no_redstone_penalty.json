@@ -1,1 +1,6 @@
-{"type":"neoorigins:nothing","name":"Без редстоуна — уязвим","description":"При отсутствии редстоуна в инвентаре урон от мобов удвоен.","hidden":true}
+{
+  "type": "neoorigins:simple",
+  "name": "Без редстоуна — уязвим",
+  "description": "При отсутствии редстоуна в инвентаре урон от мобов удвоен.",
+  "hidden": true
+}

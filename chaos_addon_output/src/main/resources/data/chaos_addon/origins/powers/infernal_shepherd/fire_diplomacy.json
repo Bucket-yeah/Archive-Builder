@@ -1,1 +1,6 @@
-{"type":"neoorigins:nothing","name":"Огненная Дипломатия","description":"Мобы Незера нейтральны. При золотом предмете — следуют за тобой.","hidden":false}
+{
+  "type": "neoorigins:simple",
+  "name": "Огненная Дипломатия",
+  "description": "Мобы Незера нейтральны. При золотом предмете — следуют за тобой.",
+  "hidden": false
+}

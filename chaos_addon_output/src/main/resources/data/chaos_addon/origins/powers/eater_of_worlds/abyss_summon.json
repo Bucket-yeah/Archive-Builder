@@ -1,5 +1,12 @@
 {
-  "type": "neoorigins:active_self",
+  "type": "neoorigins:active_ability",
+  "cooldown_ticks": 2400,
+  "name": "Призыв из Бездны",
+  "description": "В радиусе 50 блоков появляется усиленный Warden (200 HP, атакует всех, 60 сек). Стоит 5 уровней опыта.",
+  "hud_render": {
+    "should_render": true,
+    "bar_index": 1
+  },
   "entity_action": {
     "type": "neoorigins:and",
     "actions": [
@@ -8,15 +15,5 @@
         "command": "chaos_addon_abyss_summon"
       }
     ]
-  },
-  "cooldown": 2400,
-  "hud_render": {
-    "should_render": true,
-    "bar_index": 1
-  },
-  "key": {
-    "key": "key.origins.secondary_active"
-  },
-  "name": "Призыв из Бездны",
-  "description": "В радиусе 50 блоков появляется усиленный Warden (200 HP, атакует всех, 60 сек). Стоит 5 уровней опыта."
+  }
 }

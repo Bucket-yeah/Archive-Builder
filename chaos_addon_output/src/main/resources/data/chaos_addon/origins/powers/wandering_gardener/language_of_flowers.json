@@ -1,1 +1,6 @@
-{"type":"neoorigins:nothing","name":"Язык Цветов","description":"Растения \"говорят\" тебе, когда им нужна вода или свет (HUD-сообщения).","hidden":false}
+{
+  "type": "neoorigins:simple",
+  "name": "Язык Цветов",
+  "description": "Растения \"говорят\" тебе, когда им нужна вода или свет (HUD-сообщения).",
+  "hidden": false
+}

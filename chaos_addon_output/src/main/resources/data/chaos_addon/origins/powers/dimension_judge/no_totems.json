@@ -1,1 +1,6 @@
-{"type":"neoorigins:prevent_item_use","item_condition":{"type":"neoorigins:ingredient","ingredient":{"item":"minecraft:totem_of_undying"}},"name":"Нет тотемов","description":"Тотемы бессмертия запрещены.","hidden":true}
+{
+  "type": "neoorigins:simple",
+  "name": "Нет тотемов",
+  "description": "Тотемы бессмертия запрещены.",
+  "hidden": true
+}

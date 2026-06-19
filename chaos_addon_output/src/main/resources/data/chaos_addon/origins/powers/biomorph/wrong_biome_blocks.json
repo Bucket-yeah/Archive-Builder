@@ -1,1 +1,6 @@
-{"type":"neoorigins:nothing","name":"Чужие блоки","description":"Блоки из другого биома при размещении разрушаются через 5 сек.","hidden":true}
+{
+  "type": "neoorigins:simple",
+  "name": "Чужие блоки",
+  "description": "Блоки из другого биома при размещении разрушаются через 5 сек.",
+  "hidden": true
+}
