@@ -196,6 +196,119 @@ public class AlchemistHandler {
         }
     }
 
+    /**
+     * Potion-on-Block Reactions: when the Alchemical Monk right-clicks a block while
+     * holding a splash/lingering potion, apply a thematic reaction based on the block type.
+     * - Lava/Magma: fire explosion + Strength I to player
+     * - Ice/Snow: freeze nearby entities + Slowness III
+     * - Dirt/Grass: grow nearby plants + Regeneration to player
+     * - Stone/Deepslate: drop random ore + Mining Fatigue removed
+     * - Bookshelf/Enchanting: gain Luck II for 2 min
+     */
+    @SubscribeEvent
+    public static void onPotionBlockReaction(PlayerInteractEvent.RightClickBlock event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/cycle_of_substances")) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        net.minecraft.world.item.ItemStack held = player.getMainHandItem();
+        boolean isSplash = held.is(net.minecraft.world.item.Items.SPLASH_POTION);
+        boolean isLingering = held.is(net.minecraft.world.item.Items.LINGERING_POTION);
+        if (!isSplash && !isLingering) return;
+
+        // Check cooldown
+        long now = level.getGameTime();
+        long lastReaction = player.getPersistentData().getLong("chaos_monk_reaction_cd");
+        if (now - lastReaction < 200) return; // 10s cooldown
+
+        BlockPos pos = event.getHitVec().getBlockPos();
+        net.minecraft.world.level.block.state.BlockState state = level.getBlockState(pos);
+
+        boolean reacted = false;
+
+        if (state.is(net.minecraft.world.level.block.Blocks.LAVA)
+                || state.is(net.minecraft.world.level.block.Blocks.MAGMA_BLOCK)) {
+            // Volcanic Reaction: fire explosion, player gets Strength I 30s
+            level.explode(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                1.5f, false, net.minecraft.world.level.Level.ExplosionInteraction.TNT);
+            player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                net.minecraft.world.effect.MobEffects.DAMAGE_BOOST, 600, 0, false, true));
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                "§c⚗ Вулканическая реакция! §7Сила I 30с"));
+            reacted = true;
+
+        } else if (state.is(net.minecraft.world.level.block.Blocks.ICE)
+                || state.is(net.minecraft.world.level.block.Blocks.PACKED_ICE)
+                || state.is(net.minecraft.world.level.block.Blocks.BLUE_ICE)
+                || state.is(net.minecraft.world.level.block.Blocks.SNOW_BLOCK)) {
+            // Cryo Reaction: freeze nearby entities
+            level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,
+                new net.minecraft.world.phys.AABB(pos).inflate(5),
+                e -> e != player && e.isAlive())
+                .forEach(e -> e.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 200, 2, false, true)));
+            level.sendParticles(ParticleTypes.SNOWFLAKE,
+                pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 40, 2.0, 0.5, 2.0, 0.03);
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                "§b⚗ Криогенная реакция! §7Враги заморожены 10с"));
+            reacted = true;
+
+        } else if (state.is(net.minecraft.tags.BlockTags.DIRT)
+                || state.is(net.minecraft.world.level.block.Blocks.GRASS_BLOCK)
+                || state.is(net.minecraft.world.level.block.Blocks.MYCELIUM)) {
+            // Flora Reaction: grow nearby plants, player gets Regeneration
+            for (int dx = -3; dx <= 3; dx++) for (int dz = -3; dz <= 3; dz++) {
+                BlockPos p2 = pos.offset(dx, 1, dz);
+                var bs = level.getBlockState(p2);
+                if (bs.is(net.minecraft.tags.BlockTags.CROPS)
+                        && bs.getBlock() instanceof net.minecraft.world.level.block.BonemealableBlock g) {
+                    g.performBonemeal(level, level.random, p2, bs);
+                }
+            }
+            player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                net.minecraft.world.effect.MobEffects.REGENERATION, 400, 1, false, true));
+            level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5, 20, 1.5, 0.5, 1.5, 0.03);
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                "§a⚗ Флорная реакция! §7Растения выросли, Регенерация II 20с"));
+            reacted = true;
+
+        } else if (state.is(net.minecraft.tags.BlockTags.BASE_STONE_OVERWORLD)
+                || state.is(net.minecraft.tags.BlockTags.BASE_STONE_NETHER)) {
+            // Geochemical Reaction: drop a random mineral
+            net.minecraft.world.item.ItemStack mineral = CYCLE_DROPS[RNG.nextInt(CYCLE_DROPS.length)].copy();
+            level.addFreshEntity(new ItemEntity(level,
+                pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5, mineral));
+            player.removeEffect(net.minecraft.world.effect.MobEffects.DIG_SLOWDOWN);
+            player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                net.minecraft.world.effect.MobEffects.DIG_SPEED, 400, 1, false, true));
+            level.sendParticles(ParticleTypes.GLOW,
+                pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 15, 0.4, 0.4, 0.4, 0.0);
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                "§8⚗ Геохимическая реакция! §7+" + mineral.getCount() + "x " + mineral.getHoverName().getString() + " + Шустрость II"));
+            reacted = true;
+
+        } else if (state.is(net.minecraft.world.level.block.Blocks.BOOKSHELF)
+                || state.is(net.minecraft.world.level.block.Blocks.ENCHANTING_TABLE)) {
+            // Arcane Reaction: Luck II + XP bonus
+            player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                net.minecraft.world.effect.MobEffects.LUCK, 2400, 1, false, true));
+            player.giveExperiencePoints(20);
+            level.sendParticles(ParticleTypes.ENCHANT,
+                pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 30, 0.5, 0.5, 0.5, 0.1);
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                "§6⚗ Магическая реакция! §7Удача II 2мин + 20 XP"));
+            reacted = true;
+        }
+
+        if (reacted) {
+            // Consume one potion
+            held.shrink(1);
+            player.getPersistentData().putLong("chaos_monk_reaction_cd", now);
+            level.playSound(null, pos, SoundEvents.BREWING_STAND_BREW, SoundSource.PLAYERS, 1.0f, 1.2f);
+        }
+    }
+
     /** Cycle of Substances: chance to get random resource on block break.
      *  Normal: 10%, Below 5 HP: 25%. */
     @SubscribeEvent

@@ -141,6 +141,26 @@ public class BloodSmithHandler {
         }
     }
 
+    // ── Blood Fury: outgoing damage bonus from missing HP ───────────────────────
+    // Each 1❤ missing = +5% damage, up to +50% at ≤5❤
+    @SubscribeEvent
+    public static void onBloodFury(LivingIncomingDamageEvent event) {
+        if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:blood_smith/survival_instinct")) return;
+
+        float missing = player.getMaxHealth() - player.getHealth();
+        if (missing <= 0) return;
+
+        float bonus = Math.min(0.50f, missing * 0.05f); // 5% per 1❤ lost, cap 50%
+        event.setAmount(event.getAmount() * (1.0f + bonus));
+
+        if (bonus >= 0.25f && player.level() instanceof ServerLevel level) {
+            level.sendParticles(ParticleTypes.FALLING_DRIPSTONE_LAVA,
+                event.getEntity().getX(), event.getEntity().getY() + 0.5, event.getEntity().getZ(),
+                (int)(bonus * 20), 0.3, 0.3, 0.3, 0.05);
+        }
+    }
+
     // ── Block natural food regen ─────────────────────────────────────────────────
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onHeal(LivingHealEvent event) {

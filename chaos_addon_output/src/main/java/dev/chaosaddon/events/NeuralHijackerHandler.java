@@ -33,7 +33,7 @@ public class NeuralHijackerHandler {
     static final Map<UUID, Map<UUID, Long>> HIJACK_EXPIRY = new HashMap<>();
 
     private static final Random RNG = new Random();
-    public static final int MAX_HOSTS = 3;
+    public static final int MAX_HOSTS = 6;  // NH controls many hosts (vs Parasite's deep 1-2)
     private static final int INFECT_DURATION_TICKS = 500; // 25s
 
     // ── Per-tick passives ──────────────────────────────────────────────────────
@@ -70,11 +70,16 @@ public class NeuralHijackerHandler {
                     3, 0.3, 0.4, 0.3, 0.02);
             }
 
-            // Keep hijacked mob non-hostile: clear goals & target every tick
+            // Weaker neural control: don't fully clear AI, just prevent targeting player
+            // and apply Weakness + Slowness (simulates confused, weak host not full puppet)
             if (host instanceof Mob mob) {
-                mob.setTarget(null);
-                mob.goalSelector.getAvailableGoals().clear();
-                mob.targetSelector.getAvailableGoals().clear();
+                if (mob.getTarget() instanceof ServerPlayer sp && sp == player) {
+                    mob.setTarget(null);
+                }
+            }
+            if (player.tickCount % 40 == 0) {
+                host.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 60, 1, false, false));
+                host.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1, false, false));
             }
         }
 

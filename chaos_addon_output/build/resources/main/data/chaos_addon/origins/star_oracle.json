@@ -1,7 +1,7 @@
 {
   "name": "Звёздный Провидец",
   "description": "Ты связан со звёздами. Видишь атаки до их совершения, призываешь метеоры и небесных стражей. Но в ближнем бою смертельно уязвим.",
-  "icon": "minecraft:nether_star",
+  "icon": "minecraft:spyglass",
   "powers": [
     "chaos_addon:star_oracle/star_foresight",
     "chaos_addon:star_oracle/cosmic_body",

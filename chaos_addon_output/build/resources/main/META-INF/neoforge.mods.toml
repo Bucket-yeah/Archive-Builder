@@ -4,7 +4,7 @@ license = "MIT"
 
 [[mods]]
 modId          = "chaos_addon"
-version        = "3.0.0"
+version        = "3.0.1"
 displayName    = "Origins: Chaos Addon"
 description    = """23 unique chaos races that radically change survival and PvP."""
 

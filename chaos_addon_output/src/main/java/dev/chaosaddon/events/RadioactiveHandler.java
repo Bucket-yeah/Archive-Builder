@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.BlockPos;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -72,6 +73,62 @@ public class RadioactiveHandler {
 
         // Store nearby count for HudHandler to read
         player.getPersistentData().putInt("chaos_radio_nearby", nearby.size());
+
+        // ── Radioactive Trail: irradiate entities near previously visited positions ──
+        if (player.tickCount % 60 == 0) {
+            leaveRadioactiveTrail(player, level);
+        }
+    }
+
+    /**
+     * Radioactive trail: every 3 seconds, save current position as a radiation zone.
+     * Any entity entering within 2 blocks of a saved zone in the next 30 seconds gets Poison + Weakness.
+     */
+    private static void leaveRadioactiveTrail(ServerPlayer player, ServerLevel level) {
+        // Store up to 10 past positions as "x,y,z,expiry" strings in NBT
+        BlockPos cur = player.blockPosition();
+        String existing = player.getPersistentData().getString("chaos_radio_trail");
+        long expiry = level.getGameTime() + 600; // 30s
+
+        // Append new position
+        String entry = cur.getX() + "," + cur.getY() + "," + cur.getZ() + "," + expiry;
+        String[] parts = existing.isEmpty() ? new String[0] : existing.split(";");
+
+        // Keep last 10, remove expired
+        java.util.List<String> active = new java.util.ArrayList<>();
+        long now = level.getGameTime();
+        for (String p : parts) {
+            String[] sp = p.split(",");
+            if (sp.length == 4) {
+                try {
+                    if (Long.parseLong(sp[3]) > now) active.add(p);
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        active.add(entry);
+        if (active.size() > 10) active.remove(0);
+        player.getPersistentData().putString("chaos_radio_trail", String.join(";", active));
+
+        // Irradiate entities near all active zones
+        for (String p : active) {
+            String[] sp = p.split(",");
+            if (sp.length < 3) continue;
+            try {
+                BlockPos zonePos = new BlockPos(Integer.parseInt(sp[0]), Integer.parseInt(sp[1]), Integer.parseInt(sp[2]));
+                List<LivingEntity> victims = level.getEntitiesOfClass(LivingEntity.class,
+                    new net.minecraft.world.phys.AABB(zonePos).inflate(2.0),
+                    e -> e != player && e.isAlive());
+                for (LivingEntity v : victims) {
+                    v.addEffect(new MobEffectInstance(MobEffects.POISON, 60, 0, false, false));
+                    v.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 60, 0, false, false));
+                }
+                if (!victims.isEmpty() && player.tickCount % 60 == 0) {
+                    level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
+                        zonePos.getX() + 0.5, zonePos.getY() + 0.5, zonePos.getZ() + 0.5,
+                        5, 0.5, 0.3, 0.5, 0.02);
+                }
+            } catch (NumberFormatException ignored) {}
+        }
     }
 
     // Kill within radiation zone: heal player + 5-kill burst

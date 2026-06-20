@@ -36,6 +36,51 @@ public class StarOracleHandler {
             player.getFoodData().setFoodLevel(20);
         }
 
+        // ── Event Prediction: storm warning + player proximity alert ──
+        if (OriginHelper.hasPower(player, "chaos_addon:star_oracle/star_foresight")
+                && player.tickCount % 60 == 0) {
+            // Storm prediction: warn 30s before storm / alert during storm
+            boolean storming = level.isThundering();
+            boolean raining = level.isRaining() && !storming;
+            if (storming) {
+                player.displayClientMessage(
+                    net.minecraft.network.chat.Component.literal("⚡ ПРЕДСКАЗАНИЕ: Гроза! Молния поражает!"),
+                    false);
+                level.sendParticles(ParticleTypes.ELECTRIC_SPARK,
+                    player.getX(), player.getY() + 1.5, player.getZ(),
+                    12, 0.5, 0.8, 0.5, 0.05);
+            } else if (raining) {
+                player.displayClientMessage(
+                    net.minecraft.network.chat.Component.literal("🌧 ПРЕДСКАЗАНИЕ: Дождь — растения растут быстрее!"),
+                    false);
+            }
+
+            // Player proximity alert: detect other players within 50 blocks
+            List<net.minecraft.world.entity.player.Player> nearbyPlayers =
+                level.getEntitiesOfClass(net.minecraft.world.entity.player.Player.class,
+                    player.getBoundingBox().inflate(50),
+                    e -> e != player && e.isAlive());
+            if (!nearbyPlayers.isEmpty()) {
+                var closest = nearbyPlayers.stream()
+                    .min((a, b) -> Double.compare(a.distanceTo(player), b.distanceTo(player)))
+                    .orElse(null);
+                if (closest != null) {
+                    double dist = closest.distanceTo(player);
+                    String dir = getDirectionHint(player, closest);
+                    player.displayClientMessage(
+                        net.minecraft.network.chat.Component.literal(
+                            "§e👁 ЗВЁЗДНОЕ ПРЕДВИДЕНИЕ: §f" + closest.getGameProfile().getName()
+                            + " §7~" + (int)dist + "м §e" + dir),
+                        false);
+                    level.sendParticles(ParticleTypes.END_ROD,
+                        player.getX(), player.getY() + 2.0, player.getZ(),
+                        10, 0.5, 0.3, 0.5, 0.04);
+                    level.playSound(null, player.blockPosition(),
+                        SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS, 0.4f, 1.8f);
+                }
+            }
+        }
+
         // Star Foresight: detect targeting mobs within 12 blocks, show warning
         if (OriginHelper.hasPower(player, "chaos_addon:star_oracle/star_foresight")) {
             if (player.tickCount % 10 == 0) {
@@ -178,5 +223,21 @@ public class StarOracleHandler {
 
         level.playSound(null, player.blockPosition(),
             SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.PLAYERS, 0.8f, 0.6f);
+    }
+
+    /** Returns a compass-direction hint from observer to target. */
+    private static String getDirectionHint(net.minecraft.world.entity.Entity from, net.minecraft.world.entity.Entity to) {
+        double dx = to.getX() - from.getX();
+        double dz = to.getZ() - from.getZ();
+        double angle = Math.toDegrees(Math.atan2(dz, dx));
+        if (angle < 0) angle += 360;
+        if (angle < 22.5 || angle >= 337.5) return "[→В]";
+        if (angle < 67.5)  return "[↘ЮВ]";
+        if (angle < 112.5) return "[↓Ю]";
+        if (angle < 157.5) return "[↙ЮЗ]";
+        if (angle < 202.5) return "[←З]";
+        if (angle < 247.5) return "[↖СЗ]";
+        if (angle < 292.5) return "[↑С]";
+        return "[↗СВ]";
     }
 }

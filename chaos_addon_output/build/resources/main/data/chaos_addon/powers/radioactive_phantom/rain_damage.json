@@ -1,6 +1,6 @@
 {
   "type": "neoorigins:condition_passive",
-  "interval": 1,
+  "interval": 40,
   "entity_action": {
     "type": "neoorigins:if_else",
     "condition": {

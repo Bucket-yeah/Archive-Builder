@@ -249,7 +249,28 @@ public class WanderingGardenerHandler {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/peaceful_soul")) return;
 
-        // Cancel weapon damage completely
+        // Cancel direct weapon damage — Gardener cannot fight directly
         event.setAmount(0);
+    }
+
+    // ── Thorn Reflect: when Gardener is hit, reflect 50% back to attacker ──
+    @SubscribeEvent
+    public static void onGardenerHurt(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/peaceful_soul")) return;
+
+        LivingEntity attacker = event.getSource().getEntity() instanceof LivingEntity le ? le : null;
+        if (attacker == null || attacker == player) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        float reflect = event.getAmount() * 0.5f;
+        attacker.hurt(player.damageSources().magic(), reflect);
+
+        level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
+            player.getX(), player.getY() + 1.0, player.getZ(),
+            10, 0.4, 0.5, 0.4, 0.03);
+        level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+            attacker.getX(), attacker.getY() + 1.0, attacker.getZ(),
+            5, 0.3, 0.4, 0.3, 0.0);
     }
 }

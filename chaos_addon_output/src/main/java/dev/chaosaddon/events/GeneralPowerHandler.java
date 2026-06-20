@@ -222,6 +222,18 @@ public class GeneralPowerHandler {
                     }
                 }
             }
+            // ── Tunneling: Haste III when underground (Y<0) and sneaking ──
+            if (player.blockPosition().getY() < 0 && player.isCrouching()) {
+                player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 30, 2, true, false));
+                if (player.tickCount % 60 == 0) {
+                    level.sendParticles(
+                        new net.minecraft.core.particles.BlockParticleOption(
+                            net.minecraft.core.particles.ParticleTypes.BLOCK,
+                            net.minecraft.world.level.block.Blocks.DEEPSLATE.defaultBlockState()),
+                        player.getX(), player.getY() + 0.05, player.getZ(),
+                        6, 0.4, 0.05, 0.4, 0.0);
+                }
+            }
         }
     }
 
@@ -371,6 +383,39 @@ public class GeneralPowerHandler {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:radioactive_phantom/flesh_rot")) return;
         player.getFoodData().eat(2, 1.0f);
+    }
+
+    /**
+     * Dimension Judge — Verdict of Truth:
+     * When the Judge kills a target that had more max HP than the Judge's current max HP,
+     * heal 6 HP (3❤) as reward for taking down a "stronger" foe.
+     */
+    @SubscribeEvent
+    public static void onVerdictOfTruth(LivingDeathEvent event) {
+        if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:dimension_judge/lawfulness")) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        LivingEntity target = event.getEntity();
+        float targetMaxHp = target.getMaxHealth();
+        float playerMaxHp = player.getMaxHealth();
+
+        if (targetMaxHp > playerMaxHp) {
+            BloodSmithHandler.allowNextHeal(player); // bypass no-regen restrictions if active
+            player.heal(6.0f);
+            level.sendParticles(ParticleTypes.ENCHANTED_HIT,
+                player.getX(), player.getY() + 1.0, player.getZ(),
+                20, 0.4, 0.6, 0.4, 0.08);
+            level.sendParticles(ParticleTypes.FLASH,
+                player.getX(), player.getY() + 1.5, player.getZ(),
+                2, 0, 0, 0, 0);
+            level.playSound(null, player.blockPosition(),
+                SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.8f, 0.6f);
+            player.displayClientMessage(
+                net.minecraft.network.chat.Component.literal(
+                    "§d⚖ Вердикт Истины — §a+3❤ §7(цель была сильнее вас)")
+                    .withStyle(net.minecraft.ChatFormatting.LIGHT_PURPLE), true);
+        }
     }
 
     /** Ancient Sentinel: stone armor stacks take damage on hit. */

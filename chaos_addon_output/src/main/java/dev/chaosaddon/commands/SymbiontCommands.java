@@ -38,9 +38,10 @@ public class SymbiontCommands {
                 net.minecraft.world.item.ItemStack result;
 
                 if (y < -40) {
+                    // Nerfed: was diamond farming; now gives amethyst or echo shard equivalent
                     result = RNG.nextFloat() < 0.4f
-                        ? new net.minecraft.world.item.ItemStack(Items.DIAMOND)
-                        : new net.minecraft.world.item.ItemStack(Items.GOLD_INGOT, 2);
+                        ? new net.minecraft.world.item.ItemStack(Items.AMETHYST_SHARD, 3)
+                        : new net.minecraft.world.item.ItemStack(Items.GOLD_INGOT, 3);
                 } else if (y < 0) {
                     result = RNG.nextFloat() < 0.3f
                         ? new net.minecraft.world.item.ItemStack(Items.EMERALD)
