@@ -19,6 +19,9 @@ import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraft.world.level.block.BedBlock;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -204,11 +207,65 @@ public class GeneralPowerHandler {
             }
         }
 
+        // ── Nightmare Mimic: glowing_aura — permanent glowing (the power JSON is a marker) ──
+        if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/glowing_aura")) {
+            if (player.tickCount % 20 == 0) {
+                player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 30, 0, true, false));
+            }
+        }
+
+        // ── Mycelial Symbiont: warn about rain exposure; skip moss damage if under roof ──
+        if (OriginHelper.hasPower(player, "chaos_addon:mycelial_symbiont/water_kills_moss")
+                && level.isRaining()) {
+            boolean exposed = level.canSeeSky(player.blockPosition().above());
+            if (player.tickCount % 200 == 0) {
+                if (exposed) {
+                    player.displayClientMessage(
+                        net.minecraft.network.chat.Component.literal(
+                            "§c⚠ Дождь угрожает сети мха! Найди укрытие!")
+                            .withStyle(net.minecraft.ChatFormatting.RED), true);
+                } else {
+                    player.displayClientMessage(
+                        net.minecraft.network.chat.Component.literal(
+                            "§2🍄 Укрытие защищает мох от дождя.")
+                            .withStyle(net.minecraft.ChatFormatting.GREEN), true);
+                    // Under roof: flag that moss is protected this tick
+                    player.getPersistentData().putBoolean("chaos_moss_roof_protected", true);
+                }
+            }
+        } else {
+            player.getPersistentData().putBoolean("chaos_moss_roof_protected", false);
+        }
+
+        // ── Eater of Worlds: sun_burn bonus — JSON handles base 0.5; Java adds per-effect chaos scaling ──
+        if (OriginHelper.hasPower(player, "chaos_addon:eater_of_worlds/sun_burn")) {
+            if (level.isDay() && player.tickCount % (cfg.eaterSunDamageInterval + 50) == 0) {
+                boolean exposed = !player.isUnderWater() && !player.isInLava()
+                    && level.canSeeSky(player.blockPosition());
+                if (exposed) {
+                    int effectCount = player.getActiveEffects().size();
+                    if (effectCount > 0) {
+                        float bonus = effectCount * cfg.eaterSunBonusPerEffect;
+                        player.hurt(player.damageSources().generic(), bonus);
+                        if (effectCount >= 3) {
+                            level.sendParticles(ParticleTypes.LAVA,
+                                player.getX(), player.getY() + 1.0, player.getZ(),
+                                effectCount * 2, 0.3, 0.5, 0.3, 0.05);
+                        }
+                    }
+                }
+            }
+        }
+
         // ── Ancient Sentinel: liquid damage + stone armor stacks while standing still ──
         if (OriginHelper.hasPower(player, "chaos_addon:ancient_sentinel/mountain_stride")) {
             if (player.isInWater() || player.isInLava()) {
-                if (player.tickCount % 10 == 0) {
-                    player.hurt(player.damageSources().drown(), 4.0f);
+                // Gradual damage — escapable (was instant-kill 4.0/10t)
+                if (player.tickCount % cfg.sentinelLiquidInterval == 0) {
+                    player.hurt(player.damageSources().drown(), cfg.sentinelLiquidDamage);
+                    level.sendParticles(ParticleTypes.BUBBLE,
+                        player.getX(), player.getY() + 0.5, player.getZ(),
+                        8, 0.4, 0.5, 0.4, 0.02);
                 }
             }
             if (!player.isCrouching() && !player.isSprinting() && player.onGround()) {
@@ -237,6 +294,40 @@ public class GeneralPowerHandler {
         }
     }
 
+    /**
+     * Eater of Worlds — Bed Explosion:
+     * Right-clicking a bed triggers a TNT-strength explosion at the bed position.
+     * Cancels the block interaction so the player cannot sleep.
+     */
+    @SubscribeEvent
+    public static void onBedExplosion(PlayerInteractEvent.RightClickBlock event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:eater_of_worlds/bed_explosion")) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        // Check if the right-clicked block is a bed
+        var blockState = level.getBlockState(event.getPos());
+        if (!(blockState.getBlock() instanceof BedBlock)) return;
+
+        event.setCanceled(true);
+
+        var bedPos = event.getPos();
+        double bx = bedPos.getX() + 0.5;
+        double by = bedPos.getY() + 0.5;
+        double bz = bedPos.getZ() + 0.5;
+
+        level.explode(player, bx, by, bz, 3.0f,
+            net.minecraft.world.level.Level.ExplosionInteraction.BLOCK);
+
+        level.sendParticles(ParticleTypes.LAVA, bx, by + 0.5, bz,
+            20, 0.5, 0.5, 0.5, 0.2);
+
+        player.displayClientMessage(
+            net.minecraft.network.chat.Component.literal(
+                "§4💥 Постель Пожирателя не знает покоя!")
+                .withStyle(net.minecraft.ChatFormatting.DARK_RED), true);
+    }
+
     /** Royal Pheromone: cancel arthropod attacks on the Swarm Lord. */
     @SubscribeEvent
     public static void onRoyalPheromoneAttack(LivingIncomingDamageEvent event) {
@@ -248,12 +339,12 @@ public class GeneralPowerHandler {
         }
     }
 
-    /** Stasis Field: entities tagged "chaos_stasis" take 2x damage. */
+    /** Temporal Dominion: entities tagged "chaos_stasis" take 2x damage (from merged stasis+time_loop). */
     @SubscribeEvent
     public static void onStasisDamage(LivingIncomingDamageEvent event) {
         if (!event.getEntity().getTags().contains("chaos_stasis")) return;
         if (event.getSource().getEntity() instanceof ServerPlayer player
-                && OriginHelper.hasPower(player, "chaos_addon:time_wanderer/stasis_field")) {
+                && OriginHelper.hasPower(player, "chaos_addon:time_wanderer/temporal_dominion")) {
             event.setAmount(event.getAmount() * 2.0f);
         }
     }

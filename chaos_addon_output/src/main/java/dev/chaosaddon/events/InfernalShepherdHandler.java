@@ -3,7 +3,9 @@ package dev.chaosaddon.events;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -15,11 +17,14 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.monster.Blaze;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.HashMap;
@@ -29,15 +34,18 @@ import java.util.UUID;
 
 /**
  * Handles Infernal Shepherd passives:
- * - fire_diplomacy: nether mobs neutral; gold in hand = follow; zombie piglin death triggers revenge on killer
+ * - fire_diplomacy: nether mobs neutral; gold in hand = follow; zombie piglin death triggers revenge
  * - lava_feeding: hunger restored in lava; Strength II after 30s continuous lava
  * - lava_lord: fire trail when leaving lava; lava walking (convert lava to magma temporarily)
+ * - overworld_death_penalty: partial item save (item 14 fix) — offhand item is preserved on death
  */
 public class InfernalShepherdHandler {
 
-    private static final Map<UUID, Boolean> WAS_IN_LAVA = new HashMap<>();
-    private static final Map<UUID, Integer> LAVA_TICKS = new HashMap<>();
-    private static final Map<UUID, Long> STRENGTH_GIVEN = new HashMap<>();
+    private static final Map<UUID, Boolean> WAS_IN_LAVA   = new HashMap<>();
+    private static final Map<UUID, Integer> LAVA_TICKS    = new HashMap<>();
+    private static final Map<UUID, Long>    STRENGTH_GIVEN = new HashMap<>();
+
+    private static final String SAVED_ITEM_KEY = "chaos_infernal_saved_item";
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -63,7 +71,7 @@ public class InfernalShepherdHandler {
             LAVA_TICKS.put(player.getUUID(), ticks);
             if (ticks >= 600) { // 30 seconds
                 Long lastStrength = STRENGTH_GIVEN.getOrDefault(player.getUUID(), 0L);
-                if (now - lastStrength >= 400) { // don't spam
+                if (now - lastStrength >= 400) {
                     player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 300, 1, false, true));
                     STRENGTH_GIVEN.put(player.getUUID(), now);
                     player.displayClientMessage(Component.literal("§c☄ Перегрев! Сила усилена!"), true);
@@ -80,7 +88,6 @@ public class InfernalShepherdHandler {
         boolean wasInLava = WAS_IN_LAVA.getOrDefault(player.getUUID(), false);
         if (OriginHelper.hasPower(player, "chaos_addon:infernal_shepherd/lava_lord")) {
             if (!inLava && wasInLava) {
-                // Just exited lava - create fire trail blocks around player
                 BlockPos pos = player.blockPosition();
                 for (int dx = -1; dx <= 1; dx++) {
                     for (int dz = -1; dz <= 1; dz++) {
@@ -90,14 +97,12 @@ public class InfernalShepherdHandler {
                         }
                     }
                 }
-                // Schedule fire trail damage for 5 seconds (done via repeated check)
                 player.getPersistentData().putInt("infernal_trail_ticks", 100);
             }
-            // Apply fire trail damage to nearby entities
             int trailTicks = player.getPersistentData().getInt("infernal_trail_ticks");
             if (trailTicks > 0) {
                 player.getPersistentData().putInt("infernal_trail_ticks", trailTicks - 1);
-                if (trailTicks % 20 == 0) { // every 1s
+                if (trailTicks % 20 == 0) {
                     List<LivingEntity> nearby = level.getEntitiesOfClass(LivingEntity.class,
                         player.getBoundingBox().inflate(2.0), e -> e != player && e.isAlive());
                     nearby.forEach(e -> {
@@ -109,16 +114,12 @@ public class InfernalShepherdHandler {
         }
         WAS_IN_LAVA.put(player.getUUID(), inLava);
 
-        // Lava Lord: walk on lava - convert lava blocks below to magma temporarily
+        // Lava Lord: walk on lava
         if (OriginHelper.hasPower(player, "chaos_addon:infernal_shepherd/lava_lord") && !inLava) {
             BlockPos below = player.blockPosition().below();
             if (level.getBlockState(below).getFluidState().getType()
                     == net.minecraft.world.level.material.Fluids.LAVA.getSource()) {
-                // Place temporary magma block - let's just use a solid block to walk on
-                // and remove it later via ticking (simple: just prevent fall damage)
-                // Actually, for lava walking we set the block temporarily
                 level.setBlock(below, Blocks.MAGMA_BLOCK.defaultBlockState(), 3);
-                // Schedule removal
                 level.scheduleTick(below, Blocks.MAGMA_BLOCK, 80);
             }
         }
@@ -147,6 +148,58 @@ public class InfernalShepherdHandler {
         }
     }
 
+    /**
+     * Overworld Death Penalty — Partial Save (item 14 fix):
+     * When the Shepherd dies in the Overworld, save their offhand item to persistent NBT.
+     * It is returned on respawn, giving a "sacred item" insurance mechanic.
+     */
+    @SubscribeEvent
+    public static void onShepherdDeath(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:infernal_shepherd/overworld_death_penalty")) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        // Only trigger in Overworld
+        if (!level.dimension().equals(Level.OVERWORLD)) return;
+
+        // Save offhand item (or main-hand if offhand is empty) to NBT before inventory drops
+        ItemStack toSave = player.getOffhandItem().isEmpty()
+            ? player.getMainHandItem()
+            : player.getOffhandItem();
+
+        if (!toSave.isEmpty()) {
+            // MC 1.21.1: save() returns Tag, not void
+            net.minecraft.nbt.Tag serialized = toSave.save(player.registryAccess());
+            if (serialized instanceof CompoundTag ct) {
+                player.getPersistentData().put(SAVED_ITEM_KEY, ct);
+                player.sendSystemMessage(Component.literal(
+                    "§6🔥 «" + toSave.getHoverName().getString()
+                    + "» сохранён огнём — будет возвращён при возрождении."));
+            }
+        }
+    }
+
+    /** Return the saved item on respawn. */
+    @SubscribeEvent
+    public static void onShepherdRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:infernal_shepherd/overworld_death_penalty")) return;
+
+        CompoundTag nbt = player.getPersistentData();
+        if (!nbt.contains(SAVED_ITEM_KEY)) return;
+
+        CompoundTag itemTag = nbt.getCompound(SAVED_ITEM_KEY);
+        nbt.remove(SAVED_ITEM_KEY);
+
+        ItemStack saved = ItemStack.parseOptional(player.registryAccess(), itemTag);
+        if (!saved.isEmpty()) {
+            player.getInventory().add(saved);
+            player.sendSystemMessage(Component.literal(
+                "§6🔥 Сохранённый предмет возвращён: «"
+                + saved.getHoverName().getString() + "»."));
+        }
+    }
+
     // Zombie piglin death: redirect aggro to killer
     @SubscribeEvent
     public static void onMobDeath(LivingDeathEvent event) {
@@ -159,11 +212,9 @@ public class InfernalShepherdHandler {
             .toList();
         if (shepherds.isEmpty()) return;
 
-        // Find who killed the piglin
         LivingEntity killer = dead.getKillCredit() instanceof LivingEntity le ? le : null;
         if (killer == null || shepherds.contains(killer)) return;
 
-        // Redirect nearby piglins to attack the killer
         level.getEntitiesOfClass(ZombifiedPiglin.class,
             dead.getBoundingBox().inflate(30),
             e -> e.isAlive() && e != dead)

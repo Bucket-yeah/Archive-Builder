@@ -6,6 +6,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 
+// New in this version:
+// BalanceReportCommand (includes /chaos balance-report and /chaos testmode)
+// TemporalDominionCommand, TemporalEchoCommand
+
 /**
  * Registers ALL custom commands used by JSON active powers via origins:execute_command.
  */
@@ -73,5 +77,12 @@ public class ModCommands {
         SilverShieldCommand.register(dispatcher);
         DeadLegionCommand.register(dispatcher);
         StarApocalypseCommand.register(dispatcher);
+
+        // ── Time Wanderer (merged/new abilities) ──
+        TemporalDominionCommand.register(dispatcher);
+        TemporalEchoCommand.register(dispatcher);
+
+        // ── Admin & utility ──
+        BalanceReportCommand.register(dispatcher);
     }
 }

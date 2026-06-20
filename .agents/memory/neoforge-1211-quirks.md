@@ -28,6 +28,23 @@ description: Compile errors and their fixes specific to NeoForge 21.1.x / MC 1.2
 
 - `LivingAttackEvent` removed — use `LivingIncomingDamageEvent`.
 - `builtInRegistryHolder()` does NOT exist on raw `MobEffect` — only valid on registry objects accessed through the registry API.
+- `PlayerSleepInBedEvent` does NOT exist in NeoForge 1.21.1 — use `PlayerInteractEvent.RightClickBlock` and check `blockState.getBlock() instanceof BedBlock` instead.
+
+## Bat Entity
+
+- `Bat` is in `net.minecraft.world.entity.ambient.Bat`, NOT in `animal`. Same for other ambient mobs like Bats.
+
+## ItemStack Serialisation
+
+- MC 1.21.1: `ItemStack.save(RegistryAccess)` returns `Tag` (not void). Store result; cast to `CompoundTag` to put into NBT.
+- Loading: `ItemStack.parseOptional(HolderLookup.Provider, Tag)` works with the returned `Tag`.
+
+## NeoOriginsAPI
+
+- `NeoOriginsAPI.origins(ServerPlayer)` does NOT exist in NeoOrigins 2.2.5 — only `NeoOriginsAPI.powers(sp)` exists.
+- To check if a player has an origin, check if they have any power whose id starts with `"chaos_addon:<originName>/"`.
+
+**Why:** The API only exposes powers, not origins directly. Matching by prefix works because all powers in an origin share that namespace.
 
 ## Entity Creation
 

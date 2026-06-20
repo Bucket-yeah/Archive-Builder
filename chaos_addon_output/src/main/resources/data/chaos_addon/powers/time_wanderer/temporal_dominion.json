@@ -1,0 +1,42 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_temporal_dominion"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:sculk_soul",
+        "count": 50,
+        "spread": {
+          "x": 6.0,
+          "y": 3.0,
+          "z": 6.0
+        },
+        "speed": 0.05,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.elder_guardian.curse",
+        "volume": 1.0,
+        "pitch": 0.5
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.portal.ambient",
+        "volume": 0.9,
+        "pitch": 0.55
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.secondary_active"
+  },
+  "name": "Временное Господство",
+  "description": "Заморозить всё в радиусе 15 блоков на 10 сек + Confusion. Ты замедлен, но можешь действовать. Урон по замороженным удвоен. Объединяет Стазис-Поле и Временную Петлю в одну мощную способность.",
+  "cooldown_ticks": 4800
+}

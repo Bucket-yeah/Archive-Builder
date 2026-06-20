@@ -1,0 +1,36 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_temporal_echo"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:portal",
+        "count": 30,
+        "spread": {
+          "x": 0.5,
+          "y": 1.0,
+          "z": 0.5
+        },
+        "speed": 0.1,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.illusioner.mirror_move",
+        "volume": 0.9,
+        "pitch": 1.4
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.ternary_active"
+  },
+  "name": "Отголосок",
+  "description": "Оставляет двойника-летучую мышь на месте и даёт Невидимость + Скорость II на 5 сек. Ближайшие враги видят двойника светящимся — отличный отвлекающий манёвр.",
+  "cooldown_ticks": 2400
+}

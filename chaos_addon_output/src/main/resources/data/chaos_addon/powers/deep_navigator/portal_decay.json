@@ -1,9 +1,7 @@
 {
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Распад",
-  "description": "Без портала в радиусе 100 блоков — теряешь 0.5❤ каждые 30 сек.",
+  "type": "neoorigins:multiple",
+  "subpowers": [],
+  "name": "Распад / Восстановление",
+  "description": "Без портала в радиусе 100 блоков — медленная пассивная регенерация (Regen I, ~0.5❤ за 2.5 сек) вместо повреждений. Проход через портал мгновенно восстанавливает +1❤. Убирает вырожденный паттерн «бег сквозь портал ради лечения».",
   "hidden": false
 }

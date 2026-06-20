@@ -11,6 +11,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
+import net.minecraft.ChatFormatting;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -30,7 +31,25 @@ public class DeepNavigatorHandler {
     private static final Map<UUID, Long> PORTAL_GLOW_EXPIRY = new HashMap<>();
 
     private static final String NETHER = "minecraft:the_nether";
-    private static final String END = "minecraft:the_end";
+    private static final String END    = "minecraft:the_end";
+
+    private static boolean isNearPortal(ServerPlayer player, ServerLevel level, int range) {
+        net.minecraft.core.BlockPos pos = player.blockPosition();
+        for (int x = -range; x <= range; x += 8) {
+            for (int y = -range/4; y <= range/4; y += 4) {
+                for (int z = -range; z <= range; z += 8) {
+                    net.minecraft.core.BlockPos check = pos.offset(x, y, z);
+                    net.minecraft.world.level.block.state.BlockState bs = level.getBlockState(check);
+                    if (bs.is(net.minecraft.world.level.block.Blocks.NETHER_PORTAL)
+                        || bs.is(net.minecraft.world.level.block.Blocks.END_PORTAL)
+                        || bs.is(net.minecraft.world.level.block.Blocks.END_GATEWAY)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -75,6 +94,23 @@ public class DeepNavigatorHandler {
             // Each extra dimension: Luck I
             if (visited.size() >= 3) {
                 player.addEffect(new MobEffectInstance(MobEffects.LUCK, 220, Math.min(visited.size() - 2, 3), false, false));
+            }
+        }
+
+        // ── Portal Decay / Alt Healing (item 13 fix) ──
+        // Instead of pure damage when far from portals, provide slow regen as fallback.
+        if (OriginHelper.hasPower(player, "chaos_addon:deep_navigator/portal_decay")) {
+            dev.chaosaddon.config.ChaosAddonConfig cfg = dev.chaosaddon.config.ChaosAddonConfig.get();
+            if (now % cfg.navDecayInterval == 0) {
+                boolean nearPortal = isNearPortal(player, level, cfg.navDecayPortalRange);
+                if (!nearPortal) {
+                    // Slow passive regen instead of raw damage — removes the degenerate portal loop
+                    player.addEffect(new MobEffectInstance(MobEffects.REGENERATION,
+                        cfg.navFarRegenDuration, 0, false, true));
+                    player.displayClientMessage(
+                        Component.literal("§5⚡ Распад: медленная регенерация вдали от портала")
+                            .withStyle(net.minecraft.ChatFormatting.LIGHT_PURPLE), true);
+                }
             }
         }
 
@@ -125,6 +161,10 @@ public class DeepNavigatorHandler {
                 player.displayClientMessage(Component.literal("§b✦ Мастер измерений!"), true);
             }
         }
+
+        // Heal 1 HP on every portal transit (portal_decay incentive)
+        player.heal(2.0f);
+        player.displayClientMessage(Component.literal("§b+1❤ портал").withStyle(net.minecraft.ChatFormatting.AQUA), true);
 
         // Track new dimension in visited set
         String dest = event.getDimension().location().toString();

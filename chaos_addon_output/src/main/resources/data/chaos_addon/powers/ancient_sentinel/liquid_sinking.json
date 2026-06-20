@@ -1,9 +1,7 @@
 {
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
+  "type": "neoorigins:multiple",
+  "subpowers": [],
   "name": "Тонет в жидкостях",
-  "description": "В воде или лаве — мгновенно тонет (4 урона каждые 0.5 сек). Java GeneralPowerHandler.",
-  "hidden": true
+  "description": "В воде или лаве — постепенный урон (0.5❤ каждые 3 сек). Достаточно медленно, чтобы выбраться. Реализовано через GeneralPowerHandler (mountain_stride).",
+  "hidden": false
 }

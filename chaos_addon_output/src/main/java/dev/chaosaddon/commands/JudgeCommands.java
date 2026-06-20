@@ -60,8 +60,11 @@ public class JudgeCommands {
                 if (target.isEmpty()) return 0;
                 LivingEntity t = target.get();
 
-                t.addTag("chaos_annihilate");
-                t.getPersistentData().putInt("chaos_annihilate_tick", 200);
+                // Item 18 fix: deal % of current HP instead of guaranteed kill.
+                // Dangerous vs weakened targets, less decisive vs bosses/tanks.
+                float pct = dev.chaosaddon.config.ChaosAddonConfig.get().judgeAnnihilatePercent;
+                float dmg = t.getHealth() * pct;
+                t.hurt(player.damageSources().magic(), dmg);
 
                 level.sendParticles(ParticleTypes.PORTAL,
                     t.getX(), t.getY() + 1.0, t.getZ(), 40, 0.5, 1.0, 0.5, 0.2);
@@ -70,8 +73,11 @@ public class JudgeCommands {
                 level.playSound(null, player.blockPosition(),
                     SoundEvents.ENDER_DRAGON_DEATH, SoundSource.PLAYERS, 1.0f, 0.5f);
 
-                player.setHealth(0.5f);
-                player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§4§lПриговор вынесен! 10 сек..."));
+                // Recoil: Judge pays with HP (no longer drops to 0.5)
+                player.hurt(player.damageSources().magic(), dmg * 0.25f);
+
+                player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                    "§4§l⚖ Аннигиляция — " + (int)(pct * 100) + "% HP цели (" + (int)dmg + " урона)!"));
                 return 1;
             }));
 

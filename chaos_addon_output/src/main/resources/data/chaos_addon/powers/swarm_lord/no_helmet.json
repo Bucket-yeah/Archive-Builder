@@ -1,8 +1,8 @@
 {
   "type": "neoorigins:attribute_modifier",
   "attribute": "minecraft:generic.armor",
-  "amount": 0,
-  "operation": "add_value",
+  "amount": -100,
+  "operation": "add_multiplied_total",
   "condition": {
     "type": "neoorigins:equipped_item",
     "equipment_slot": "head",
@@ -13,7 +13,7 @@
       }
     }
   },
-  "name": "Нет шлема",
-  "description": "Не может носить шлем (закрывает обзор роя). Шлемы не дают защиты.",
-  "hidden": true
+  "name": "Открытый Рой",
+  "description": "Шлем технически можно надеть, но он не даёт никакой брони (броня сведена к нулю мультипликатором). Рой не переносит закрытых пространств.",
+  "hidden": false
 }
