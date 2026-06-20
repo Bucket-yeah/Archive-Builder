@@ -75,7 +75,6 @@ public class ModCommands {
 
         // ── Additional commands ──
         SilverShieldCommand.register(dispatcher);
-        DeadLegionCommand.register(dispatcher);
         StarApocalypseCommand.register(dispatcher);
 
         // ── Time Wanderer (merged/new abilities) ──
