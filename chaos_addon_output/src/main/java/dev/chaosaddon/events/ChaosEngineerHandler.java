@@ -20,11 +20,15 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
+import org.joml.Vector3f;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Handles Chaos Engineer passives:
@@ -37,6 +41,16 @@ public class ChaosEngineerHandler {
     public static final String ENERGY_KEY = "chaos_energy";
     private static final int MAX_ENERGY = 100;
     private static final int ENERGY_PER_REDSTONE = 10;
+
+    private static final Set<Block> REDSTONE_BLOCKS = Set.of(
+        Blocks.REDSTONE_WIRE, Blocks.REDSTONE_TORCH, Blocks.REDSTONE_WALL_TORCH,
+        Blocks.REPEATER, Blocks.COMPARATOR, Blocks.OBSERVER,
+        Blocks.PISTON, Blocks.STICKY_PISTON, Blocks.PISTON_HEAD,
+        Blocks.DISPENSER, Blocks.DROPPER, Blocks.HOPPER,
+        Blocks.LEVER, Blocks.DETECTOR_RAIL, Blocks.POWERED_RAIL,
+        Blocks.TRIPWIRE_HOOK, Blocks.TARGET, Blocks.DAYLIGHT_DETECTOR,
+        Blocks.REDSTONE_LAMP, Blocks.TNT
+    );
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -69,6 +83,34 @@ public class ChaosEngineerHandler {
             // Engineer doesn't starve, but at 0 energy they're weaker
             if (energy <= 0) {
                 player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 60, 0, false, false));
+            }
+        }
+
+        // ── Redstone Vision: highlight nearby redstone blocks every 2s ──
+        if (OriginHelper.hasPower(player, "chaos_addon:chaos_engineer/redstone_vision")
+                && player.tickCount % 40 == 0) {
+            BlockPos center = player.blockPosition();
+            DustParticleOptions redDust = new DustParticleOptions(new Vector3f(1.0f, 0.1f, 0.05f), 1.0f);
+            for (BlockPos p : BlockPos.betweenClosed(center.offset(-10, -4, -10), center.offset(10, 4, 10))) {
+                if (REDSTONE_BLOCKS.contains(level.getBlockState(p).getBlock())) {
+                    level.sendParticles(redDust,
+                        p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5,
+                        3, 0.3, 0.3, 0.3, 0.0);
+                }
+            }
+        }
+
+        // ── No-Redstone Penalty HUD warning ──
+        if (OriginHelper.hasPower(player, "chaos_addon:chaos_engineer/no_redstone_penalty")
+                && player.tickCount % 40 == 0) {
+            boolean hasRedstone = false;
+            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                if (player.getInventory().getItem(i).is(Items.REDSTONE)) { hasRedstone = true; break; }
+            }
+            if (!hasRedstone) {
+                player.displayClientMessage(
+                    Component.literal("§c⚡ НЕТ РЕДСТОУНА — урон x2!").withStyle(net.minecraft.ChatFormatting.RED),
+                    true);
             }
         }
 
@@ -119,6 +161,38 @@ public class ChaosEngineerHandler {
             return energy;
         }
         return -1; // no redstone found
+    }
+
+    /** No Potions: potions are incompatible with redstone circuitry — they explode when drunk. */
+    @SubscribeEvent
+    public static void onNoPotions(LivingEntityUseItemEvent.Start event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:chaos_engineer/no_potions")) return;
+        net.minecraft.world.item.ItemStack item = event.getItem();
+        if (!item.is(net.minecraft.world.item.Items.POTION)) return;
+        event.setCanceled(true); // prevent drinking
+        if (player.level() instanceof ServerLevel level) {
+            level.explode(null, player.getX(), player.getY() + 1, player.getZ(),
+                0.8f, false, net.minecraft.world.level.Level.ExplosionInteraction.NONE);
+            player.hurt(player.damageSources().explosion(null, null), 2.0f);
+            level.sendParticles(ParticleTypes.ELECTRIC_SPARK,
+                player.getX(), player.getY() + 1.0, player.getZ(), 20, 0.5, 0.8, 0.5, 0.1);
+            player.sendSystemMessage(Component.literal("§c⚡ ВЗРЫВ! §7Зелье несовместимо с электросхемой!"));
+        }
+    }
+
+    /** No-Redstone Penalty: double incoming damage when no redstone in inventory. */
+    @SubscribeEvent
+    public static void onNoRedstonePenalty(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:chaos_engineer/no_redstone_penalty")) return;
+        boolean hasRedstone = false;
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            if (player.getInventory().getItem(i).is(Items.REDSTONE)) { hasRedstone = true; break; }
+        }
+        if (!hasRedstone) {
+            event.setAmount(event.getAmount() * 2.0f);
+        }
     }
 
     /** Conductor: lightning strike → energy + Strength I instead of damage */

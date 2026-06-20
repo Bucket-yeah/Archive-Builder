@@ -21,6 +21,7 @@ import net.minecraft.world.entity.monster.ZombieVillager;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
@@ -159,6 +160,40 @@ public class NecrovoreHandler {
         player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
             "§5💀 Мертвец поднят на 60с! §7(−" + COST_RESURRECT + " душ)"));
         return true;
+    }
+
+    // ── No Normal Food: Necrovore cannot digest regular food ────────────────────
+    private static final java.util.Set<net.minecraft.world.item.Item> ALLOWED_NECRO_FOOD = java.util.Set.of(
+        net.minecraft.world.item.Items.ROTTEN_FLESH,
+        net.minecraft.world.item.Items.SPIDER_EYE,
+        net.minecraft.world.item.Items.FERMENTED_SPIDER_EYE,
+        net.minecraft.world.item.Items.POISONOUS_POTATO
+    );
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onNoNormalFood(LivingEntityUseItemEvent.Finish event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:necrovore/no_normal_food")) return;
+        net.minecraft.world.item.ItemStack item = event.getItem();
+        if (!item.has(net.minecraft.core.component.DataComponents.FOOD)) return;
+        if (ALLOWED_NECRO_FOOD.contains(item.getItem())) return;
+
+        // Undo nutrition: forcefully drain the food level back
+        var food = item.get(net.minecraft.core.component.DataComponents.FOOD);
+        if (food != null) {
+            int currentFood = player.getFoodData().getFoodLevel();
+            player.getFoodData().setFoodLevel(Math.max(0, currentFood - food.nutrition()));
+        }
+        player.hurt(player.damageSources().generic(), 2.0f);
+        player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+            "§4💀 Мертвецкое нутро: §7обычная еда разлагается! Ешь гнилую плоть."));
+        if (player.level() instanceof ServerLevel level) {
+            level.sendParticles(ParticleTypes.SMOKE,
+                player.getX(), player.getY() + 0.5, player.getZ(),
+                10, 0.3, 0.4, 0.3, 0.02);
+            level.playSound(null, player.blockPosition(),
+                SoundEvents.ZOMBIE_INFECT, SoundSource.PLAYERS, 0.7f, 0.5f);
+        }
     }
 
     // ── Мёртвая Плоть: poison heals, fire doubles ───────────────────────────────

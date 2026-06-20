@@ -71,16 +71,6 @@ public class LunarHandler {
 
         data.setLastPhase(moonPhase);
 
-        // Sun damage during daytime if exposed
-        if (!level.isNight() && level.canSeeSky(player.blockPosition())) {
-            if (player.tickCount % cfg.lunarSunDamageInterval == 0) {
-                player.hurt(player.damageSources().inFire(), cfg.lunarSunDamage);
-                level.sendParticles(ParticleTypes.FLAME,
-                    player.getX(), player.getY() + 1.0, player.getZ(),
-                    4, 0.3, 0.4, 0.3, 0.02);
-            }
-        }
-
         // Apply moon-phase effects every second
         if (player.tickCount % 20 != 0) return;
 
@@ -92,10 +82,13 @@ public class LunarHandler {
         player.removeEffect(MobEffects.REGENERATION);
 
         if (!level.isNight()) {
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 1, true, false));
-            player.displayClientMessage(
-                Component.literal("☀ Дневное ослабление | " + PHASE_NAMES[moonPhase])
-                    .withStyle(ChatFormatting.GOLD), true);
+            // JSON powers day_penalty + sun_burn already handle the day debuffs.
+            // Java must NOT duplicate — only show the HUD line.
+            if (OriginHelper.hasPower(player, "chaos_addon:lunar_renegade/lunar_calendar")) {
+                player.displayClientMessage(
+                    Component.literal("☀ Дневное наказание | " + PHASE_NAMES[moonPhase])
+                        .withStyle(ChatFormatting.GOLD), true);
+            }
             return;
         }
 

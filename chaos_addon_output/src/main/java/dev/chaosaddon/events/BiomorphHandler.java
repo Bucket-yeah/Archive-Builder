@@ -15,7 +15,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.HashSet;
@@ -197,6 +199,69 @@ public class BiomorphHandler {
             player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 40, 0, true, false));
         if (dna.size() >= 5)
             player.addEffect(new MobEffectInstance(MobEffects.LUCK, 40, 0, true, false));
+    }
+
+    /**
+     * Biome Metabolism: Biomorph can only eat food that belongs to the current biome type.
+     * Eating wrong-biome food: 1❤ damage + nutrition removed.
+     * Eating correct-biome food: small extra saturation bonus.
+     * Universal foods (bread, beef, carrot, etc.) are always allowed.
+     */
+    @SubscribeEvent
+    public static void onBiomeMetabolism(LivingEntityUseItemEvent.Finish event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:biomorph/biome_metabolism")) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        net.minecraft.world.item.ItemStack item = event.getItem();
+        if (!item.has(net.minecraft.core.component.DataComponents.FOOD)) return;
+
+        String biomeName = level.getBiome(player.blockPosition())
+            .unwrapKey().map(k -> k.location().toString()).orElse("plains");
+        String biomeType = getBiomeType(biomeName);
+        String foodBiome = getFoodBiomeType(item.getItem());
+
+        if (foodBiome == null) return; // universal food, always OK
+
+        if (foodBiome.equals(biomeType)) {
+            // Correct biome food: bonus saturation
+            player.getFoodData().eat(0, 1.5f);
+            level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                player.getX(), player.getY() + 1.0, player.getZ(), 5, 0.3, 0.3, 0.3, 0.0);
+        } else {
+            // Wrong biome: undo nutrition, deal 1❤ damage
+            var food = item.get(net.minecraft.core.component.DataComponents.FOOD);
+            if (food != null) {
+                player.getFoodData().setFoodLevel(
+                    Math.max(0, player.getFoodData().getFoodLevel() - food.nutrition()));
+            }
+            player.hurt(player.damageSources().generic(), 2.0f);
+            player.sendSystemMessage(Component.literal(
+                "§3🧬 Метаболизм: §7«" + item.getHoverName().getString()
+                + "» не растёт в биоме §b" + biomeType + "§7!"));
+            level.sendParticles(ParticleTypes.CLOUD,
+                player.getX(), player.getY() + 0.5, player.getZ(), 8, 0.3, 0.3, 0.3, 0.02);
+        }
+    }
+
+    /** Maps specific food items to their home biome type. Returns null for universal foods. */
+    private static String getFoodBiomeType(net.minecraft.world.item.Item item) {
+        // Ocean foods
+        if (item == Items.COD || item == Items.COOKED_COD || item == Items.SALMON
+                || item == Items.COOKED_SALMON || item == Items.TROPICAL_FISH
+                || item == Items.DRIED_KELP) return "ocean";
+        // Jungle foods
+        if (item == Items.MELON_SLICE || item == Items.COCOA_BEANS) return "jungle";
+        // Forest/cold foods
+        if (item == Items.SWEET_BERRIES || item == Items.GLOW_BERRIES) return "forest";
+        // Snowy/frozen foods
+        if (item == Items.PUMPKIN_PIE) return "frozen";
+        // Mushroom foods
+        if (item == Items.MUSHROOM_STEW || item == Items.SUSPICIOUS_STEW) return "mushroom";
+        // Nether foods
+        if (item == Items.CHORUS_FRUIT) return "nether";
+        // Universal: bread, beef, pork, chicken, carrot, potato, apple, etc.
+        return null;
     }
 
     private static String getBiomeType(String biome) {

@@ -264,6 +264,9 @@ public class GeneralPowerHandler {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/illusory_flesh")) return;
         if (event.getAmount() <= 0) return;
+        // Guard: skip damage that is already a reflection (magic source) to break infinite loops
+        String srcId = event.getSource().getMsgId();
+        if (srcId.equals("magic") || srcId.equals("chaos_reflect")) return;
 
         if (RNG.nextFloat() < 0.40f) {
             event.setCanceled(true);
@@ -428,8 +431,8 @@ public class GeneralPowerHandler {
         if (stacks > 0) {
             player.getPersistentData().putInt("chaos_stone_stacks", 0);
         }
-        // Crystal Carapace: reflect damage to attacker
-        if (player.getTags().contains("chaos_crystal_carapace")) {
+        // Crystal Carapace: reflect damage to attacker (skip if event already cancelled — breaks reflection loops)
+        if (player.getTags().contains("chaos_crystal_carapace") && !event.isCanceled()) {
             if (event.getSource().getEntity() instanceof LivingEntity attacker) {
                 attacker.hurt(player.damageSources().magic(), 2.0f);
                 if (player.level() instanceof ServerLevel level) {
