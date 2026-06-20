@@ -75,6 +75,19 @@ public class MirrorPhantomHandler {
             }
         }
 
+        // Sun vulnerability: Slowness III + Weakness II in sunlight
+        if (OriginHelper.hasPower(player, "chaos_addon:mirror_phantom/sun_vulnerability")
+                && player.tickCount % 40 == 0) {
+            boolean inSun = level.canSeeSky(player.blockPosition())
+                && level.isDay()
+                && !player.isInWaterOrRain()
+                && !player.isUnderWater();
+            if (inSun) {
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 2, false, false));
+                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 80, 1, false, false));
+            }
+        }
+
         // Mirror world: check tag active, show FX
         if (player.getTags().contains("chaos_mirror_world")) {
             if (player.tickCount % 10 == 0) {

@@ -2,16 +2,17 @@ package dev.chaosaddon.events;
 
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -19,22 +20,23 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import java.util.*;
 
 /**
- * Handles Neural Hijacker passives:
- * - memory_theft: copy random effect from attacked entity
- * - neural_network: hosts glow + auto-regen near them
- * - parasitic_body: auto-regen 1 HP every 10s near any host
+ * Handles Neural Hijacker passives (spec-accurate):
+ * - parasitic_body: max HP = 10❤, regen 1❤/10s near host, -0.5❤/20s without host
+ * - memory_theft: copy a random effect from the attacked entity (15s)
+ * - neural_network: hosts glow through walls, particles
  */
 public class NeuralHijackerHandler {
 
-    /** Maps player UUID -> set of infected entity UUIDs */
+    /** player UUID → set of infected entity UUIDs */
     static final Map<UUID, Set<UUID>> HIJACKED = new HashMap<>();
-    /** Maps player UUID -> infection expiry game time */
+    /** player UUID → infection expiry game time */
     static final Map<UUID, Map<UUID, Long>> HIJACK_EXPIRY = new HashMap<>();
 
     private static final Random RNG = new Random();
-    private static final int MAX_HOSTS = 3;
-    private static final int INFECT_DURATION = 500; // 25s in ticks
+    public static final int MAX_HOSTS = 3;
+    private static final int INFECT_DURATION_TICKS = 500; // 25s
 
+    // ── Per-tick passives ──────────────────────────────────────────────────────
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -46,25 +48,22 @@ public class NeuralHijackerHandler {
         Map<UUID, Long> expiries = HIJACK_EXPIRY.computeIfAbsent(pid, k -> new HashMap<>());
         long now = level.getGameTime();
 
-        // Expire old infections
+        // Expire old infections and dead entities
         expiries.entrySet().removeIf(e -> e.getValue() < now);
         hosts.retainAll(expiries.keySet());
-
-        // Remove dead entities
         hosts.removeIf(uuid -> {
             var entity = level.getEntity(uuid);
             return entity == null || !entity.isAlive();
         });
 
         boolean nearHost = false;
+
         for (UUID uuid : hosts) {
             if (!(level.getEntity(uuid) instanceof LivingEntity host)) continue;
             host.setGlowingTag(true);
 
-            // Regen near host
             if (player.distanceTo(host) < 20) nearHost = true;
 
-            // Particles on host
             if (player.tickCount % 5 == 0) {
                 level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
                     host.getX(), host.getY() + 0.8, host.getZ(),
@@ -72,21 +71,30 @@ public class NeuralHijackerHandler {
             }
         }
 
-        // Auto-regen near host
-        if (nearHost && player.tickCount % 200 == 0 && player.getHealth() < player.getMaxHealth()) {
-            player.heal(1.0f);
-        }
+        // ── Parasitic Body: regen near host, damage without host ──
+        if (OriginHelper.hasPower(player, "chaos_addon:neural_hijacker/parasitic_body")) {
+            if (nearHost && player.tickCount % 200 == 0
+                    && player.getHealth() < player.getMaxHealth()) {
+                // Regen 1❤ every 10 seconds near a host
+                player.heal(2.0f);
+                level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                    player.getX(), player.getY() + 1.0, player.getZ(),
+                    5, 0.3, 0.4, 0.3, 0.0);
+            }
 
-        // Actionbar
-        if (player.tickCount % 20 == 0) {
-            player.displayClientMessage(
-                Component.literal("🧠 Хосты: " + hosts.size() + "/" + MAX_HOSTS)
-                    .withStyle(net.minecraft.ChatFormatting.GREEN),
-                true);
+            if (hosts.isEmpty() && player.tickCount % 400 == 0) {
+                // No hosts at all → -0.5❤ (1 HP) every 20 seconds
+                player.hurt(player.damageSources().starve(), 1.0f);
+                level.sendParticles(ParticleTypes.WITCH,
+                    player.getX(), player.getY() + 1.0, player.getZ(),
+                    6, 0.3, 0.5, 0.3, 0.05);
+                level.playSound(null, player.blockPosition(),
+                    SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.PLAYERS, 0.4f, 0.8f);
+            }
         }
     }
 
-    /** Memory theft: copy a random effect from attacked entity */
+    // ── Memory theft: copy random effect from attacked entity ───────────────────
     @SubscribeEvent
     public static void onAttack(AttackEntityEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -98,9 +106,10 @@ public class NeuralHijackerHandler {
 
         List<MobEffectInstance> effectList = new ArrayList<>(effects);
         MobEffectInstance chosen = effectList.get(RNG.nextInt(effectList.size()));
-        MobEffect effect = chosen.getEffect().value();
 
-        player.addEffect(new MobEffectInstance(chosen.getEffect(), 300, chosen.getAmplifier(), false, true));
+        // Copy effect for 15 seconds
+        player.addEffect(new MobEffectInstance(
+            chosen.getEffect(), 300, chosen.getAmplifier(), false, true));
 
         if (player.level() instanceof ServerLevel level) {
             level.sendParticles(ParticleTypes.WITCH,
@@ -111,17 +120,15 @@ public class NeuralHijackerHandler {
         }
     }
 
-    // ---------- Static helpers for NeuralHijackerCommands ----------
+    // ── Static helpers for commands ────────────────────────────────────────────
 
     public static boolean canInfect(ServerPlayer player) {
-        UUID pid = player.getUUID();
-        Set<UUID> hosts = HIJACKED.computeIfAbsent(pid, k -> new HashSet<>());
+        Set<UUID> hosts = HIJACKED.computeIfAbsent(player.getUUID(), k -> new HashSet<>());
         return hosts.size() < MAX_HOSTS;
     }
 
     public static boolean infectTarget(ServerPlayer player, LivingEntity target) {
         if (!(player.level() instanceof ServerLevel level)) return false;
-        if (target.getHealth() / target.getMaxHealth() > 0.60f) return false;
 
         UUID pid = player.getUUID();
         Set<UUID> hosts = HIJACKED.computeIfAbsent(pid, k -> new HashSet<>());
@@ -131,23 +138,21 @@ public class NeuralHijackerHandler {
 
         UUID tid = target.getUUID();
         hosts.add(tid);
-        expiries.put(tid, level.getGameTime() + INFECT_DURATION);
+        expiries.put(tid, level.getGameTime() + INFECT_DURATION_TICKS);
         target.setGlowingTag(true);
 
-        // Boost infected's damage
+        // Boost infected mob's attack damage by 20%
         if (target instanceof Mob mob) {
-            var atk = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+            var atk = mob.getAttribute(Attributes.ATTACK_DAMAGE);
             if (atk != null) {
-                net.minecraft.resources.ResourceLocation modId =
-                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("chaos_addon", "hijack_dmg_boost");
+                ResourceLocation modId = ResourceLocation.fromNamespaceAndPath("chaos_addon", "hijack_dmg_boost");
                 atk.removeModifier(modId);
-                atk.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
+                atk.addTransientModifier(new AttributeModifier(
                     modId, atk.getBaseValue() * 0.2,
-                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+                    AttributeModifier.Operation.ADD_VALUE));
             }
         }
 
-        // FX
         level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
             target.getX(), target.getY() + 1.2, target.getZ(),
             30, 0.5, 0.7, 0.5, 0.05);
@@ -163,5 +168,9 @@ public class NeuralHijackerHandler {
 
     public static Set<UUID> getHosts(UUID playerUUID) {
         return HIJACKED.computeIfAbsent(playerUUID, k -> new HashSet<>());
+    }
+
+    public static int getHostCount(ServerPlayer player) {
+        return getHosts(player.getUUID()).size();
     }
 }
