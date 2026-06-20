@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:electric_spark"
-        },
+        "particle": "minecraft:electric_spark",
         "count": 20,
         "spread": {
           "x": 0.5,

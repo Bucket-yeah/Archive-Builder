@@ -1,5 +1,5 @@
 {
-  "type": "neoorigins:action_over_time",
+  "type": "neoorigins:condition_passive",
   "interval": 1,
   "entity_action": {
     "type": "neoorigins:if_else",

@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:cherry_leaves"
-        },
+        "particle": "minecraft:cherry_leaves",
         "count": 80,
         "spread": {
           "x": 5.0,

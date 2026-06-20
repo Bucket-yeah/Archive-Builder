@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:dragon_breath"
-        },
+        "particle": "minecraft:dragon_breath",
         "count": 60,
         "spread": {
           "x": 1.5,
@@ -23,9 +21,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:sculk_charge_pop"
-        },
+        "particle": "minecraft:sculk_charge_pop",
         "count": 30,
         "spread": {
           "x": 1.0,

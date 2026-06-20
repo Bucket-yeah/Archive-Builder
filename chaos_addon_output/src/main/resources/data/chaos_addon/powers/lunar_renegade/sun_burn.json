@@ -1,5 +1,5 @@
 {
-  "type": "neoorigins:action_over_time",
+  "type": "neoorigins:condition_passive",
   "interval": 100,
   "entity_action": {
     "type": "neoorigins:if_else",
@@ -27,9 +27,7 @@
         },
         {
           "type": "neoorigins:spawn_particles",
-          "particle": {
-            "type": "minecraft:flame"
-          },
+          "particle": "minecraft:flame",
           "count": 3,
           "spread": {
             "x": 0.3,

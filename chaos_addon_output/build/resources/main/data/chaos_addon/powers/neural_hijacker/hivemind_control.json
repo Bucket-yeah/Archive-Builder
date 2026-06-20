@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:glow"
-        },
+        "particle": "minecraft:glow",
         "count": 60,
         "spread": {
           "x": 3.0,
@@ -23,9 +21,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:flame"
-        },
+        "particle": "minecraft:flame",
         "count": 20,
         "spread": {
           "x": 2.0,

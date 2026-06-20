@@ -29,9 +29,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:sonic_boom"
-        },
+        "particle": "minecraft:sonic_boom",
         "count": 5,
         "spread": {
           "x": 0.5,
@@ -43,9 +41,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:sculk_charge"
-        },
+        "particle": "minecraft:sculk_charge",
         "count": 30,
         "spread": {
           "x": 0.8,

@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:enchant"
-        },
+        "particle": "minecraft:enchant",
         "count": 40,
         "spread": {
           "x": 1.0,
@@ -23,9 +21,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:glow"
-        },
+        "particle": "minecraft:glow",
         "count": 20,
         "spread": {
           "x": 0.8,

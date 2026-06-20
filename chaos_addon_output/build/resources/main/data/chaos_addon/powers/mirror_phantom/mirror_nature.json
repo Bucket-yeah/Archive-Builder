@@ -1,5 +1,5 @@
 {
-  "type": "neoorigins:nothing",
+  "type": "neoorigins:multiple",
   "name": "Зеркальная Природа",
   "description": "Первый раз получая каждый тип дебаффа — отражаешь его обратно на атакующего в двойной силе. Память 60 секунд.",
   "hidden": false

@@ -1,5 +1,5 @@
 {
-  "type": "neoorigins:nothing",
+  "type": "neoorigins:multiple",
   "name": "Личина",
   "description": "Каждые 30 секунд меняешь видимое имя на «???» и пускаешь частицы иллюзии. Нейтральные мобы не агрятся пока иллюзия активна.",
   "hidden": false

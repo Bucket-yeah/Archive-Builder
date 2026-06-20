@@ -1,7 +1,7 @@
 {
   "type": "neoorigins:multiple",
   "regen": {
-    "type": "neoorigins:action_over_time",
+    "type": "neoorigins:condition_passive",
     "interval": 100,
     "entity_action": {
       "type": "neoorigins:if_else",

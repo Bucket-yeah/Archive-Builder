@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:enchant_glyph"
-        },
+        "particle": "minecraft:enchant_glyph",
         "count": 80,
         "spread": {
           "x": 10.0,

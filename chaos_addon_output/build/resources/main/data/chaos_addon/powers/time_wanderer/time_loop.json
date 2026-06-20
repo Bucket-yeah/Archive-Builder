@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:sculk_soul"
-        },
+        "particle": "minecraft:sculk_soul",
         "count": 40,
         "spread": {
           "x": 4.0,

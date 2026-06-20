@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:soul"
-        },
+        "particle": "minecraft:soul",
         "count": 40,
         "spread": {
           "x": 2.0,

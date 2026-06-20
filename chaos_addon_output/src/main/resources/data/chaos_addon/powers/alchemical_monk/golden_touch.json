@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:spell"
-        },
+        "particle": "minecraft:spell",
         "count": 25,
         "spread": {
           "x": 0.5,
@@ -23,9 +21,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:glow"
-        },
+        "particle": "minecraft:glow",
         "count": 15,
         "spread": {
           "x": 0.4,

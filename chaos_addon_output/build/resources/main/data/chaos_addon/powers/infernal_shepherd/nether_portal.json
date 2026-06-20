@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:portal"
-        },
+        "particle": "minecraft:portal",
         "count": 100,
         "spread": {
           "x": 2.5,
@@ -23,9 +21,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:flame"
-        },
+        "particle": "minecraft:flame",
         "count": 50,
         "spread": {
           "x": 2.0,

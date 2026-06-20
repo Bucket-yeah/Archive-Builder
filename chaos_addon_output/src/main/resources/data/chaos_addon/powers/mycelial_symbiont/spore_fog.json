@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:cloud"
-        },
+        "particle": "minecraft:cloud",
         "count": 80,
         "spread": {
           "x": 5.0,
@@ -23,9 +21,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:spore_blossom_air"
-        },
+        "particle": "minecraft:spore_blossom_air",
         "count": 60,
         "spread": {
           "x": 4.5,

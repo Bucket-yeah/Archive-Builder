@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:flame"
-        },
+        "particle": "minecraft:flame",
         "count": 60,
         "spread": {
           "x": 3.0,
@@ -23,9 +21,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:campfire_cosy_smoke"
-        },
+        "particle": "minecraft:campfire_cosy_smoke",
         "count": 40,
         "spread": {
           "x": 3.5,

@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:end_rod"
-        },
+        "particle": "minecraft:end_rod",
         "count": 60,
         "spread": {
           "x": 3.0,

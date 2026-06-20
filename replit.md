@@ -69,3 +69,6 @@ _Populate as you build — explicit user instructions worth remembering across s
 - Commands registered in `ModCommands.register()` — see `init/ModCommands.java`.
 - `SoundEvents` fields in 1.21.1 are plain `SoundEvent`, **not** `Holder<SoundEvent>` — do NOT call `.value()`.
 - `LivingAttackEvent` was removed in NeoForge 21.1 — use `LivingIncomingDamageEvent` instead.
+- **`neoorigins:nothing` does NOT exist in NeoOrigins 2.2.5** — use `neoorigins:multiple` (no sub-powers) as a no-op marker instead.
+- **`neoorigins:spawn_particles` particle field must be a string** — `"particle": "minecraft:flame"`, NOT `{"type": "minecraft:flame"}`. Object format silently becomes no-op.
+- **`neoorigins:action_over_time` is deprecated** — rename to `neoorigins:condition_passive` (same fields, same behaviour).

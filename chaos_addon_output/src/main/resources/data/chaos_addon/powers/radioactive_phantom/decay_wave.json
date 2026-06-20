@@ -9,9 +9,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:witch"
-        },
+        "particle": "minecraft:witch",
         "count": 60,
         "spread": {
           "x": 10.0,
@@ -23,9 +21,7 @@
       },
       {
         "type": "neoorigins:spawn_particles",
-        "particle": {
-          "type": "minecraft:spore_blossom_air"
-        },
+        "particle": "minecraft:spore_blossom_air",
         "count": 40,
         "spread": {
           "x": 8.0,
