@@ -31,6 +31,7 @@ public class QuakeCommand {
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                if (!dev.chaosaddon.util.OriginHelper.hasPower(player, "chaos_addon:ancient_sentinel/earth_bond")) return 0;
                 ServerLevel level = player.serverLevel();
                 int radius = 5;
 

@@ -55,22 +55,31 @@ public class SwarmHandler {
 
         int bugCount = data.bugUUIDs().size();
 
-        // Water kills all bugs
+        // FIX: Water gradually kills bugs (2 per second, damage capped at 3) — not instant wipe
         if (player.isInWater()) {
-            int count = bugCount;
-            data.bugUUIDs().forEach(uuid -> {
-                var entity = level.getEntity(uuid);
-                if (entity != null) entity.kill();
-            });
-            data.bugUUIDs().clear();
-            if (count > 0) {
-                float dmg = count * cfg.swarmWaterBugDamage;
-                player.hurt(player.damageSources().generic(), dmg);
-                level.playSound(null, player.blockPosition(),
-                    SoundEvents.GENERIC_EXPLODE.value(),
-                    SoundSource.PLAYERS, 0.5f, 1.8f);
+            if (player.tickCount % 20 == 0 && !data.bugUUIDs().isEmpty()) {
+                int killCount = Math.min(2, data.bugUUIDs().size());
+                int killed = 0;
+                java.util.Iterator<UUID> it = data.bugUUIDs().iterator();
+                while (it.hasNext() && killed < killCount) {
+                    UUID uuid = it.next();
+                    var entity = level.getEntity(uuid);
+                    if (entity != null) {
+                        entity.kill();
+                        level.sendParticles(ParticleTypes.SPLASH,
+                            entity.getX(), entity.getY() + 0.3, entity.getZ(),
+                            5, 0.2, 0.2, 0.2, 0.05);
+                    }
+                    it.remove();
+                    killed++;
+                }
+                if (killed > 0) {
+                    float dmg = Math.min(killed * cfg.swarmWaterBugDamage, 3.0f);
+                    player.hurt(player.damageSources().generic(), dmg);
+                    player.displayClientMessage(
+                        Component.literal("§c💧 Вода убивает жуков! " + killed + " погибло!"), false);
+                }
             }
-            return;
         }
 
         // Spawn bugs
@@ -130,21 +139,42 @@ public class SwarmHandler {
         BlockPos pos = player.blockPosition().offset(
             RNG.nextInt(3) - 1, 0, RNG.nextInt(3) - 1);
 
+        // Evolution: spawn increasingly powerful bug types
+        int evo = data.evolutionLevel();
         LivingEntity bug;
-        if (RNG.nextFloat() < 0.75f) {
-            Silverfish sf = EntityType.SILVERFISH.create(level);
-            if (sf == null) return;
-            sf.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
-            sf.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
-            level.addFreshEntity(sf);
-            bug = sf;
-        } else {
+        if (evo == 0) {
+            // Tier 0: mostly Silverfish, 25% CaveSpider
+            if (RNG.nextFloat() < 0.75f) {
+                Silverfish sf = EntityType.SILVERFISH.create(level);
+                if (sf == null) return;
+                sf.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
+                sf.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
+                level.addFreshEntity(sf);
+                bug = sf;
+            } else {
+                CaveSpider cs = EntityType.CAVE_SPIDER.create(level);
+                if (cs == null) return;
+                cs.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
+                cs.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
+                level.addFreshEntity(cs);
+                bug = cs;
+            }
+        } else if (evo == 1) {
+            // Tier 1: mostly CaveSpider (poison + stronger)
             CaveSpider cs = EntityType.CAVE_SPIDER.create(level);
             if (cs == null) return;
             cs.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
             cs.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
             level.addFreshEntity(cs);
             bug = cs;
+        } else {
+            // Tier 2: Spider (larger, tougher)
+            net.minecraft.world.entity.monster.Spider sp = EntityType.SPIDER.create(level);
+            if (sp == null) return;
+            sp.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
+            sp.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
+            level.addFreshEntity(sp);
+            bug = sp;
         }
 
         try { ScaleTypes.BASE.getScaleData(bug).setScale(BUG_SCALE); } catch (Exception ignored) {}
@@ -247,7 +277,7 @@ public class SwarmHandler {
         }
     }
 
-    // Arthropod kill → +1 bug (Royal Pheromone bonus)
+    // Arthropod kill → +1 bug (Royal Pheromone bonus) + evolution tracking
     @SubscribeEvent
     public static void onArthropodKill(LivingDeathEvent event) {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
@@ -260,6 +290,40 @@ public class SwarmHandler {
             spawnBug(player, level, data);
             player.displayClientMessage(
                 Component.literal("§a+1 жук из убитого членистоногого!"), false);
+        }
+    }
+
+    // Bug swarm kills → evolution (Silverfish → CaveSpider → Spider)
+    @SubscribeEvent
+    public static void onSwarmKill(LivingDeathEvent event) {
+        if (event.getEntity() instanceof ServerPlayer) return;
+        if (!(event.getEntity().level() instanceof ServerLevel level)) return;
+        if (event.getSource().getEntity() == null) return;
+        // Check if killer is a swarm bug (tagged entity)
+        if (!(event.getSource().getEntity() instanceof LivingEntity killer)) return;
+        if (killer.getCustomName() == null || !killer.getCustomName().getString().equals("§aSwarm Bug")) return;
+
+        // Find the owning swarm lord
+        for (ServerPlayer player : level.players()) {
+            if (!OriginHelper.hasOrigin(player, "chaos_addon:swarm_lord")) continue;
+            SwarmData data = player.getData(ModAttachments.SWARM_DATA);
+            if (!data.bugUUIDs().contains(killer.getUUID())) continue;
+
+            data.addKill();
+            if (data.checkEvolution()) {
+                String evoName = switch (data.evolutionLevel()) {
+                    case 1 -> "§6Пещерный Рой (Паук-отравитель)";
+                    case 2 -> "§5Элитный Рой (Гигантский Паук)";
+                    default -> "§7Базовый Рой";
+                };
+                player.sendSystemMessage(Component.literal(
+                    "§6🐝 Рой эволюционировал! → " + evoName));
+                level.sendParticles(ParticleTypes.FLASH,
+                    player.getX(), player.getY() + 1.0, player.getZ(), 5, 0, 0, 0, 0);
+                level.playSound(null, player.blockPosition(),
+                    SoundEvents.EVOKER_PREPARE_SUMMON, SoundSource.PLAYERS, 1.0f, 0.5f);
+            }
+            break;
         }
     }
 }

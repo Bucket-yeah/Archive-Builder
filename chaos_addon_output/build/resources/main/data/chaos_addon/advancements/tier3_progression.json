@@ -1,0 +1,17 @@
+{
+  "display": {
+    "title": {"translate": "advancement.chaos_addon.tier3_progression.title"},
+    "description": {"translate": "advancement.chaos_addon.tier3_progression.description"},
+    "icon": {"id": "minecraft:beacon"},
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "chaos_addon:root",
+  "criteria": {
+    "reach_tier3": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "requirements": [["reach_tier3"]]
+}

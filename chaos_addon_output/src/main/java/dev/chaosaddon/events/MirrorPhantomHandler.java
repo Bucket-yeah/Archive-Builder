@@ -159,6 +159,39 @@ public class MirrorPhantomHandler {
         }
     }
 
+    /**
+     * Mirror Death: when the Mirror Phantom player dies, spawn a Phantom copy at their location.
+     * The copy has 50% of max HP and lasts 30 seconds, distracting enemies.
+     */
+    @SubscribeEvent
+    public static void onMirrorPlayerDeath(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:mirror_phantom/death_echo")) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        var phantom = EntityType.PHANTOM.create(level);
+        if (phantom == null) return;
+        phantom.moveTo(player.getX(), player.getY() + 0.5, player.getZ(), player.getYRot(), 0);
+        phantom.addTag("chaos_managed_entity");
+        phantom.addTag("chaos_mirror_copy");
+        phantom.setHealth(Math.max(1.0f, player.getMaxHealth() * 0.5f));
+        phantom.setCustomName(net.minecraft.network.chat.Component.literal(
+            "§d" + player.getGameProfile().getName() + " [Отражение]"));
+        phantom.setCustomNameVisible(true);
+        phantom.getPersistentData().putInt("chaos_despawn_ticks", 600); // 30s
+        phantom.addEffect(new MobEffectInstance(MobEffects.GLOWING, 600, 0, true, false));
+        level.addFreshEntity(phantom);
+
+        level.sendParticles(ParticleTypes.ENCHANT,
+            player.getX(), player.getY() + 1.0, player.getZ(), 40, 0.8, 1.2, 0.8, 0.1);
+        level.sendParticles(ParticleTypes.FLASH,
+            player.getX(), player.getY() + 1.0, player.getZ(), 3, 0, 0, 0, 0);
+        level.playSound(null, player.blockPosition(),
+            SoundEvents.ILLUSIONER_PREPARE_MIRROR, SoundSource.PLAYERS, 1.0f, 0.6f);
+        player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+            "§d🪞 Зеркальная смерть — ваше отражение живёт 30с..."));
+    }
+
     /** Death Echo: copy effect based on entity type */
     @SubscribeEvent
     public static void onNearbyDeath(LivingDeathEvent event) {

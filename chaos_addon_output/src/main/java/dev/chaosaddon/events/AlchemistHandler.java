@@ -12,6 +12,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -30,7 +32,8 @@ public class AlchemistHandler {
         Blocks.SMOKER, Blocks.ANVIL, Blocks.CHIPPED_ANVIL,
         Blocks.DAMAGED_ANVIL, Blocks.GRINDSTONE, Blocks.LOOM,
         Blocks.CARTOGRAPHY_TABLE, Blocks.FLETCHING_TABLE,
-        Blocks.SMITHING_TABLE, Blocks.STONECUTTER, Blocks.ENCHANTING_TABLE
+        Blocks.SMITHING_TABLE, Blocks.STONECUTTER
+        // Enchanting Table is intentionally ALLOWED — used as Transmutation Table
     );
 
     private static final ItemStack[] CYCLE_DROPS = {
@@ -51,18 +54,91 @@ public class AlchemistHandler {
         new ItemStack(Items.COPPER_INGOT, 4)
     };
 
-    /** Material Imbalance: block vanilla crafting stations. */
+    /** Material Imbalance: block vanilla crafting stations. Enchanting Table = Transmutation Table. */
     @SubscribeEvent
     public static void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/material_imbalance")) return;
 
         Block block = player.level().getBlockState(event.getPos()).getBlock();
+
+        // Transmutation Table: Enchanting Table → transmute held item at HP cost
+        if (block == Blocks.ENCHANTING_TABLE) {
+            event.setCanceled(true);
+            performTransmutation(player);
+            return;
+        }
+
         if (CRAFTING_BLOCKS.contains(block)) {
             event.setCanceled(true);
             player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                "§c⚗ Алхимический монах не использует обычные станции — только кровь и трансмутацию."));
+                "§c⚗ Алхимический монах не использует обычные станции — только стол трансмутации (стол чар)!"));
         }
+    }
+
+    /** T014: Transmutation Table — right-click enchanting table to transmute held item.
+     *  Cost: 3 HP. Output: randomized valuable material. Cooldown: 10s via NBT. */
+    private static void performTransmutation(ServerPlayer player) {
+        if (player.level().isClientSide()) return;
+        ServerLevel level = (ServerLevel) player.level();
+
+        // Cooldown check (10s = 200 ticks)
+        long now = level.getGameTime();
+        long lastTransmute = player.getPersistentData().getLong("chaos_transmute_time");
+        if (now - lastTransmute < 200L) {
+            long remaining = (200L - (now - lastTransmute)) / 20;
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                "§c⚗ Трансмутация перезаряжается: §e" + remaining + "с"));
+            return;
+        }
+
+        net.minecraft.world.item.ItemStack held = player.getMainHandItem();
+        if (held.isEmpty()) {
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                "§c⚗ Возьмите предмет в руку для трансмутации!"));
+            return;
+        }
+
+        if (player.getHealth() <= 4.0f) {
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                "§c⚗ Мало HP для трансмутации! Нужно > 2❤."));
+            return;
+        }
+
+        // Cost: 3 HP
+        player.hurt(player.damageSources().generic(), 3.0f);
+
+        // Determine output by input rarity
+        String inputId = net.minecraft.core.registries.BuiltInRegistries.ITEM
+            .getKey(held.getItem()).toString();
+
+        net.minecraft.world.item.ItemStack output;
+        if (inputId.contains("diamond") || inputId.contains("emerald")) {
+            output = new net.minecraft.world.item.ItemStack(Items.NETHERITE_SCRAP,
+                RNG.nextInt(2) + 1);
+        } else if (inputId.contains("gold") || inputId.contains("iron") || inputId.contains("quartz")) {
+            output = new net.minecraft.world.item.ItemStack(Items.DIAMOND, RNG.nextInt(3) + 1);
+        } else if (inputId.contains("wood") || inputId.contains("stone") || inputId.contains("dirt")) {
+            output = new net.minecraft.world.item.ItemStack(Items.IRON_INGOT, RNG.nextInt(4) + 2);
+        } else {
+            // Default: random from cycle drops
+            output = CYCLE_DROPS[RNG.nextInt(CYCLE_DROPS.length)].copy();
+        }
+
+        // Consume held item (1 unit)
+        held.shrink(1);
+        player.getInventory().add(output);
+        player.getPersistentData().putLong("chaos_transmute_time", now);
+
+        level.sendParticles(ParticleTypes.DRAGON_BREATH,
+            player.getX(), player.getY() + 1.0, player.getZ(),
+            40, 0.6, 1.0, 0.6, 0.08);
+        level.playSound(null, player.blockPosition(),
+            SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.0f, 1.3f);
+        player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+            "§d⚗ Трансмутация! §e" + held.getItem().getDescriptionId().replace("item.minecraft.", "")
+            + " §7→ §a" + output.getItem().getDescriptionId().replace("item.minecraft.", "")
+            + " x" + output.getCount() + " §7(-3❤)"));
     }
 
     /** Price of Creation: every craft costs 1 HP. Block if HP ≤ 2. */

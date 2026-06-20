@@ -22,6 +22,7 @@ public class HivemindCommand {
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                if (!dev.chaosaddon.util.OriginHelper.hasPower(player, "chaos_addon:parasitic_mind/infection")) return 0;
                 ServerLevel level = player.serverLevel();
                 ParasiteData data = player.getData(ModAttachments.PARASITE_DATA);
 

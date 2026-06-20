@@ -22,6 +22,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +43,63 @@ public class WanderingGardenerHandler {
     private static final Map<UUID, Long> EGG_TIMER = new HashMap<>();
     private static final Map<UUID, Long> MILK_TIMER = new HashMap<>();
     private static final Map<UUID, Long> PLANT_TICK = new HashMap<>();
+
+    // Plant Trap system
+    private static final String TRAP_KEY = "chaos_garden_traps";
+    private static final int MAX_TRAPS = 3;
+    private static final long TRAP_COOLDOWN = 600L; // 30s between placing traps
+    private static final Map<UUID, Long> LAST_TRAP_TIME = new HashMap<>();
+
+    /** Called by command/power to place a plant trap at current position */
+    public static boolean placePlantTrap(ServerPlayer player) {
+        if (!(player.level() instanceof ServerLevel level)) return false;
+        UUID pid = player.getUUID();
+        long now = level.getGameTime();
+        if (now - LAST_TRAP_TIME.getOrDefault(pid, 0L) < TRAP_COOLDOWN) {
+            long left = (TRAP_COOLDOWN - (now - LAST_TRAP_TIME.getOrDefault(pid, 0L))) / 20;
+            player.sendSystemMessage(Component.literal("§cЛовушка перезаряжается: §e" + left + "с"));
+            return false;
+        }
+        // Read current traps
+        List<long[]> traps = loadTraps(player);
+        if (traps.size() >= MAX_TRAPS) {
+            player.sendSystemMessage(Component.literal("§cМаксимум §e" + MAX_TRAPS + " §cловушки активны!"));
+            return false;
+        }
+        BlockPos pos = player.blockPosition();
+        traps.add(new long[]{pos.getX(), pos.getY(), pos.getZ(), now + 6000}); // 5 min expire
+        saveTraps(player, traps);
+        LAST_TRAP_TIME.put(pid, now);
+        // Visual: place flower particles at trap location
+        level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
+            pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 20, 0.5, 0.5, 0.5, 0.05);
+        level.playSound(null, pos, SoundEvents.GRASS_PLACE, SoundSource.PLAYERS, 0.8f, 1.5f);
+        player.sendSystemMessage(Component.literal("§a🌸 Растительная ловушка установлена! §8(" + traps.size() + "/" + MAX_TRAPS + ")"));
+        return true;
+    }
+
+    private static List<long[]> loadTraps(ServerPlayer player) {
+        List<long[]> traps = new ArrayList<>();
+        String raw = player.getPersistentData().getString(TRAP_KEY);
+        if (raw.isBlank()) return traps;
+        for (String entry : raw.split(";")) {
+            String[] parts = entry.split(",");
+            if (parts.length == 4) {
+                try {
+                    traps.add(new long[]{Long.parseLong(parts[0]), Long.parseLong(parts[1]),
+                        Long.parseLong(parts[2]), Long.parseLong(parts[3])});
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return traps;
+    }
+
+    private static void saveTraps(ServerPlayer player, List<long[]> traps) {
+        StringBuilder sb = new StringBuilder();
+        for (long[] t : traps) sb.append(t[0]).append(",").append(t[1]).append(",").append(t[2])
+            .append(",").append(t[3]).append(";");
+        player.getPersistentData().putString(TRAP_KEY, sb.toString());
+    }
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -124,6 +185,36 @@ public class WanderingGardenerHandler {
                     player.getInventory().add(new ItemStack(Items.MILK_BUCKET));
                     MILK_TIMER.put(player.getUUID(), now);
                 }
+            }
+        }
+
+        // ── Plant Traps: check for enemies near active traps ──
+        if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/flower_tongue") && now % 10 == 0) {
+            List<long[]> traps = loadTraps(player);
+            boolean changed = traps.removeIf(t -> t[3] < now); // remove expired
+            List<long[]> triggeredTraps = new ArrayList<>();
+            for (long[] trap : traps) {
+                BlockPos tPos = new BlockPos((int)trap[0], (int)trap[1], (int)trap[2]);
+                List<LivingEntity> victims = level.getEntitiesOfClass(LivingEntity.class,
+                    new net.minecraft.world.phys.AABB(tPos).inflate(2.0),
+                    e -> e != player && e.isAlive() && !(e instanceof Player));
+                if (!victims.isEmpty()) {
+                    triggeredTraps.add(trap);
+                    for (LivingEntity v : victims) {
+                        v.hurt(player.damageSources().magic(), 4.0f);
+                        v.addEffect(new MobEffectInstance(MobEffects.POISON, 60, 1));
+                        v.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 2));
+                    }
+                    level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
+                        tPos.getX() + 0.5, tPos.getY() + 1.0, tPos.getZ() + 0.5, 30, 1.0, 0.5, 1.0, 0.05);
+                    level.playSound(null, tPos, SoundEvents.SLIME_SQUISH_SMALL, SoundSource.PLAYERS, 1.0f, 0.5f);
+                    player.displayClientMessage(Component.literal(
+                        "§a🌸 Ловушка сработала! §7(-4❤ + Яд)"), true);
+                }
+            }
+            if (!triggeredTraps.isEmpty() || changed) {
+                traps.removeAll(triggeredTraps);
+                saveTraps(player, traps);
             }
         }
 

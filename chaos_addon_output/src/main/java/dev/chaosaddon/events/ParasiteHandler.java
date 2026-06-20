@@ -73,10 +73,13 @@ public class ParasiteHandler {
                     3, 0.2, 0.3, 0.2, 0.02);
             }
 
-            // Basic "follow player" goal injection for Mob entities
+            // FIX: Use navigation.moveTo to follow player, NOT setLastHurtByPlayer
+            // setLastHurtByPlayer causes the mob to ATTACK the player, not follow
             if (infected instanceof Mob mob) {
-                // Set player as the mob's "friendly" target context
-                mob.setLastHurtByPlayer(player);
+                mob.setTarget(null); // clear any aggro toward the player
+                if (mob.distanceTo(player) > 5.0) {
+                    mob.getNavigation().moveTo(player, 1.0);
+                }
             }
         });
     }
@@ -91,7 +94,9 @@ public class ParasiteHandler {
         ChaosAddonConfig cfg = ChaosAddonConfig.get();
 
         if (data.infectedUUIDs().size() >= cfg.paraMaxTargets) return false;
-        if (target.getHealth() / target.getMaxHealth() > 0.5f) return false;
+        // FIX: Deadlock fix — require <50% HP ONLY if player already has at least 1 host
+        // (with 0 hosts player has no way to attack, so allow any HP target)
+        if (!data.infectedUUIDs().isEmpty() && target.getHealth() / target.getMaxHealth() > 0.5f) return false;
 
         UUID targetId = target.getUUID();
         data.infectedUUIDs().add(targetId);

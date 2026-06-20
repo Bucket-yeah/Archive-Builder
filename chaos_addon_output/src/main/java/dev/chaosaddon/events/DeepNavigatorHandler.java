@@ -105,6 +105,25 @@ public class DeepNavigatorHandler {
             level.sendParticles(ParticleTypes.PORTAL,
                 player.getX(), player.getY() + 1.0, player.getZ(),
                 30, 0.5, 1.0, 0.5, 0.1);
+
+            // Dimensional Fatigue: brief debuffs on each dimension transition
+            // Reduced if player has visited many dims (adaptation)
+            Set<String> visited = VISITED_DIMS.computeIfAbsent(pid, k -> new HashSet<>());
+            boolean mastered = visited.containsAll(Set.of("minecraft:overworld", NETHER, END));
+            if (!mastered) {
+                int fatigueDuration = Math.max(40, 100 - visited.size() * 20); // 100→40 ticks as dims increase
+                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, fatigueDuration, 1, false, true));
+                player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, fatigueDuration, 0, false, true));
+                level.sendParticles(ParticleTypes.PORTAL,
+                    player.getX(), player.getY() + 0.5, player.getZ(),
+                    20, 0.4, 0.6, 0.4, 0.15);
+                player.displayClientMessage(Component.literal(
+                    "§5⚡ Размерная усталость §8(" + (fatigueDuration / 20) + "с)"), true);
+            } else {
+                // Mastered: instant boost instead
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 1, false, false));
+                player.displayClientMessage(Component.literal("§b✦ Мастер измерений!"), true);
+            }
         }
 
         // Track new dimension in visited set

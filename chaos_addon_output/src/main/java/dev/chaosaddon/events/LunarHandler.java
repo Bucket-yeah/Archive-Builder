@@ -18,7 +18,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 /**
  * Lunar Renegade: full moon-phase mechanics
@@ -29,6 +33,12 @@ import java.util.List;
  * Phase 7 (New): defense x2, dmg -50%, regen 1❤/10s
  */
 public class LunarHandler {
+
+    private static final Random RNG = new Random();
+    private static final Map<UUID, Long> RITUAL_COOLDOWN = new HashMap<>();
+    private static final Map<UUID, Integer> SNEAK_TICKS = new HashMap<>();
+    private static final long RITUAL_COOLDOWN_TICKS = 72000L; // 1 real hour
+    private static final int RITUAL_SNEAK_REQUIRED = 100; // 5 seconds sneaking
 
     private static final String[] PHASE_NAMES = {
         "🌕 Полнолуние", "🌔 Убывающая", "🌓 Первая четверть", "🌒 Молодой месяц",
@@ -91,10 +101,9 @@ public class LunarHandler {
 
         // Nighttime phase buffs per spec
         switch (moonPhase) {
-            case 0 -> { // Full moon: berserker — dmg x2, speed +80%, defense -50%
-                player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST,    40, 3, true, false));
-                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,  40, 3, true, false));
-                // -50% defense: no MobEffect for this directly, handled by vulnerability in JSON
+            case 0 -> { // Full moon: berserker — dmg x1.5 (+50%), speed +40% — BALANCED (was 3+3)
+                player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST,    40, 1, true, false));
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,  40, 2, true, false));
             }
             case 4 -> { // New moon: turtle — defense x2, dmg -50%, regen
                 player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 40, 3, true, false));
@@ -134,6 +143,32 @@ public class LunarHandler {
                 true);
         }
 
+        // ── Moon Ritual: sneak 5s at night under full/new moon → permanent buff ──
+        long now = level.getGameTime();
+        if (OriginHelper.hasPower(player, "chaos_addon:lunar_renegade/lunar_cycle")
+                && level.isNight() && level.canSeeSky(player.blockPosition())
+                && (moonPhase == 0 || moonPhase == 4)) {
+            UUID pid = player.getUUID();
+            long lastRitual = RITUAL_COOLDOWN.getOrDefault(pid, 0L);
+            if (now - lastRitual >= RITUAL_COOLDOWN_TICKS) {
+                if (player.isCrouching()) {
+                    int sneakCount = SNEAK_TICKS.merge(pid, 1, Integer::sum);
+                    if (sneakCount % 20 == 0) { // show progress every second
+                        int secs = sneakCount / 20;
+                        player.displayClientMessage(Component.literal(
+                            "§9🌙 Лунный Ритуал... " + secs + "/5с"), true);
+                    }
+                    if (sneakCount >= RITUAL_SNEAK_REQUIRED) {
+                        SNEAK_TICKS.remove(pid);
+                        RITUAL_COOLDOWN.put(pid, now);
+                        performMoonRitual(player, level, moonPhase);
+                    }
+                } else {
+                    SNEAK_TICKS.remove(pid);
+                }
+            }
+        }
+
         // Ambient lunar particles at night
         if (level.isNight() && player.tickCount % 40 == 0) {
             level.sendParticles(ParticleTypes.GLOW,
@@ -144,6 +179,52 @@ public class LunarHandler {
                 player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 50, 0, true, false));
             }
         }
+    }
+
+    /** Moon Ritual: grants permanent attribute bonus (stored as resource location modifier). */
+    private static void performMoonRitual(ServerPlayer player, ServerLevel level, int moonPhase) {
+        net.minecraft.resources.ResourceLocation modId = net.minecraft.resources.ResourceLocation
+            .fromNamespaceAndPath("chaos_addon", "lunar_ritual_" + player.getUUID().toString().substring(0, 8));
+
+        // Full moon = offensive buff, New moon = defensive buff
+        boolean fullMoon = (moonPhase == 0);
+        String buffName;
+        net.minecraft.world.effect.MobEffectInstance longBuff;
+
+        int choice = RNG.nextInt(3);
+        if (fullMoon) {
+            buffName = switch (choice) {
+                case 0 -> "§e+Сила I";
+                case 1 -> "§e+Скорость I";
+                default -> "§e+Удача I";
+            };
+            longBuff = switch (choice) {
+                case 0 -> new MobEffectInstance(MobEffects.DAMAGE_BOOST, 6000, 0, true, true);
+                case 1 -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 6000, 0, true, true);
+                default -> new MobEffectInstance(MobEffects.LUCK, 6000, 0, true, true);
+            };
+        } else { // New moon
+            buffName = switch (choice) {
+                case 0 -> "§b+Сопротивление I";
+                case 1 -> "§b+Регенерация I";
+                default -> "§b+Поглощение I";
+            };
+            longBuff = switch (choice) {
+                case 0 -> new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 6000, 0, true, true);
+                case 1 -> new MobEffectInstance(MobEffects.REGENERATION, 6000, 0, true, true);
+                default -> new MobEffectInstance(MobEffects.ABSORPTION, 6000, 0, true, true);
+            };
+        }
+
+        player.addEffect(longBuff);
+        level.sendParticles(ParticleTypes.GLOW,
+            player.getX(), player.getY() + 1.5, player.getZ(), 50, 0.8, 1.0, 0.8, 0.05);
+        level.sendParticles(ParticleTypes.FLASH,
+            player.getX(), player.getY() + 1.5, player.getZ(), 3, 0, 0, 0, 0);
+        level.playSound(null, player.blockPosition(),
+            SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.7f, fullMoon ? 1.2f : 0.8f);
+        player.sendSystemMessage(Component.literal(
+            "§9✦ Лунный Ритуал завершён! §r" + buffName + " §7(1 час cooldown)"));
     }
 
     /**

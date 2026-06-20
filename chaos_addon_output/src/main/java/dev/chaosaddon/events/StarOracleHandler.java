@@ -68,6 +68,40 @@ public class StarOracleHandler {
 
         // Star Apocalypse: process pending meteor rain
         dev.chaosaddon.commands.StarApocalypseCommand.processMeteors(player, level);
+
+        // ── Celestial Events: triggered by moon phase ──
+        if (OriginHelper.hasPower(player, "chaos_addon:star_oracle/star_foresight")
+                && player.tickCount % 400 == 0) {
+            int moonPhase = level.getMoonPhase();
+            long dayTime = level.getDayTime() % 24000;
+            // Full moon at midnight: mega meteor shower
+            if (moonPhase == 0 && dayTime > 13000 && dayTime < 14000) {
+                fireMeteorShower(player, level, 15, 20);
+                player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                    "§e🌕 НЕБЕСНОЕ СОБЫТИЕ: Мегеорный Ливень! §7(15 метеоров)"));
+                level.playSound(null, player.blockPosition(),
+                    SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 1.0f, 0.3f);
+            }
+            // New moon: summon temporary celestial guardian
+            else if (moonPhase == 4 && dayTime > 13000 && dayTime < 14000) {
+                long lastGuardian = player.getPersistentData().getLong("chaos_celestial_guardian_tick");
+                if (level.getGameTime() - lastGuardian > 24000) {
+                    summonCelestialGuardian(player, level);
+                    player.getPersistentData().putLong("chaos_celestial_guardian_tick", level.getGameTime());
+                    player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                        "§9🌑 НЕБЕСНОЕ СОБЫТИЕ: Небесный Страж призван!"));
+                }
+            }
+            // Dawn (time ~23500): foresight range doubled for 1 min  
+            else if (dayTime > 23000 && dayTime < 23600) {
+                player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.LUCK, 1200, 1, false, false));
+                level.sendParticles(ParticleTypes.END_ROD,
+                    player.getX(), player.getY() + 2.0, player.getZ(), 30, 0.8, 0.3, 0.8, 0.05);
+                player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                    "§e🌅 НЕБЕСНОЕ СОБЫТИЕ: Рассветное Предвидение! §7Удача II на 1 мин"));
+            }
+        }
     }
 
     /** Cosmic body: amplify melee damage, suppress fire damage halving */
@@ -90,6 +124,25 @@ public class StarOracleHandler {
                 event.setCanceled(true);
             }
         }
+    }
+
+    /** Summon a temporary celestial guardian (Iron Golem with glow) near player */
+    private static void summonCelestialGuardian(ServerPlayer player, ServerLevel level) {
+        Mob golem = (Mob) EntityType.IRON_GOLEM.create(level);
+        if (golem == null) return;
+        golem.moveTo(player.getX() + 3, player.getY(), player.getZ(), 0, 0);
+        golem.addTag("chaos_managed_entity");
+        golem.setCustomName(net.minecraft.network.chat.Component.literal("§9Небесный Страж"));
+        golem.setCustomNameVisible(true);
+        golem.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+            net.minecraft.world.effect.MobEffects.GLOWING, Integer.MAX_VALUE, 0, true, false));
+        // Store despawn timer
+        golem.getPersistentData().putInt("chaos_despawn_ticks", 1200); // 60s
+        level.addFreshEntity(golem);
+        level.sendParticles(ParticleTypes.END_ROD,
+            golem.getX(), golem.getY() + 1.0, golem.getZ(), 30, 0.6, 1.0, 0.6, 0.05);
+        level.playSound(null, player.blockPosition(),
+            SoundEvents.ELDER_GUARDIAN_DEATH_LAND, SoundSource.PLAYERS, 0.8f, 1.5f);
     }
 
     /** Fires N meteors (explosion + particles) at random positions around the player */

@@ -14,6 +14,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
+import dev.chaosaddon.util.OriginHelper;
+
 import java.util.Random;
 
 /** chaos_addon_golden_touch, chaos_addon_phil_blast, chaos_addon_transmute_flesh */
@@ -27,6 +29,7 @@ public class AlchemistCommands {
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/cycle_of_substances")) return 0;
                 ServerLevel level = player.serverLevel();
 
                 Vec3 look = player.getLookAngle();
@@ -62,6 +65,7 @@ public class AlchemistCommands {
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/price_of_creation")) return 0;
                 ServerLevel level = player.serverLevel();
 
                 var inv = player.getInventory();
@@ -98,6 +102,7 @@ public class AlchemistCommands {
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/price_of_creation")) return 0;
                 if (player.getHealth() < 6.0f) {
                     player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§cМало HP! Нужно > 3❤."));
                     return 0;

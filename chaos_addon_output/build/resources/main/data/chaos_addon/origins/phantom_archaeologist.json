@@ -9,8 +9,7 @@
     "chaos_addon:phantom_archaeologist/cache_memory",
     "chaos_addon:phantom_archaeologist/defrag",
     "chaos_addon:phantom_archaeologist/chunk_scanner",
-    "chaos_addon:phantom_archaeologist/sound_sensitivity",
-    "chaos_addon:phantom_archaeologist/no_elytra"
+    "chaos_addon:phantom_archaeologist/sound_sensitivity"
   ],
   "upgrades": [],
   "tier_powers": []

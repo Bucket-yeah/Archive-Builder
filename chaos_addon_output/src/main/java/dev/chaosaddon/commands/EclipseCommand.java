@@ -12,6 +12,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 
+import dev.chaosaddon.util.OriginHelper;
+
 import java.util.List;
 
 /** Lunar Renegade – Eclipse: blinds nearby players, gives berserker stats. */
@@ -22,6 +24,7 @@ public class EclipseCommand {
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer caster)) return 0;
+                if (!OriginHelper.hasPower(caster, "chaos_addon:lunar_renegade/lunar_cycle")) return 0;
                 ServerLevel level = caster.serverLevel();
 
                 // Caster gets berserker combo

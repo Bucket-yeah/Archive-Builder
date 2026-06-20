@@ -58,16 +58,45 @@ public class GeneralPowerHandler {
                         10, 0.5, 0.8, 0.5, 0.05);
                 }
             }
-            // Stone Flesh regen: standing on stone, HP >= 4
+            // Stone Flesh regen: standing on any stone-type block — uses tags for mod compat
             if (player.tickCount % 160 == 0 && player.getHealth() >= 8.0f) {
-                var blockBelow = level.getBlockState(player.blockPosition().below()).getBlock();
-                if (blockBelow == net.minecraft.world.level.block.Blocks.STONE
-                        || blockBelow == net.minecraft.world.level.block.Blocks.COBBLESTONE
-                        || blockBelow == net.minecraft.world.level.block.Blocks.DEEPSLATE
-                        || blockBelow == net.minecraft.world.level.block.Blocks.ANDESITE
-                        || blockBelow == net.minecraft.world.level.block.Blocks.GRANITE
-                        || blockBelow == net.minecraft.world.level.block.Blocks.DIORITE) {
+                var stateBelow = level.getBlockState(player.blockPosition().below());
+                boolean onStone = stateBelow.is(net.minecraft.tags.BlockTags.BASE_STONE_OVERWORLD)
+                    || stateBelow.is(net.minecraft.tags.BlockTags.BASE_STONE_NETHER)
+                    || stateBelow.is(net.minecraft.tags.BlockTags.STONE_BRICKS)
+                    || stateBelow.is(net.minecraft.world.level.block.Blocks.COBBLESTONE)
+                    || stateBelow.is(net.minecraft.world.level.block.Blocks.COBBLED_DEEPSLATE)
+                    || stateBelow.is(net.minecraft.world.level.block.Blocks.SMOOTH_STONE);
+                if (onStone) {
                     player.heal(1.0f);
+                }
+            }
+        }
+
+        // ── Seismic Sense (Ancient Sentinel): detect nearby player footsteps when still ──
+        if (OriginHelper.hasOrigin(player, "chaos_addon:ancient_sentinel")
+                && !player.isSprinting() && !player.isCrouching() && player.onGround()
+                && player.tickCount % 20 == 0) {
+            List<net.minecraft.world.entity.player.Player> nearbyPlayers =
+                level.getEntitiesOfClass(net.minecraft.world.entity.player.Player.class,
+                    player.getBoundingBox().inflate(50),
+                    e -> e != player && e.isAlive() && e.onGround());
+            if (!nearbyPlayers.isEmpty()) {
+                var closest = nearbyPlayers.stream()
+                    .min((a, b) -> Double.compare(a.distanceTo(player), b.distanceTo(player)))
+                    .orElse(null);
+                if (closest != null) {
+                    double dist = closest.distanceTo(player);
+                    String dir = getCardinalDirection(player, closest);
+                    player.displayClientMessage(
+                        net.minecraft.network.chat.Component.literal(
+                            "§6🌍 Сейсмо: " + dir + " §8(" + (int)dist + "м)")
+                            .withStyle(net.minecraft.ChatFormatting.GOLD), true);
+                    level.sendParticles(
+                        new net.minecraft.core.particles.BlockParticleOption(
+                            ParticleTypes.BLOCK, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()),
+                        player.getX(), player.getY() + 0.05, player.getZ(),
+                        8, 0.5, 0.05, 0.5, 0.0);
                 }
             }
         }
@@ -152,7 +181,9 @@ public class GeneralPowerHandler {
                         LivingEntity nearest = enemies.stream()
                             .min((a, b) -> Double.compare(a.distanceTo(player), b.distanceTo(player)))
                             .orElse(null);
-                        if (nearest != null) {
+                        if (nearest != null && !(nearest instanceof ServerPlayer nearestPlayer
+                                && player.getTeam() != null
+                                && player.getTeam().isAlliedTo(nearestPlayer.getTeam()))) {
                             float judgeDmg = player.getMaxHealth() - player.getHealth();
                             nearest.hurt(player.damageSources().magic(), judgeDmg);
                             level.sendParticles(ParticleTypes.FLASH,
@@ -426,7 +457,7 @@ public class GeneralPowerHandler {
         } else {
             player.getPersistentData().putInt("chaos_crystal_ticks", ticks - 1);
             // Keep 90% resistance while active
-            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 25, 9, true, false));
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 25, 3, true, false));
             if (ticks % 20 == 0) {
                 player.heal(1.0f);
                 level.sendParticles(ParticleTypes.ENCHANT,
@@ -436,19 +467,14 @@ public class GeneralPowerHandler {
         }
     }
 
-    /** Generic despawn ticker for all summoned mobs. */
+    /** T026: Centralized despawn ticker — all summoned/managed chaos entities carry
+     *  "chaos_managed_entity" tag; one handler covers them all instead of individual checks. */
     @SubscribeEvent
     public static void onEntityDespawnTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof LivingEntity entity)) return;
-        if (!entity.getTags().contains("chaos_mimic_decoy")
-            && !entity.getTags().contains("chaos_infernal_pet")
-            && !entity.getTags().contains("chaos_engineer_golem")
-            && !entity.getTags().contains("chaos_blood_golem")
-            && !entity.getTags().contains("chaos_blood_titan")
-            && !entity.getTags().contains("chaos_celestial_guardian")
-            && !entity.getTags().contains("chaos_mirror_copy")
-            && !entity.getTags().contains("chaos_star_guardian")
-            && !entity.getTags().contains("chaos_garden_golem")) return;
+        // Unified tag check — replaces the previous 9-item list
+        if (!entity.getTags().contains("chaos_managed_entity")
+            && !entity.getTags().contains("chaos_mimic_decoy")) return;
 
         int ticks = entity.getPersistentData().getInt("chaos_despawn_ticks");
         if (ticks <= 0) {
@@ -532,6 +558,22 @@ public class GeneralPowerHandler {
 
         target.addTag("chaos_blood_cloud");
         target.getPersistentData().putInt("chaos_blood_cloud_ticks", 60);
+    }
+
+    // ── Cardinal direction helper for Seismic Sense ───────────────────────────
+    private static String getCardinalDirection(net.minecraft.world.entity.Entity from, net.minecraft.world.entity.Entity to) {
+        double dx = to.getX() - from.getX();
+        double dz = to.getZ() - from.getZ();
+        double angle = Math.toDegrees(Math.atan2(dz, dx));
+        if (angle < 0) angle += 360;
+        if (angle < 22.5 || angle >= 337.5) return "→ В";
+        if (angle < 67.5)  return "↘ ЮВ";
+        if (angle < 112.5) return "↓ Ю";
+        if (angle < 157.5) return "↙ ЮЗ";
+        if (angle < 202.5) return "← З";
+        if (angle < 247.5) return "↖ СЗ";
+        if (angle < 292.5) return "↑ С";
+        return "↗ СВ";
     }
 
     /** Blood cloud tick: deal 1 HP/s + Slowness II to entities in cloud. */

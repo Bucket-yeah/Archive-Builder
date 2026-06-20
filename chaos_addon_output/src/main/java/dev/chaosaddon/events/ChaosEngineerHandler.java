@@ -19,6 +19,11 @@ import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.state.BlockState;
+
 import java.util.List;
 
 /**
@@ -66,6 +71,9 @@ public class ChaosEngineerHandler {
                 player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 60, 0, false, false));
             }
         }
+
+        // T015: Base Automation
+        tickBaseAutomation(player, level);
     }
 
     /** Cancel food eating — engineer only eats redstone (handled via command) */
@@ -138,6 +146,49 @@ public class ChaosEngineerHandler {
             level.playSound(null, player.blockPosition(),
                 SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 1.0f, 1.5f);
             player.sendSystemMessage(Component.literal("§e⚡ +25 энергии от молнии! Сила I!"));
+        }
+    }
+
+    /** T015: Base Automation — when energy ≥ 20, nearby dispensers (8 blocks) auto-fire at enemies.
+     *  Fires every 40 ticks. Costs 5 energy per dispenser activation. */
+    private static void tickBaseAutomation(ServerPlayer player, ServerLevel level) {
+        if (player.tickCount % 40 != 0) return;
+
+        int energy = player.getPersistentData().getInt(ENERGY_KEY);
+        if (energy < 20) return;
+
+        BlockPos center = player.blockPosition();
+        int dispensersFired = 0;
+
+        for (BlockPos pos : BlockPos.betweenClosed(center.offset(-8, -4, -8), center.offset(8, 4, 8))) {
+            BlockState state = level.getBlockState(pos);
+            if (!(state.getBlock() instanceof DispenserBlock)) continue;
+
+            // Check for nearby enemies to target
+            List<LivingEntity> nearby = level.getEntitiesOfClass(LivingEntity.class,
+                new net.minecraft.world.phys.AABB(pos).inflate(12),
+                e -> !(e instanceof net.minecraft.world.entity.player.Player) && e.isAlive());
+
+            if (nearby.isEmpty()) continue;
+
+            // Fire the dispenser using game logic
+            level.blockEvent(pos, state.getBlock(), 1, 0);
+            dispensersFired++;
+
+            int newEnergy = Math.max(0, player.getPersistentData().getInt(ENERGY_KEY) - 5);
+            player.getPersistentData().putInt(ENERGY_KEY, newEnergy);
+
+            level.sendParticles(ParticleTypes.ELECTRIC_SPARK,
+                pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                5, 0.3, 0.3, 0.3, 0.05);
+
+            if (newEnergy <= 0) break;
+        }
+
+        if (dispensersFired > 0 && player.tickCount % 200 == 0) {
+            player.displayClientMessage(
+                Component.literal("§e⚡ Автоматика: §f" + dispensersFired + " диспенсеров активировано"),
+                true);
         }
     }
 

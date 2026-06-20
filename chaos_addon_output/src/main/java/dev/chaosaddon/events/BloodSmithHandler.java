@@ -40,6 +40,10 @@ public class BloodSmithHandler {
     /** UUIDs allowed to heal this tick (from our own abilities) */
     private static final Set<UUID> HEALING_ALLOWED = new HashSet<>();
 
+    private static final String LAST_FULL_KEY = "chaos_blood_last_full_tick";
+    private static final int OVERLOAD_WARN_TICKS = 400;   // 20s warning
+    private static final int OVERLOAD_EXPLODE_TICKS = 600; // 30s → explode
+
     // ── Per-tick passives ──────────────────────────────────────────────────────
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -50,6 +54,40 @@ public class BloodSmithHandler {
         long now = level.getGameTime();
         int charges = getCharges(player);
         boolean lowHp = player.getHealth() <= 6.0f; // < 3❤
+
+        // ── OVERLOAD PRESSURE: charges capped for 30s → discharge explosion ──
+        if (charges >= MAX_CHARGES) {
+            long lastFull = player.getPersistentData().getLong(LAST_FULL_KEY);
+            if (lastFull == 0) {
+                player.getPersistentData().putLong(LAST_FULL_KEY, now);
+            } else {
+                long held = now - lastFull;
+                if (held >= OVERLOAD_EXPLODE_TICKS) {
+                    // EXPLODE: drain all charges, deal damage
+                    player.getPersistentData().putInt(CHARGE_KEY, 0);
+                    player.getPersistentData().putLong(LAST_FULL_KEY, 0);
+                    player.hurt(player.damageSources().generic(), 8.0f);
+                    level.sendParticles(ParticleTypes.EXPLOSION,
+                        player.getX(), player.getY() + 1.0, player.getZ(), 5, 0.6, 0.6, 0.6, 0.05);
+                    level.sendParticles(ParticleTypes.FALLING_DRIPSTONE_LAVA,
+                        player.getX(), player.getY() + 1.5, player.getZ(), 40, 0.8, 0.8, 0.8, 0.2);
+                    level.playSound(null, player.blockPosition(),
+                        SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.0f, 0.5f);
+                    player.displayClientMessage(Component.literal(
+                        "§c💥 ПЕРЕГРУЗКА КРОВИ! Все заряды потеряны!").withStyle(ChatFormatting.RED), false);
+                } else if (held >= OVERLOAD_WARN_TICKS && player.tickCount % 20 == 0) {
+                    long secsLeft = (OVERLOAD_EXPLODE_TICKS - held) / 20;
+                    level.sendParticles(ParticleTypes.FALLING_DRIPSTONE_LAVA,
+                        player.getX(), player.getY() + 1.0, player.getZ(), 20, 0.5, 0.7, 0.5, 0.1);
+                    level.playSound(null, player.blockPosition(),
+                        SoundEvents.NOTE_BLOCK_BASEDRUM.value(), SoundSource.PLAYERS, 0.5f, 2.0f);
+                    player.displayClientMessage(Component.literal(
+                        "§c⚠ ПЕРЕГРУЗКА через §e" + secsLeft + "с§c! Потрать заряды!"), false);
+                }
+            }
+        } else {
+            player.getPersistentData().putLong(LAST_FULL_KEY, 0);
+        }
 
         // Blood Armor: regenerate Absorption every 10 seconds
         if (OriginHelper.hasPower(player, "chaos_addon:blood_smith/blood_armor")) {
@@ -141,6 +179,7 @@ public class BloodSmithHandler {
         int cost = lowHp ? Math.max(1, amount / 2) : amount;
         if (current < cost) return false;
         player.getPersistentData().putInt(CHARGE_KEY, current - cost);
+        player.getPersistentData().putLong(LAST_FULL_KEY, 0); // reset overload timer on spend
         return true;
     }
 

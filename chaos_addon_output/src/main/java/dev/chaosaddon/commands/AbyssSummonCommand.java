@@ -28,6 +28,7 @@ public class AbyssSummonCommand {
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
                 if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                if (!dev.chaosaddon.util.OriginHelper.hasPower(player, "chaos_addon:eater_of_worlds/chaotic_aura")) return 0;
                 ServerLevel level = player.serverLevel();
                 BlockPos origin   = player.blockPosition();
                 int radius = 50;

@@ -1,2 +1,3 @@
 - [NeoOrigins data paths](neoorigins-data-paths.md) — origins go in origins/origins/, layers in origins/origin_layers/ — NOT flat origins/ like Origins (Fabric).
 - [NeoOrigins 2.2.5 power type quirks](neoorigins-225-quirks.md) — neoorigins:nothing doesn't exist; spawn_particles particle must be string not object; action_over_time → condition_passive.
+- [NeoForge 1.21.1 API quirks](neoforge-1211-quirks.md) — MobEffects are Holder<MobEffect>; BlockParticleOption usage; removed events list.

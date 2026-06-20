@@ -46,6 +46,11 @@ public class ChaosAddon {
         NeoForge.EVENT_BUS.register(DeepNavigatorHandler.class);
         NeoForge.EVENT_BUS.register(ChaosEngineerHandler.class);
 
+        // ── New systems ──
+        NeoForge.EVENT_BUS.register(ChaosEventsHandler.class);
+        NeoForge.EVENT_BUS.register(HunterHandler.class);
+        NeoForge.EVENT_BUS.register(ProgressionHandler.class);
+
         // ── HUD ──
         NeoForge.EVENT_BUS.register(HudHandler.class);
 

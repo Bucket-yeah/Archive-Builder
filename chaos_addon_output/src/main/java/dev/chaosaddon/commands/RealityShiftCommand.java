@@ -27,6 +27,7 @@ public class RealityShiftCommand {
 
     private static int execute(CommandContext<CommandSourceStack> ctx) {
         if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+        if (!dev.chaosaddon.util.OriginHelper.hasPower(player, "chaos_addon:eater_of_worlds/chaotic_aura")) return 0;
         ServerLevel level = player.serverLevel();
         int radius = dev.chaosaddon.config.ChaosAddonConfig.get().eaterChaoticAuraRadius * 2;
 
