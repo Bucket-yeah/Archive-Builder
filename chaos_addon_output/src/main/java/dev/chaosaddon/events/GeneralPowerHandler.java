@@ -23,14 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.HashMap;
 
 public class GeneralPowerHandler {
 
-    private static final Map<UUID, Integer> HIT_COUNTERS      = new java.util.HashMap<>();
-    private static final Map<UUID, Long>    JUDGE_HIT_TIME    = new java.util.HashMap<>();
-    private static final Map<UUID, Integer> JUDGE_CHAIN       = new java.util.HashMap<>();
-    private static final Map<UUID, Long>    JUDGE_LAST_CHAIN  = new java.util.HashMap<>();
-    private static final Map<UUID, Long>    JUDGE_FINAL_CD    = new java.util.HashMap<>();
     private static final Random RNG = new Random();
 
     @SubscribeEvent
@@ -144,10 +140,10 @@ public class GeneralPowerHandler {
         // ── Dimension Judge: auto "Last Verdict" at < 20% HP ──
         if (OriginHelper.hasPower(player, "chaos_addon:dimension_judge/balance_of_powers")) {
             if (player.getHealth() / player.getMaxHealth() < 0.20f) {
-                Long lastUsed = JUDGE_FINAL_CD.getOrDefault(player.getUUID(), 0L);
+                long lastUsed = player.getPersistentData().getLong("chaos_judge_final_cd");
                 long now = level.getGameTime();
                 if (now - lastUsed >= 6000) { // 5 min cooldown
-                    JUDGE_FINAL_CD.put(player.getUUID(), now);
+                    player.getPersistentData().putLong("chaos_judge_final_cd", now);
                     // Find nearest enemy and deal damage equal to difference of max HP - player current HP
                     List<LivingEntity> enemies = level.getEntitiesOfClass(LivingEntity.class,
                         player.getBoundingBox().inflate(15),
@@ -177,17 +173,13 @@ public class GeneralPowerHandler {
             }
         }
 
-        // ── Ancient Sentinel drown damage ──
+        // ── Ancient Sentinel: liquid damage + stone armor stacks while standing still ──
         if (OriginHelper.hasPower(player, "chaos_addon:ancient_sentinel/mountain_stride")) {
             if (player.isInWater() || player.isInLava()) {
                 if (player.tickCount % 10 == 0) {
                     player.hurt(player.damageSources().drown(), 4.0f);
                 }
             }
-        }
-
-        // ── Ancient Sentinel: stone armor stacks while standing still ──
-        if (OriginHelper.hasPower(player, "chaos_addon:ancient_sentinel/mountain_stride")) {
             if (!player.isCrouching() && !player.isSprinting() && player.onGround()) {
                 if (player.tickCount % 100 == 0) {
                     int stacks = player.getPersistentData().getInt("chaos_stone_stacks");
@@ -244,8 +236,15 @@ public class GeneralPowerHandler {
                           player.getY(), player.getZ() + (RNG.nextDouble() - 0.5) * 1.5, 0, 0);
                 sf.addTag("chaos_mimic_decoy");
                 // Every 3 uses: permanent-ish decoy (60s), otherwise 4s
-                int despawnTicks = (uses % 3 == 0) ? 1200 : 80;
+                boolean isPermanent = (uses % 3 == 0);
+                int despawnTicks = isPermanent ? 1200 : 80;
                 sf.getPersistentData().putInt("chaos_despawn_ticks", despawnTicks);
+                if (isPermanent) {
+                    sf.addTag("chaos_mimic_permanent");
+                    sf.getPersistentData().putString("chaos_mimic_owner", player.getUUID().toString());
+                    int decoys = player.getPersistentData().getInt("chaos_mimic_decoys") + 1;
+                    player.getPersistentData().putInt("chaos_mimic_decoys", Math.min(decoys, 5));
+                }
                 level.addFreshEntity(sf);
             }
 
@@ -269,7 +268,8 @@ public class GeneralPowerHandler {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:time_wanderer/deja_vu")) return;
 
-        int count = HIT_COUNTERS.merge(player.getUUID(), 1, Integer::sum);
+        int count = player.getPersistentData().getInt("chaos_deja_vu_hits") + 1;
+        player.getPersistentData().putInt("chaos_deja_vu_hits", count);
         if (count % 4 == 0) {
             event.setCanceled(true);
             if (player.level() instanceof ServerLevel level) {
@@ -294,9 +294,9 @@ public class GeneralPowerHandler {
         if (!OriginHelper.hasPower(player, "chaos_addon:dimension_judge/lawfulness")) return;
 
         long now = player.level().getGameTime();
-        Long lastHit = JUDGE_HIT_TIME.get(player.getUUID());
+        long lastHit = player.getPersistentData().getLong("chaos_judge_hit_time");
 
-        if (lastHit == null || now - lastHit > 100) {
+        if (lastHit == 0 || now - lastHit > 100) {
             if (event.getTarget() instanceof LivingEntity) {
                 event.setCanceled(true);
                 if (player.level() instanceof ServerLevel level) {
@@ -307,13 +307,13 @@ public class GeneralPowerHandler {
             }
         } else {
             // Counter-attack: apply chain bonus damage
-            int chain = JUDGE_CHAIN.getOrDefault(player.getUUID(), 0);
-            Long lastChainTime = JUDGE_LAST_CHAIN.getOrDefault(player.getUUID(), 0L);
+            int chain = player.getPersistentData().getInt("chaos_judge_chain");
+            long lastChainTime = player.getPersistentData().getLong("chaos_judge_chain_time");
             // Reset chain if more than 3s since last chain hit
             if (now - lastChainTime > 60) chain = 0;
             chain = Math.min(chain + 1, 3);
-            JUDGE_CHAIN.put(player.getUUID(), chain);
-            JUDGE_LAST_CHAIN.put(player.getUUID(), now);
+            player.getPersistentData().putInt("chaos_judge_chain", chain);
+            player.getPersistentData().putLong("chaos_judge_chain_time", now);
 
             if (chain > 1 && event.getTarget() instanceof LivingEntity target) {
                 float bonusDmg = (chain - 1) * 2.0f;
@@ -331,7 +331,7 @@ public class GeneralPowerHandler {
     public static void onJudgeReceivesHit(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:dimension_judge/lawfulness")) return;
-        JUDGE_HIT_TIME.put(player.getUUID(), player.level().getGameTime());
+        player.getPersistentData().putLong("chaos_judge_hit_time", player.level().getGameTime());
     }
 
     /** Radioactive Phantom: kill grants 2 hunger (handled in RadioactiveHandler). */
@@ -456,6 +456,19 @@ public class GeneralPowerHandler {
                 level.sendParticles(ParticleTypes.SMOKE,
                     entity.getX(), entity.getY() + 1.0, entity.getZ(),
                     10, 0.4, 0.5, 0.4, 0.02);
+                // Decrement mimic permanent decoy counter when permanent decoy expires
+                if (entity.getTags().contains("chaos_mimic_permanent")) {
+                    String ownerStr = entity.getPersistentData().getString("chaos_mimic_owner");
+                    if (!ownerStr.isEmpty()) {
+                        try {
+                            var owner = level.getPlayerByUUID(UUID.fromString(ownerStr));
+                            if (owner instanceof ServerPlayer sp) {
+                                int d = sp.getPersistentData().getInt("chaos_mimic_decoys");
+                                if (d > 0) sp.getPersistentData().putInt("chaos_mimic_decoys", d - 1);
+                            }
+                        } catch (Exception ignored) {}
+                    }
+                }
             }
             entity.kill();
         } else {

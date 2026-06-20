@@ -124,21 +124,6 @@ public class SwarmHandler {
                 });
         }
 
-        // Actionbar: bug count
-        if (player.tickCount % 20 == 0) {
-            String bar = buildBugBar(bugCount, cfg.swarmMaxBugs);
-            player.displayClientMessage(
-                Component.literal("🐛 Рой: " + bar + " " + bugCount + "/" + cfg.swarmMaxBugs)
-                    .withStyle(bugCount < 4 ? ChatFormatting.RED : ChatFormatting.GREEN),
-                true);
-        }
-    }
-
-    private static String buildBugBar(int current, int max) {
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < max; i++) sb.append(i < current ? "■" : "□");
-        sb.append("]");
-        return sb.toString();
     }
 
     private static void spawnBug(ServerPlayer player, ServerLevel level, SwarmData data) {

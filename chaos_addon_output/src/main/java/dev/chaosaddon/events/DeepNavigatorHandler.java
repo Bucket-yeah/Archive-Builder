@@ -78,17 +78,6 @@ public class DeepNavigatorHandler {
             }
         }
 
-        // Actionbar display
-        if (now % 20 == 0) {
-            player.displayClientMessage(Component.literal(
-                "§5⊕ Измерений: §f" + visited.size() +
-                "  §7Бонусы: " +
-                (visited.contains(NETHER) ? "§c+Скорость " : "") +
-                (visited.contains(END) ? "§b+HP " : "") +
-                (visited.size() >= 3 ? "§e+Удача" : "")),
-            true);
-        }
-
         // Portal Vision: glow entities near portals (within 5 blocks of portal blocks)
         if (OriginHelper.hasPower(player, "chaos_addon:deep_navigator/portal_vision") && now % 40 == 0) {
             // Check post-portal glow

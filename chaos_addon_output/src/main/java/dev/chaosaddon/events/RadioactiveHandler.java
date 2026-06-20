@@ -70,24 +70,8 @@ public class RadioactiveHandler {
             player.getX(), player.getY() + 0.5, player.getZ(),
             ambientCount, 0.6, 0.8, 0.6, 0.03);
 
-        // Geiger counter actionbar
-        if (OriginHelper.hasPower(player, "chaos_addon:radioactive_phantom/geiger_counter")
-                && player.tickCount % 20 == 0) {
-            String geiger = buildGeigerBar(nearby.size());
-            player.displayClientMessage(
-                Component.literal("☢ " + geiger + " [" + nearby.size() + " целей]"
-                    + (overload ? " §cПЕРЕГРУЗКА!" : ""))
-                    .withStyle(overload ? ChatFormatting.GREEN : ChatFormatting.DARK_GREEN),
-                true);
-        }
-    }
-
-    private static String buildGeigerBar(int count) {
-        int bars = Math.min(count, 10);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < bars; i++) sb.append("▐");
-        for (int i = bars; i < 10; i++) sb.append("░");
-        return sb.toString();
+        // Store nearby count for HudHandler to read
+        player.getPersistentData().putInt("chaos_radio_nearby", nearby.size());
     }
 
     // Kill within radiation zone: heal player + 5-kill burst

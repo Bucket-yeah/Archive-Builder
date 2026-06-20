@@ -98,14 +98,6 @@ public class BiomorphHandler {
                     speedAmp, true, false));
             }
 
-            // Actionbar
-            long secsInBiome = (biomeTime / 20);
-            String tierLabel = tier == 3 ? "§aМАКС" : (tier == 2 ? "§eСРЕД" : "§7СЛАБ");
-            player.displayClientMessage(
-                Component.literal("🌿 " + getBiomeShortName(biomeName) + " | Уровень: " + tierLabel
-                    + " | Биомов: " + uniqueBiomes + "/5 | " + secsInBiome + "с")
-                    .withStyle(ChatFormatting.GREEN),
-                true);
         }
     }
 

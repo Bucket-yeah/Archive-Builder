@@ -3,11 +3,14 @@ package dev.chaosaddon.events;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /**
  * Handles Phantom Archaeologist passives:
@@ -86,7 +89,33 @@ public class ArchaeologistHandler {
         newData.remove(KEY_INVENTORY);
         newData.remove(KEY_TOTAL_XP);
 
-        newPlayer.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-            "§b📦 Данные восстановлены из облачного бэкапа."));
+        newPlayer.getPersistentData().putInt("chaos_arch_spawn_lock", 600); // 30s pickup lock
+        newPlayer.sendSystemMessage(Component.literal(
+            "§b📦 Данные восстановлены из облачного бэкапа. §7(Синхронизация 30с...)"));
+    }
+
+    /** Count down the post-death spawn lock each tick. */
+    @SubscribeEvent
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        int lock = player.getPersistentData().getInt("chaos_arch_spawn_lock");
+        if (lock > 0) {
+            player.getPersistentData().putInt("chaos_arch_spawn_lock", lock - 1);
+        }
+    }
+
+    /** Block item pickup during spawn lock. */
+    @SubscribeEvent
+    public static void onItemPickup(ItemEntityPickupEvent.Pre event) {
+        if (!(event.getPlayer() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:phantom_archaeologist/ephemeral_inventory")) return;
+        int lock = player.getPersistentData().getInt("chaos_arch_spawn_lock");
+        if (lock > 0) {
+            event.setCanPickup(net.neoforged.neoforge.common.util.TriState.FALSE);
+            if (player.tickCount % 60 == 0) {
+                player.displayClientMessage(Component.literal(
+                    "§b🔒 Десинхронизация данных — подбор заблокирован на §e" + (lock / 20) + "с"), false);
+            }
+        }
     }
 }

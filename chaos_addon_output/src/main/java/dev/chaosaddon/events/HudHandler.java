@@ -1,6 +1,7 @@
 package dev.chaosaddon.events;
 
 import dev.chaosaddon.config.ChaosAddonConfig;
+import dev.chaosaddon.data.BiomeData;
 import dev.chaosaddon.init.ModAttachments;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.ChatFormatting;
@@ -65,9 +66,9 @@ public class HudHandler {
         // ──────── CHAOS ENGINEER ────────
         if (OriginHelper.hasOrigin(player, "chaos_addon:chaos_engineer")) {
             int energy = player.getPersistentData().getInt("chaos_engineer_energy");
-            String bar = buildBar(energy, 64, 8, "§b", "§8");
+            String bar = buildBar(energy, 100, 8, "§b", "§8");
             String hint = energy < 8 ? " §cМало для голема" : energy < 16 ? " §eМало для перегрузки" : " §a✓";
-            return line("§b⚡", "Энергия: " + energy + "/64  " + bar + hint,
+            return line("§b⚡", "Энергия: " + energy + "/100  " + bar + hint,
                 "§e[G]§7 Ред.→HP", "§e[V]§7 Перегрузка", "§e[B]§7 Голем");
         }
 
@@ -148,13 +149,18 @@ public class HudHandler {
 
         // ──────── BIOMORPH ────────
         if (OriginHelper.hasOrigin(player, "chaos_addon:biomorph")) {
-            Holder<Biome> biomeHolder = level.getBiome(player.blockPosition());
-            String biome = biomeHolder.unwrapKey()
-                .map(k -> k.location().getPath().replace("_", " "))
-                .orElse("Неизвестно");
-            biome = capitalize(biome);
-            return line("§2🌿", "Биом: §a" + biome,
-                "§e[G]§7 Смена биома", "§e[V]§7 Адаптация", "§e[B]§7 —");
+            String biomeName = level.getBiome(player.blockPosition()).unwrapKey()
+                .map(k -> k.location().toString()).orElse("unknown");
+            BiomeData bData = player.getData(ModAttachments.BIOME_DATA);
+            int biomeTime = bData.getBiomeTime(biomeName);
+            int tier = biomeTime >= 3600 ? 3 : (biomeTime >= 1200 ? 2 : 1);
+            String tierLabel = tier == 3 ? "§aМАКС" : (tier == 2 ? "§eСРЕД" : "§7СЛАБ");
+            int uniqueBiomes = Math.min(bData.getUniqueBiomeCount(), 5);
+            String biomePath = biomeName.contains(":") ? biomeName.split(":")[1] : biomeName;
+            String timeStr = biomeTime >= 60 ? (biomeTime / 1200) + "м" : (biomeTime / 20) + "с";
+            return line("§2🌿", "§a" + capitalize(biomePath.replace("_", " ")) + " §f" + timeStr
+                + " | §fТир: " + tierLabel + " §8| §bБиомов: " + uniqueBiomes + "/5",
+                "§e[G]§7 Смена биома", "§e[V]§7 Взрыв", "§e[B]§7 Захват");
         }
 
         // ──────── DEEP GEOMANCER ────────
@@ -188,9 +194,14 @@ public class HudHandler {
         // ──────── RADIOACTIVE PHANTOM ────────
         if (OriginHelper.hasOrigin(player, "chaos_addon:radioactive_phantom")) {
             int kills = player.getPersistentData().getInt("chaos_radio_kills");
-            String status = kills >= 5 ? "§a⚡ Стек x" + kills + " — ВЗРЫВ!" : "§7☢ Стек: " + kills + "/5";
-            return line("§2☢", status,
-                "§e[G]§7 Рад.импульс", "§e[V]§7 Полураспад", "§e[B]§7 —");
+            int killStack = kills % 5;
+            int nearby = player.getPersistentData().getInt("chaos_radio_nearby");
+            String killBar = buildBar(killStack, 5, 5, "§a", "§8");
+            boolean overload = nearby >= 5;
+            String geigerBar = buildBar(Math.min(nearby, 10), 10, 10, overload ? "§c" : "§2", "§8");
+            String overloadStr = overload ? " §cПЕРЕГРУЗКА!" : "";
+            return line("§2☢", "Убийства: " + killStack + "/5 " + killBar + " §8│ ☢" + geigerBar + overloadStr,
+                "§e[G]§7 Волна распада", "§e[V]§7 Рад.скачок", "§e[B]§7 Мут.взрыв");
         }
 
         // ──────── INFERNAL SHEPHERD ────────
@@ -212,25 +223,36 @@ public class HudHandler {
         // ──────── DEEP NAVIGATOR ────────
         if (OriginHelper.hasOrigin(player, "chaos_addon:deep_navigator")) {
             String dimsRaw = player.getPersistentData().getString("chaos_navigator_dims");
-            int portalCount = dimsRaw.isEmpty() ? 0 : dimsRaw.split(",").length;
+            int dimCount = dimsRaw.isEmpty() ? 1 : dimsRaw.split(",").length;
+            boolean hasNether = dimsRaw.contains("the_nether");
+            boolean hasEnd = dimsRaw.contains("the_end");
             String dim = level.dimension().location().getPath();
-            return line("§9🗺", "Порталов: " + portalCount + "  §7Измерение: §e" + dim,
-                "§e[G]§7 Дим.прыжок", "§e[V]§7 Карта", "§e[B]§7 —");
+            String bonuses = (hasNether ? "§c+Скор " : "") + (hasEnd ? "§b+HP " : "")
+                + (dimCount >= 3 ? "§e+Удача" : "");
+            return line("§9🌀", "§9" + dim + " §8| §fИзмерений: §b" + dimCount
+                + (bonuses.isEmpty() ? "" : " §8| " + bonuses),
+                "§e[G]§7 Разлом", "§e[V]§7 Якорь", "§e[B]§7 Портал пустоты");
         }
 
         // ──────── NIGHTMARE MIMIC ────────
         if (OriginHelper.hasOrigin(player, "chaos_addon:nightmare_mimic")) {
-            boolean illusory = OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/illusory_flesh");
-            return line("§5👁", illusory ? "§5Иллюзорная плоть" : "§7Мимик",
-                "§e[G]§7 Иллюзия", "§e[V]§7 —", "§e[B]§7 —");
+            int decoys = player.getPersistentData().getInt("chaos_mimic_decoys");
+            int uses = player.getPersistentData().getInt("chaos_illusory_uses");
+            String decoyBar = buildBar(decoys, 5, 5, "§d", "§8");
+            String status = "§5Приманки: §d" + decoys + "/5 " + decoyBar + " §8| §7Активаций: §f" + uses;
+            return line("§5👁", status,
+                "§e[G]§7 Кошмар", "§e[V]§7 Реальн./Сон", "§e[B]§7 Иллюз.мир");
         }
 
         // ──────── ANCIENT SENTINEL ────────
         if (OriginHelper.hasOrigin(player, "chaos_addon:ancient_sentinel")) {
             int y = player.blockPosition().getY();
-            String depthInfo = y < 0 ? "§6Глубина §e" + Math.abs(y) + "м — усилен" : "§7Высота §e" + y + "м";
-            return line("§6🗿", depthInfo,
-                "§e[G]§7 Жидк.урон", "§e[V]§7 Каменная форма", "§e[B]§7 —");
+            int stacks = player.getPersistentData().getInt("chaos_stone_stacks");
+            String depthInfo = y < 0 ? "§6↓Y=" + y : "§7↑Y=" + y;
+            String stackBar = buildBar(stacks, 10, 10, "§6", "§8");
+            String stackInfo = stacks > 0 ? " §8| §6🛡" + stacks + "/10 " + stackBar : " §8| §8(без брони)";
+            return line("§6🗿", depthInfo + stackInfo,
+                "§e[G]§7 Толчок плит", "§e[V]§7 Панцирь", "§e[B]§7 Землетряс.");
         }
 
         // ──────── DIMENSION JUDGE ────────

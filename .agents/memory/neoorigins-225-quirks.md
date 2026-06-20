@@ -21,3 +21,13 @@ description: Power JSON format rules specific to NeoOrigins 2.2.5 — types that
 **Rule:** Deprecated in NeoOrigins 2.2.5 — still works but logs a warning.
 **Fix:** Rename `type` to `neoorigins:condition_passive`. Same fields (`interval`, `entity_action`) work unchanged.
 **Why:** API cleanup in NeoOrigins. The behavior is identical.
+
+## NeoForge 21.1 — Item pickup event
+**Rule:** `PlayerEvent.ItemPickupEvent` does NOT exist in NeoForge 21.1.
+**Fix:** Use `net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent.Pre`. Call `event.setCanPickup(TriState.FALSE)` to block pickup. Player accessed via `event.getPlayer()`.
+**Why:** API was restructured; old Forge class renamed to `ItemEntityPickupEvent` with `Pre`/`Post` subclasses.
+
+## HungerXPHandler dead code pattern
+**Rule:** `if (condition <= 0) { if (condition >= 1) { ... } }` is unreachable — inner check always false.
+**Why:** Classic logic inversion bug. Outer `<= 0` excludes all values the inner `>= 1` would match.
+**How to apply:** Any time you see nested opposite-sign checks on the same value, the inner branch is dead code.

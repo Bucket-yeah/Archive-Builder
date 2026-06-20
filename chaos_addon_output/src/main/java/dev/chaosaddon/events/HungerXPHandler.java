@@ -42,8 +42,9 @@ public class HungerXPHandler {
             }
         }
 
-        // Full hunger + no XP = every 5s lose 1 level but gain Regen I for 3s
-        if (player.tickCount % 100 == 0 && food.getFoodLevel() >= 20 && player.experienceLevel <= 0) {
+        // Full hunger: every 5s gain Regen I (Eater feeds on own mind)
+        // If also has XP, costs 1 level; if no XP, just regenerates
+        if (player.tickCount % 100 == 0 && food.getFoodLevel() >= 20) {
             if (player.experienceLevel >= 1) {
                 player.giveExperienceLevels(-1);
             }
