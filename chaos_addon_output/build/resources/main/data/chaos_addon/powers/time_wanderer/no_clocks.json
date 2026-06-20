@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Часы взрываются",
-  "description": "Часы взрываются при попытке использования.",
-  "hidden": true
-}

@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Закономерность",
-  "description": "Нельзя ударить первым. Если тебя ударили — следующий удар (5 сек) наносит 5❤ и игнорирует броню.",
-  "hidden": false
-}

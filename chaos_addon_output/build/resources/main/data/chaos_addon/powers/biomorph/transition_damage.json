@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Шок перехода",
-  "description": "При смене биома — 1❤ урона. Реализовано через BiomorphHandler.",
-  "hidden": true
-}

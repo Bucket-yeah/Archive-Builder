@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Иллюзорная Плоть",
-  "description": "40% шанс: урон отменяется, вместо игрока появляется фантомная копия на 5 сек.",
-  "hidden": false
-}

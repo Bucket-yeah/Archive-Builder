@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Постоянное Облучение",
-  "description": "Каждые 5 сек — 0.5❤ урона всем в радиусе 5 блоков. Радиус светится частицами glow.",
-  "hidden": false
-}

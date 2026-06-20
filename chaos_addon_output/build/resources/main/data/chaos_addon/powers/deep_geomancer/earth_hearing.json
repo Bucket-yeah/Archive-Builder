@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Земляной Слух",
-  "description": "Слышишь мобов в радиусе 20 блоков под землёй.",
-  "hidden": false
-}

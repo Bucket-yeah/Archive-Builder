@@ -1,7 +1,0 @@
-{
-  "type": "neoorigins:prevent_action",
-  "action": "fire",
-  "name": "Повелитель Лавы",
-  "description": "Полный иммунитет к огню и лаве. Можно плавать в лаве.",
-  "hidden": false
-}

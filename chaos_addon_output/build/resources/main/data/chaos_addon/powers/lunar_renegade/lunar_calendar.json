@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Лунный Календарь",
-  "description": "Текущая фаза луны и время до следующей смены отображаются на HUD.",
-  "hidden": false
-}

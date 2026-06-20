@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Вода убивает мох",
-  "description": "Дождь и вода уничтожают мицелиальную сеть и наносят урон.",
-  "hidden": true
-}

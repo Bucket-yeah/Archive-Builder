@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Производство Жуков",
-  "description": "Каждые 20 сек появляется 1 жук (уменьшенный silverfish/cave spider). Максимум 10. Жуки атакуют врагов и подбирают предметы.",
-  "hidden": false
-}

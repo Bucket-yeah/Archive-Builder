@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Паразитическое Чутьё",
-  "description": "Видишь HP всех существ в радиусе 30 блоков над их головами.",
-  "hidden": false
-}

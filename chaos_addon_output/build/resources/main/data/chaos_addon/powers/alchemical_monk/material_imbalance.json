@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Материальный Дисбаланс",
-  "description": "Нельзя использовать верстак, печь, кузницу. Все крафты — через личный Алхимический круг.",
-  "hidden": false
-}

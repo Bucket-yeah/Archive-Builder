@@ -1,9 +1,0 @@
-{
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Редстоуновое Зрение",
-  "description": "Видишь все редстоун-схемы сквозь стены в радиусе 15 блоков (красная подсветка).",
-  "hidden": false
-}
