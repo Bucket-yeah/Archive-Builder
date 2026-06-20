@@ -69,6 +69,13 @@ public class NeuralHijackerHandler {
                     host.getX(), host.getY() + 0.8, host.getZ(),
                     3, 0.3, 0.4, 0.3, 0.02);
             }
+
+            // Keep hijacked mob non-hostile: clear goals & target every tick
+            if (host instanceof Mob mob) {
+                mob.setTarget(null);
+                mob.goalSelector.getAvailableGoals().clear();
+                mob.targetSelector.getAvailableGoals().clear();
+            }
         }
 
         // ── Parasitic Body: regen near host, damage without host ──
@@ -140,6 +147,13 @@ public class NeuralHijackerHandler {
         hosts.add(tid);
         expiries.put(tid, level.getGameTime() + INFECT_DURATION_TICKS);
         target.setGlowingTag(true);
+
+        // CRITICAL FIX: Clear mob AI goals immediately so the mob never attacks the owner
+        if (target instanceof Mob mobInit) {
+            mobInit.setTarget(null);
+            mobInit.goalSelector.getAvailableGoals().clear();
+            mobInit.targetSelector.getAvailableGoals().clear();
+        }
 
         // Boost infected mob's attack damage by 20%
         if (target instanceof Mob mob) {

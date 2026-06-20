@@ -16,7 +16,7 @@ import java.util.*;
 
 /**
  * Handles the Parasitic Mind's infection mechanics:
- *  - Infected entities glow green and follow the player's commands
+ *  - Infected entities glow green and follow the player
  *  - When all infected die simultaneously → withdrawal damage
  *  - Player cannot deal direct damage (handled in JSON via attribute)
  */
@@ -42,7 +42,7 @@ public class ParasiteHandler {
                 var entity = level.getEntity(uuid);
                 if (entity != null) {
                     entity.setGlowingTag(false);
-                    // Remove override goal if it's a mob
+                    // Restore mob AI on expiry — clear cleared goals so vanilla reloads them on next tick
                     if (entity instanceof Mob mob) {
                         mob.goalSelector.getAvailableGoals().clear();
                         mob.targetSelector.getAvailableGoals().clear();
@@ -59,11 +59,10 @@ public class ParasiteHandler {
             return entity == null || !entity.isAlive();
         });
 
-        // Tick: make infected entities follow/attack based on player look direction
+        // Tick: keep infected entities non-hostile and following player
         data.infectedUUIDs().forEach(uuid -> {
             if (!(level.getEntity(uuid) instanceof LivingEntity infected)) return;
 
-            // Glow green continuously
             infected.setGlowingTag(true);
 
             // Apply particle trail
@@ -73,10 +72,13 @@ public class ParasiteHandler {
                     3, 0.2, 0.3, 0.2, 0.02);
             }
 
-            // FIX: Use navigation.moveTo to follow player, NOT setLastHurtByPlayer
-            // setLastHurtByPlayer causes the mob to ATTACK the player, not follow
             if (infected instanceof Mob mob) {
-                mob.setTarget(null); // clear any aggro toward the player
+                // Force-clear target every tick so no goal can re-acquire the player
+                mob.setTarget(null);
+                // Also clear goal/target selectors every tick to prevent AI re-targeting
+                mob.goalSelector.getAvailableGoals().clear();
+                mob.targetSelector.getAvailableGoals().clear();
+                // Follow player if far away
                 if (mob.distanceTo(player) > 5.0) {
                     mob.getNavigation().moveTo(player, 1.0);
                 }
@@ -94,8 +96,7 @@ public class ParasiteHandler {
         ChaosAddonConfig cfg = ChaosAddonConfig.get();
 
         if (data.infectedUUIDs().size() >= cfg.paraMaxTargets) return false;
-        // FIX: Deadlock fix — require <50% HP ONLY if player already has at least 1 host
-        // (with 0 hosts player has no way to attack, so allow any HP target)
+        // Require < 50% HP (allow infection of any mob when player has no hosts yet)
         if (!data.infectedUUIDs().isEmpty() && target.getHealth() / target.getMaxHealth() > 0.5f) return false;
 
         UUID targetId = target.getUUID();
@@ -103,6 +104,13 @@ public class ParasiteHandler {
         INFECTION_EXPIRY.put(targetId, player.level().getGameTime() + cfg.paraInfectDuration);
 
         target.setGlowingTag(true);
+
+        // CRITICAL FIX: Clear mob AI goals immediately so the mob never attacks the owner
+        if (target instanceof Mob mob) {
+            mob.setTarget(null);
+            mob.goalSelector.getAvailableGoals().clear();
+            mob.targetSelector.getAvailableGoals().clear();
+        }
 
         // FX: green particles + zombie infect sound
         if (player.level() instanceof ServerLevel level) {

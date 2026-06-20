@@ -12,9 +12,8 @@
           "block": "minecraft:grass_block"
         },
         "radius": 1,
-        "compare_to": ">=",
         "comparison": ">=",
-        "value": 1
+        "compare_to": 1
       },
       "if_action": {
         "type": "neoorigins:heal",
