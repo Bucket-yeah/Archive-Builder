@@ -155,8 +155,12 @@ public class ChaosAddonConfig implements ConfigData {
     @ConfigEntry.Category("dimension_judge")
     public int   judgeSentenceCooldown      = 600;
     public int   judgeAnnihilateCooldown    = 6000;
-    public float judgeAnnihilatePercent     = 0.40f; // 40% of target's current HP
+    public float judgeAnnihilatePercent     = 0.40f;
     public int   judgeBalanceCooldown       = 3600;
+    public int   judgeConfiscationCooldown  = 1200;
+    public int   judgeHigherJudgmentCooldown= 6000;
+    public float judgeHigherJudgmentRadius  = 15.0f;
+    public float judgeHigherJudgmentDmgPerHit = 2.0f;
 
     // ───────────────────────────── MYCELIAL SYMBIONT ───────────────────────────
     @ConfigEntry.Category("mycelial_symbiont")
@@ -180,6 +184,10 @@ public class ChaosAddonConfig implements ConfigData {
     public float geoHighAltitudeDamage      = 1.0f;
     public int   geoHighAltitudeInterval    = 600;
     public int   geoUltimateCooldown        = 6000;
+    public int   geoClawCooldown            = 160;
+    public float geoClawBonusDamage         = 3.0f;
+    public int   geoDashCooldown            = 400;
+    public int   geoDashMaxThickness        = 8;
 
     // ───────────────────────────── WANDERING GARDENER ──────────────────────────
     @ConfigEntry.Category("wandering_gardener")

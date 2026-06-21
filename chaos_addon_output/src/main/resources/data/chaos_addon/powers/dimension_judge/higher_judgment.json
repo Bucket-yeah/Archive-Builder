@@ -1,0 +1,52 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_higher_judgment"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:flash",
+        "count": 5,
+        "spread": { "x": 15.0, "y": 5.0, "z": 15.0 },
+        "speed": 0.0,
+        "force": true
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:glow",
+        "count": 80,
+        "spread": { "x": 12.0, "y": 4.0, "z": 12.0 },
+        "speed": 0.0,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:enchant",
+        "count": 60,
+        "spread": { "x": 10.0, "y": 3.0, "z": 10.0 },
+        "speed": 0.1,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.evoker.prepare_wololo",
+        "volume": 1.2,
+        "pitch": 0.6
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.elder_guardian.curse",
+        "volume": 1.0,
+        "pitch": 0.5
+      }
+    ]
+  },
+  "key": { "key": "key.origins.ternary_active" },
+  "name": "Высший Суд",
+  "description": "Всем врагам в 15 блоках, атаковавшим тебя: 2❤ за каждую их атаку (макс. 20❤). Невиновные не затронуты. Сбрасывает счётчик атак. Кулдаун: 5 мин.",
+  "cooldown_ticks": 6000
+}

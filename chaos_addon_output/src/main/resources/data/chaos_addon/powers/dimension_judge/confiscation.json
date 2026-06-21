@@ -1,0 +1,44 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_confiscation"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:witch",
+        "count": 30,
+        "spread": { "x": 4.0, "y": 2.0, "z": 4.0 },
+        "speed": 0.06,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:glow",
+        "count": 20,
+        "spread": { "x": 3.0, "y": 2.0, "z": 3.0 },
+        "speed": 0.0,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.evoker.cast_spell",
+        "volume": 1.0,
+        "pitch": 0.9
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.evoker.prepare_summon",
+        "volume": 0.7,
+        "pitch": 1.1
+      }
+    ]
+  },
+  "key": { "key": "key.origins.secondary_active" },
+  "name": "Конфискация",
+  "description": "Ослабляет ближайшую цель (15 блоков): Слабость II + Замедление II + Слепота на 10 сек. Снимает положительные эффекты с цели. Кулдаун: 60 сек.",
+  "cooldown_ticks": 1200
+}

@@ -8,23 +8,37 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Handles Dimension Judge passives:
  * - all_seeing_eye:    ping nearby players + hostile mobs showing direction
  * - no_totems:         remove totems of undying from inventory each tick
- * - no_regen_potion:   block Regeneration effect via MobEffectEvent.Applicable
+ * - no_regen_potion:   block Regeneration effect via tick-strip
+ * - higher_judgment:   track how many times each entity attacked the player
  */
 public class DimensionJudgeHandler {
+
+    /**
+     * Tracks how many times each entity (by UUID) attacked each player (by UUID).
+     * Used by chaos_addon_higher_judgment command to calculate proportional damage.
+     * Thread-safe; entries are cleared after Высший Суд fires.
+     */
+    public static final Map<UUID, Map<UUID, Integer>> ATTACKER_COUNTS = new ConcurrentHashMap<>();
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -34,13 +48,11 @@ public class DimensionJudgeHandler {
         // ── all_seeing_eye: Всевидящее Oko — ping nearby entities every 3s ──
         if (OriginHelper.hasPower(player, "chaos_addon:dimension_judge/all_seeing_eye")
                 && player.tickCount % 60 == 0) {
-            // Ping hostile mobs + players
             SeismicSenseHelper.pingNearbyEntities(player, level, 50,
                 e -> e instanceof Mob mob && mob.getTarget() != null
                     || (e instanceof Player p && p != player),
                 "§4⚖ Всевидящее Oko: ", ChatFormatting.DARK_RED);
 
-            // Show HP of all nearby living entities in chat (once every 3s)
             List<LivingEntity> nearby = level.getEntitiesOfClass(LivingEntity.class,
                 player.getBoundingBox().inflate(30),
                 e -> e != player && e.isAlive());
@@ -72,7 +84,23 @@ public class DimensionJudgeHandler {
         }
     }
 
-    /** Drop matching item from all inventory slots onto the ground. */
+    /**
+     * Track incoming damage for higher_judgment: count how many times each entity
+     * has attacked this player. Only fires for players who have the higher_judgment power.
+     */
+    @SubscribeEvent
+    public static void trackIncomingDamage(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:dimension_judge/higher_judgment")) return;
+
+        Entity attacker = event.getSource().getEntity();
+        if (attacker == null || attacker == player) return;
+
+        ATTACKER_COUNTS
+            .computeIfAbsent(player.getUUID(), k -> new ConcurrentHashMap<>())
+            .merge(attacker.getUUID(), 1, Integer::sum);
+    }
+
     private static void removeItemFromPlayer(ServerPlayer player, ServerLevel level,
             net.minecraft.world.item.Item item, String msg) {
         boolean found = false;
@@ -95,9 +123,6 @@ public class DimensionJudgeHandler {
         }
     }
 
-    // ── no_regen_potion: remove Regeneration effect every 5 ticks ──
-    // (MobEffectEvent.Applicable.Result.DENY is not available in NeoForge 21.1.x;
-    //  the tick-removal approach is equivalent and reliable)
     private static void applyNoRegenPotion(ServerPlayer player) {
         if (!OriginHelper.hasPower(player, "chaos_addon:dimension_judge/no_regen_potion")) return;
         if (player.hasEffect(MobEffects.REGENERATION)) {

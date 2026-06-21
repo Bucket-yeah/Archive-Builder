@@ -24,10 +24,12 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * chaos_addon_ore_extract  — "Вытягивание Руды"   (LMB primary)
- * chaos_addon_rock_shift   — "Сдвиг Породы"       (RMB secondary)
- * chaos_addon_stone_fist   — "Каменный Кулак"     (ternary)
- * chaos_addon_call_of_depths — "Зов Недр"         (ternary ULTIMATE, 5-min cooldown)
+ * chaos_addon_stone_claw    — "Каменный Коготь"  (LMB primary)
+ * chaos_addon_tunnel_dash   — "Туннельный Рывок" (RMB secondary)
+ * chaos_addon_ore_extract   — "Вытягивание Руды" (LMB primary, utility)
+ * chaos_addon_rock_shift    — "Сдвиг Породы"     (RMB secondary, tunnel dig)
+ * chaos_addon_stone_fist    — "Каменный Кулак"   (ternary)
+ * chaos_addon_call_of_depths — "Зов Недр"        (ternary ULTIMATE)
  */
 public class GeomancerCommands {
 
@@ -46,7 +48,129 @@ public class GeomancerCommands {
         Blocks.NETHER_GOLD_ORE,     Items.GOLD_NUGGET
     );
 
+    private static boolean isStoneBlock(BlockState bs) {
+        return bs.getBlock() == Blocks.STONE
+            || bs.getBlock() == Blocks.DEEPSLATE
+            || bs.getBlock() == Blocks.COBBLESTONE
+            || bs.getBlock() == Blocks.MOSSY_COBBLESTONE
+            || bs.getBlock() == Blocks.STONE_BRICKS
+            || bs.getBlock() == Blocks.GRANITE
+            || bs.getBlock() == Blocks.DIORITE
+            || bs.getBlock() == Blocks.ANDESITE
+            || bs.getBlock() == Blocks.BLACKSTONE
+            || bs.getBlock() == Blocks.BASALT
+            || ORE_DROPS.containsKey(bs.getBlock());
+    }
+
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+
+        // ── "Каменный Коготь": melee attack, break stone, bonus on stone ──
+        dispatcher.register(Commands.literal("chaos_addon_stone_claw")
+            .requires(src -> src.hasPermission(0))
+            .executes(ctx -> {
+                if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                ServerLevel level = player.serverLevel();
+                Vec3 look = player.getLookAngle().normalize();
+
+                List<LivingEntity> targets = level.getEntitiesOfClass(LivingEntity.class,
+                    player.getBoundingBox().inflate(3).move(look.scale(2)),
+                    e -> e != player && e.isAlive());
+
+                float bonusDamage = dev.chaosaddon.config.ChaosAddonConfig.get().geoClawBonusDamage;
+
+                for (LivingEntity e : targets) {
+                    BlockPos eGround = new BlockPos(
+                        (int) Math.floor(e.getX()),
+                        (int) Math.floor(e.getY()) - 1,
+                        (int) Math.floor(e.getZ()));
+                    boolean onStone = isStoneBlock(level.getBlockState(eGround));
+                    float dmg = 4.0f + (onStone ? bonusDamage : 0f);
+                    e.hurt(player.damageSources().magic(), dmg);
+                }
+
+                // Break first stone or ore block in look direction
+                for (int step = 1; step <= 4; step++) {
+                    Vec3 pt = player.getEyePosition().add(look.scale(step));
+                    BlockPos pos = BlockPos.containing(pt.x, pt.y, pt.z);
+                    BlockState bs = level.getBlockState(pos);
+                    if (isStoneBlock(bs)) {
+                        level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+                        level.sendParticles(ParticleTypes.SMOKE,
+                            pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                            20, 0.3, 0.3, 0.3, 0.05);
+                        break;
+                    }
+                }
+
+                level.playSound(null, player.blockPosition(),
+                    SoundEvents.STONE_BREAK, SoundSource.PLAYERS, 1.0f, 0.7f);
+
+                if (!targets.isEmpty()) {
+                    player.displayClientMessage(
+                        Component.literal("§6⛏ §lКаменный Коготь — §r§6" + targets.size() + " попад.!"), true);
+                }
+                return 1;
+            }));
+
+        // ── "Туннельный Рывок": teleport through thin stone layer ──
+        dispatcher.register(Commands.literal("chaos_addon_tunnel_dash")
+            .requires(src -> src.hasPermission(0))
+            .executes(ctx -> {
+                if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                ServerLevel level = player.serverLevel();
+                Vec3 look = player.getLookAngle().normalize();
+                int maxThickness = dev.chaosaddon.config.ChaosAddonConfig.get().geoDashMaxThickness;
+
+                boolean inStone = false;
+                int stoneCount = 0;
+                BlockPos destination = null;
+
+                for (int step = 1; step <= 20 && destination == null; step++) {
+                    Vec3 pt = player.getEyePosition().add(look.scale(step));
+                    BlockPos pos = BlockPos.containing(pt.x, pt.y, pt.z);
+                    BlockState bs = level.getBlockState(pos);
+                    boolean solid = !bs.isAir() && !bs.liquid()
+                        && bs.getBlock() != Blocks.BEDROCK
+                        && bs.getBlock() != Blocks.AIR;
+
+                    if (solid && !inStone) {
+                        inStone = true;
+                        stoneCount = 1;
+                    } else if (solid && inStone) {
+                        if (++stoneCount > maxThickness) break;
+                    } else if (!solid && inStone) {
+                        // Found exit — verify headroom
+                        if (!level.getBlockState(pos.above()).isSolid()) {
+                            destination = pos;
+                        }
+                    }
+                }
+
+                if (destination == null) {
+                    player.sendSystemMessage(Component.literal("§c⛏ Порода слишком толстая!"));
+                    return 0;
+                }
+
+                player.teleportTo(
+                    destination.getX() + 0.5,
+                    destination.getY(),
+                    destination.getZ() + 0.5);
+
+                level.sendParticles(ParticleTypes.SMOKE,
+                    destination.getX() + 0.5, destination.getY() + 1.0, destination.getZ() + 0.5,
+                    40, 0.6, 0.5, 0.6, 0.06);
+                level.sendParticles(ParticleTypes.FALLING_DRIPSTONE_LAVA,
+                    destination.getX() + 0.5, destination.getY() + 1.0, destination.getZ() + 0.5,
+                    10, 0.3, 0.5, 0.3, 0.0);
+                level.playSound(null, player.blockPosition(),
+                    SoundEvents.STONE_BREAK, SoundSource.PLAYERS, 1.2f, 0.5f);
+                level.playSound(null, player.blockPosition(),
+                    SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.8f, 1.3f);
+
+                player.displayClientMessage(
+                    Component.literal("§6⛏ §lТуннельный Рывок!"), true);
+                return 1;
+            }));
 
         // ── "Вытягивание Руды": pull 1-2 resources from ore up to 10 blocks ──
         dispatcher.register(Commands.literal("chaos_addon_ore_extract")
@@ -185,7 +309,6 @@ public class GeomancerCommands {
                     e.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 0, false, true));
                 }
 
-                // Self: stone armor + regen for 20 seconds
                 player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 400, 2, false, true));
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 400, 1, false, true));
 
