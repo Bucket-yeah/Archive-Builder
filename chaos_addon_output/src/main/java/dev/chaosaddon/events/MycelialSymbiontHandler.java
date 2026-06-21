@@ -22,6 +22,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.List;
+import java.util.Random;
 
 /**
  * Handles Mycelial Symbiont passives:
@@ -31,6 +32,7 @@ import java.util.List;
  */
 public class MycelialSymbiontHandler {
 
+    private static final Random RNG = new Random();
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -78,6 +80,11 @@ public class MycelialSymbiontHandler {
             }
         }
 
+        // ── moss_network: passive moss/mycelium spreading ──
+        if (hasNetwork && player.tickCount % cfg.mossSpreadInterval == 0) {
+            spreadMossAround(level, player.blockPosition(), cfg.mossSpreadRadius, cfg.mossSpreadCount);
+        }
+
         // ── moss_network: buff player when near any moss node ──
         if (hasNetwork && player.tickCount % 20 == 0) {
             boolean nearNode = data.isNearAnyMoss(playerPos, cfg.mossBuffRadius);
@@ -112,6 +119,57 @@ public class MycelialSymbiontHandler {
                         Component.literal("§c🍄 Привязь: слишком далеко от мицелиальной сети!")
                             .withStyle(ChatFormatting.RED), true);
                 }
+            }
+        }
+    }
+
+    /**
+     * Passively spreads moss/mycelium to nearby surface blocks.
+     * Called every {@code mossSpreadInterval} ticks from onPlayerTick.
+     * Converts dirt/grass → mycelium, stone/gravel → moss block,
+     * and places moss carpets on top of converted surfaces.
+     */
+    private static void spreadMossAround(ServerLevel level, BlockPos origin,
+                                         int radius, int maxPlacements) {
+        int placed = 0;
+        int attempts = radius * radius * 4;
+
+        for (int i = 0; i < attempts && placed < maxPlacements; i++) {
+            int dx = RNG.nextInt(radius * 2 + 1) - radius;
+            int dy = RNG.nextInt(5) - 2;
+            int dz = RNG.nextInt(radius * 2 + 1) - radius;
+            if (dx * dx + dz * dz > radius * radius) continue;
+
+            BlockPos pos = origin.offset(dx, dy, dz);
+            BlockState state = level.getBlockState(pos);
+            BlockState above = level.getBlockState(pos.above());
+            Block block = state.getBlock();
+            boolean airAbove = above.isAir();
+
+            if (block == Blocks.GRASS_BLOCK || block == Blocks.DIRT
+                    || block == Blocks.COARSE_DIRT || block == Blocks.ROOTED_DIRT) {
+                level.setBlock(pos, Blocks.MYCELIUM.defaultBlockState(), 3);
+                if (airAbove && RNG.nextFloat() < 0.30f) {
+                    level.setBlock(pos.above(), Blocks.MOSS_CARPET.defaultBlockState(), 3);
+                }
+                level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
+                    pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
+                    3, 0.25, 0.15, 0.25, 0.02);
+                placed++;
+
+            } else if (airAbove && (block == Blocks.STONE || block == Blocks.COBBLESTONE
+                    || block == Blocks.GRAVEL || block == Blocks.DEEPSLATE
+                    || block == Blocks.COBBLED_DEEPSLATE)) {
+                level.setBlock(pos, Blocks.MOSS_BLOCK.defaultBlockState(), 3);
+                level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
+                    pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
+                    3, 0.25, 0.15, 0.25, 0.02);
+                placed++;
+
+            } else if (airAbove && (block == Blocks.MYCELIUM || block == Blocks.MOSS_BLOCK)
+                    && RNG.nextFloat() < 0.25f) {
+                level.setBlock(pos.above(), Blocks.MOSS_CARPET.defaultBlockState(), 3);
+                placed++;
             }
         }
     }

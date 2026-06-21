@@ -257,12 +257,17 @@ public class ChaosAddonConfig implements ConfigData {
     public float waterKillsMossDamage       = 1.0f;     // HP per interval while in water/rain
     public int   waterKillsMossInterval     = 20;       // ticks between water damage
     public int   waterKillsMossWarnInterval = 200;      // ticks between rain warning in GeneralPowerHandler
+    // passive moss spreading
+    public int   mossSpreadInterval         = 80;       // ticks between passive spread cycles (4 s)
+    public int   mossSpreadRadius           = 8;        // block radius for passive spread
+    public int   mossSpreadCount            = 3;        // max blocks converted per cycle
     // bloom (ultimate ability)
     public int   mossBloomCooldown          = 6000;     // ticks (mirrors bloom.json cooldown_ticks)
     public int   mossBloomRadius            = 12;       // block radius for bloom effect
     public int   mossBloomAllyRegenDuration = 200;      // ticks of Regen II for allies (10 s)
     public int   mossBloomEnemyDebuffDuration = 160;    // ticks of Slowness+Weakness for enemies (8 s)
     public int   mossBloomSuperNodeDuration = 600;      // ticks the supernode lasts (30 s)
+    public int   mossBloomBlockCount        = 30;       // max blocks placed during bloom explosion
 
     // ───────────────────────────── DEEP GEOMANCER ──────────────────────────────
     @ConfigEntry.Category("deep_geomancer")
