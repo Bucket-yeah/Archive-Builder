@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
@@ -42,12 +43,6 @@ public class NecrovoreHandler {
     public static final String SOUL_TAG = "chaos_soul_count";
     private static final String UNDEAD_PET_TAG = "chaos_undead_pet";
     private static final String SOUL_TOTEM_KEY = "chaos_soul_totem"; // flag: prevent next death
-    public static final int MAX_SOULS = 50; // increased from 30
-
-    // Soul economy costs
-    public static final int COST_TOTEM = 20;      // prevent next death
-    public static final int COST_WITHER_FIELD = 10; // Wither III on nearby enemies 5s
-    public static final int COST_RESURRECT = 5;    // raise a nearby corpse
 
     // ── Soul drop on mob death ──────────────────────────────────────────────────
     @SubscribeEvent
@@ -60,7 +55,7 @@ public class NecrovoreHandler {
 
         for (ServerPlayer player : level.players()) {
             if (!OriginHelper.hasPower(player, "chaos_addon:necrovore/soul_drop")) continue;
-            if (player.distanceTo(dead) > 15) continue;
+            if (player.distanceTo(dead) > ChaosAddonConfig.get().necroSoulCollectRadius) continue;
 
             addSouls(player, 1);
 
@@ -83,29 +78,31 @@ public class NecrovoreHandler {
         if (player.getPersistentData().getBoolean(SOUL_TOTEM_KEY)) {
             event.setCanceled(true);
             player.getPersistentData().putBoolean(SOUL_TOTEM_KEY, false);
-            player.setHealth(player.getMaxHealth() * 0.25f); // survive at 25% HP
+            ChaosAddonConfig cfg = ChaosAddonConfig.get();
+            player.setHealth(player.getMaxHealth() * cfg.necroTotemSurvivalHp);
             if (player.level() instanceof ServerLevel level) {
                 level.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL,
                     player.getX(), player.getY() + 1.0, player.getZ(), 40, 0.5, 0.8, 0.5, 0.08);
                 level.playSound(null, player.blockPosition(),
                     SoundEvents.TOTEM_USE, net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 0.5f);
             }
-            player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 200, 0));
-            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 200, 1));
+            player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, cfg.necroTotemProtectDuration, 0));
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, cfg.necroTotemProtectDuration, 1));
             player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                "§5💀 Тотем души поглотил смерть! §7(−" + COST_TOTEM + " душ)"));
+                "§5💀 Тотем души поглотил смерть! §7(−" + cfg.necroCostTotem + " душ)"));
             return;
         }
 
+        ChaosAddonConfig cfgDeath = ChaosAddonConfig.get();
         int current = player.getPersistentData().getInt(SOUL_TAG);
-        player.getPersistentData().putInt(SOUL_TAG, current / 2);
+        player.getPersistentData().putInt(SOUL_TAG, current / cfgDeath.necroSoulDeathDivisor);
     }
 
     // ── Soul Economy: active abilities ─────────────────────────────────────────
 
-    /** Spend 20 souls to prevent the next death (soul totem). */
+    /** Spend souls to prevent the next death (soul totem). */
     public static boolean activateSoulTotem(ServerPlayer player) {
-        if (!spendSouls(player, COST_TOTEM)) return false;
+        if (!spendSouls(player, ChaosAddonConfig.get().necroCostTotem)) return false;
         player.getPersistentData().putBoolean(SOUL_TOTEM_KEY, true);
         if (player.level() instanceof ServerLevel level) {
             level.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL,
@@ -118,16 +115,17 @@ public class NecrovoreHandler {
         return true;
     }
 
-    /** Spend 10 souls to apply Wither III to nearby enemies for 5 seconds. */
+    /** Spend souls to apply Wither III to nearby enemies. */
     public static boolean useWitherField(ServerPlayer player) {
-        if (!spendSouls(player, COST_WITHER_FIELD)) return false;
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
+        if (!spendSouls(player, cfg.necroCostWitherField)) return false;
         if (!(player.level() instanceof ServerLevel level)) return false;
         List<LivingEntity> enemies = level.getEntitiesOfClass(LivingEntity.class,
-            player.getBoundingBox().inflate(12),
+            player.getBoundingBox().inflate(cfg.necroWitherRadius),
             e -> e != player && e.isAlive() && !(e instanceof ServerPlayer sp && sp.getTeam() != null && player.getTeam() != null && player.getTeam().isAlliedTo(sp.getTeam())));
         for (LivingEntity e : enemies) {
-            e.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 2));
-            e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1));
+            e.addEffect(new MobEffectInstance(MobEffects.WITHER, cfg.necroWitherDuration, 2));
+            e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, cfg.necroWitherDuration, 1));
         }
         level.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME,
             player.getX(), player.getY() + 1.0, player.getZ(), 40, 1.0, 1.0, 1.0, 0.1);
@@ -138,9 +136,10 @@ public class NecrovoreHandler {
         return true;
     }
 
-    /** Spend 5 souls to reanimate a nearby fallen enemy as a temporary undead follower. */
+    /** Spend souls to reanimate a nearby fallen enemy as a temporary undead follower. */
     public static boolean useReanimation(ServerPlayer player) {
-        if (!spendSouls(player, COST_RESURRECT)) return false;
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
+        if (!spendSouls(player, cfg.necroCostResurrect)) return false;
         if (!(player.level() instanceof ServerLevel level)) return false;
         // Raise a zombie at player's feet
         var zombie = net.minecraft.world.entity.EntityType.ZOMBIE.create(level);
@@ -148,7 +147,7 @@ public class NecrovoreHandler {
         zombie.moveTo(player.getX(), player.getY(), player.getZ(), player.getYRot(), 0);
         zombie.addTag("chaos_necro_raised");
         zombie.addTag("chaos_managed_entity");
-        zombie.getPersistentData().putInt("chaos_despawn_ticks", 1200); // 60s
+        zombie.getPersistentData().putInt("chaos_despawn_ticks", cfg.necroReanimationDuration);
         zombie.setCustomName(net.minecraft.network.chat.Component.literal("§5Поднятый мертвец"));
         zombie.setCustomNameVisible(true);
         zombie.setTarget(null);
@@ -158,7 +157,7 @@ public class NecrovoreHandler {
         level.playSound(null, player.blockPosition(),
             SoundEvents.ZOMBIE_INFECT, net.minecraft.sounds.SoundSource.PLAYERS, 0.8f, 0.5f);
         player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-            "§5💀 Мертвец поднят на 60с! §7(−" + COST_RESURRECT + " душ)"));
+            "§5💀 Мертвец поднят! §7(−" + cfg.necroCostResurrect + " душ)"));
         return true;
     }
 
@@ -184,7 +183,7 @@ public class NecrovoreHandler {
             int currentFood = player.getFoodData().getFoodLevel();
             player.getFoodData().setFoodLevel(Math.max(0, currentFood - food.nutrition()));
         }
-        player.hurt(player.damageSources().generic(), 2.0f);
+        player.hurt(player.damageSources().generic(), ChaosAddonConfig.get().necroWrongFoodDamage);
         player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
             "§4💀 Мертвецкое нутро: §7обычная еда разлагается! Ешь гнилую плоть."));
         if (player.level() instanceof ServerLevel level) {
@@ -206,10 +205,11 @@ public class NecrovoreHandler {
         String dmgId = event.getSource().getMsgId();
 
         // Poison damage (type "magic") while player has Poison effect → heal instead
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         if (dmgId.equals("magic") && player.hasEffect(MobEffects.POISON)) {
             event.setCanceled(true);
             if (player.getHealth() < player.getMaxHealth()) {
-                player.heal(1.0f); // +0.5❤ per tick
+                player.heal(cfg.necroPoisonHeal);
             }
             level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
                 player.getX(), player.getY() + 1.0, player.getZ(),
@@ -220,7 +220,7 @@ public class NecrovoreHandler {
         // Fire damage → double
         if (dmgId.equals("inFire") || dmgId.equals("onFire") || dmgId.equals("lava")
                 || dmgId.equals("hotFloor")) {
-            event.setAmount(event.getAmount() * 2.0f);
+            event.setAmount(event.getAmount() * cfg.necroFireDamageMult);
         }
     }
 
@@ -238,11 +238,12 @@ public class NecrovoreHandler {
         }
 
         // ── Undead diplomacy: tag & steer nearby undead ──
+        ChaosAddonConfig necCfg = ChaosAddonConfig.get();
         if (OriginHelper.hasPower(player, "chaos_addon:necrovore/undead_diplomacy")
-                && player.tickCount % 40 == 0) {
+                && player.tickCount % necCfg.necroUndeadCheckInterval == 0) {
 
             List<Mob> nearbyUndead = level.getEntitiesOfClass(Mob.class,
-                player.getBoundingBox().inflate(20),
+                player.getBoundingBox().inflate(necCfg.necroUndeadDiploRadius),
                 e -> e.isAlive() && isUndead(e));
 
             int petCount = 0;
@@ -250,8 +251,7 @@ public class NecrovoreHandler {
                 // Don't attack player
                 if (mob.getTarget() == player) mob.setTarget(null);
 
-                // Tag up to 10 as following pets
-                if (petCount < 10) {
+                if (petCount < necCfg.necroMaxPets) {
                     mob.addTag(UNDEAD_PET_TAG);
                     mob.getNavigation().moveTo(player, 1.0);
                     petCount++;
@@ -298,7 +298,7 @@ public class NecrovoreHandler {
 
     // ── Public API ─────────────────────────────────────────────────────────────
     public static int getSouls(ServerPlayer player) {
-        return Math.min(player.getPersistentData().getInt(SOUL_TAG), MAX_SOULS);
+        return Math.min(player.getPersistentData().getInt(SOUL_TAG), ChaosAddonConfig.get().necroMaxSouls);
     }
 
     public static boolean spendSouls(ServerPlayer player, int amount) {
@@ -310,7 +310,7 @@ public class NecrovoreHandler {
 
     public static void addSouls(ServerPlayer player, int amount) {
         int current = player.getPersistentData().getInt(SOUL_TAG);
-        player.getPersistentData().putInt(SOUL_TAG, Math.min(MAX_SOULS, current + amount));
+        player.getPersistentData().putInt(SOUL_TAG, Math.min(ChaosAddonConfig.get().necroMaxSouls, current + amount));
     }
 
     // ── Private helpers ────────────────────────────────────────────────────────

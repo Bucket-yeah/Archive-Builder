@@ -25,6 +25,13 @@ public class ChaosAddonConfig implements ConfigData {
     public float eaterSunDamage             = 0.5f;
     public int   eaterSunDamageInterval     = 100;
     public float eaterSunBonusPerEffect     = 0.1f; // extra damage per active mob effect
+    public int   eaterMadWhisperInterval    = 3000; // ticks between auto mad_whisper fires
+    public int   eaterMadWhisperJitter      = 1200; // ±random ticks added to interval
+    public int   eaterMadWhisperRadius      = 16;   // block radius for mad whisper mob scan
+    public int   eaterBlindnessDuration     = 100;  // ticks of Blindness in Fear Wave
+    public float eaterHungerExhaustion      = 0.025f; // extra exhaustion per second with no XP
+    public int   eaterHungerPerXp           = 3;    // hunger restored per absorbed XP level
+    public int   eaterMindFeedRegenDuration = 60;   // ticks of Regen I when mind-feeding at full hunger
 
     // ───────────────────────────── SWARM LORD ──────────────────────────────────
     @ConfigEntry.Category("swarm_lord")
@@ -40,6 +47,10 @@ public class ChaosAddonConfig implements ConfigData {
     public float swarmFireDamageMult        = 2.0f;
     public int   swarmWaterVulnInterval     = 20;   // ticks between water damage checks
     public float swarmWaterVulnDamage       = 0.5f; // HP per interval in water
+    public int   swarmLowBugThreshold      = 4;    // bugs below this count → apply Weakness
+    public int   swarmWeaknessDuration     = 50;   // ticks of Weakness when low on bugs
+    public int   swarmSenseRadius          = 15;   // block radius for swarm sense scan
+    public float swarmLowHpThreshold       = 0.40f;// HP fraction below which swarm sense highlights
 
     // ───────────────────────────── DEEP NAVIGATOR ──────────────────────────────
     @ConfigEntry.Category("deep_navigator")
@@ -102,6 +113,9 @@ public class ChaosAddonConfig implements ConfigData {
     public int   bioShockGraceTicks         = 200;   // min ticks between biome-change shocks
     public int   bioWrongBiomeCheckInterval = 100;   // ticks between mining fatigue checks
     public int   bioWrongBiomeFatigueLevel  = 0;     // Mining Fatigue amplifier (0 = level I)
+    public int   bioMaxBiomesForSpeed      = 5;     // max unique biomes counted for ecosystem speed bonus
+    public float bioWrongFoodDamage        = 2.0f;  // damage for eating wrong-biome food
+    public int   bioDnaLuckThreshold       = 5;     // distinct DNA types needed to unlock Luck perk
 
     // ───────────────────────────── PARASITIC MIND ──────────────────────────────
     @ConfigEntry.Category("parasitic_mind")
@@ -133,6 +147,11 @@ public class ChaosAddonConfig implements ConfigData {
     public float lunarSunDamage             = 0.5f;
     public int   lunarSunDamageInterval     = 100;
     public float lunarDaySpeedPenalty       = -0.40f;
+    public int   lunarRitualCooldown        = 72000; // ticks between ritual uses (≈1 real hour)
+    public int   lunarRitualSneakTicks      = 100;   // ticks of sneaking required to complete ritual
+    public int   lunarPhaseWarnTime         = 23800; // day-time tick threshold for phase-change warning
+    public int   lunarFullMoonGlowRadius    = 40;    // silver_light radius on full moon
+    public int   lunarGlowRadius            = 20;    // silver_light radius on other phases
 
     // ───────────────────────────── INFERNAL SHEPHERD ───────────────────────────
     @ConfigEntry.Category("infernal_shepherd")
@@ -141,6 +160,21 @@ public class ChaosAddonConfig implements ConfigData {
     public int   inferPortalCooldown        = 3600;
     public float inferLavaBurstDamage       = 4.0f;
     public int   inferLavaBurstRadius       = 5;
+    public int   inferLavaStrengthTicks     = 600;  // continuous lava ticks to earn Strength II
+    public int   inferLavaStrengthDuration  = 300;  // ticks of Strength II from lava
+    public int   inferLavaBuffInterval      = 400;  // min ticks between lava strength grants
+    public int   inferTrailDuration         = 100;  // ticks fire trail stays active after leaving lava
+    public int   inferTrailDamageInterval   = 20;   // ticks between trail damage pulses
+    public float inferTrailDamage           = 1.0f; // HP per trail damage pulse
+    public float inferTrailRadius           = 2.0f; // block radius for trail damage
+    public int   inferTrailFireTicks        = 40;   // fire ticks applied to enemies by trail
+    public int   inferDiplomacyInterval     = 20;   // ticks between fire_diplomacy checks
+    public float inferDiplomacyRadius       = 20.0f;// block radius for nether mob diplomacy
+    public float inferDiplomacyFollowDist   = 3.0f; // min distance before diplomacy mob follows
+    public int   inferLavaFeedInterval      = 40;   // ticks between lava hunger restores
+    public int   inferLavaFeedAmount        = 1;    // hunger restored per lava interval
+    public float inferLavaFeedSaturation    = 0.5f; // saturation per lava feed tick
+    public float inferWaterExhaustion       = 0.025f;// extra exhaustion per second in water
 
     // ───────────────────────────── NIGHTMARE MIMIC ─────────────────────────────
     @ConfigEntry.Category("nightmare_mimic")
@@ -293,16 +327,41 @@ public class ChaosAddonConfig implements ConfigData {
     public float necroSoulDropChance        = 0.30f;
     public float necroDeathFeastHeal        = 2.0f; // HP healed on kill
     public int   necroSoulDropXp            = 5;
+    public int   necroMaxSouls             = 50;   // max soul count a Necrovore can hold
+    public int   necroCostTotem            = 20;   // souls to activate soul totem
+    public int   necroCostWitherField      = 10;   // souls to cast wither field
+    public int   necroCostResurrect        = 5;    // souls to reanimate a corpse
+    public int   necroSoulCollectRadius    = 15;   // block radius to collect souls on kill
+    public float necroTotemSurvivalHp      = 0.25f;// HP fraction to survive at after totem fires
+    public int   necroTotemProtectDuration = 200;  // ticks of Fire Res + Resistance after totem
+    public int   necroWitherRadius         = 12;   // block radius for wither field
+    public int   necroWitherDuration       = 100;  // ticks of Wither/Slowness from wither field
+    public int   necroReanimationDuration  = 1200; // ticks raised zombie lasts before despawn
+    public float necroWrongFoodDamage      = 2.0f; // damage for eating non-necrovore food
+    public float necroFireDamageMult       = 2.0f; // fire damage multiplier (vulnerability)
+    public float necroPoisonHeal           = 1.0f; // HP healed per poison tick (death feast)
+    public int   necroUndeadCheckInterval  = 40;   // ticks between undead diplomacy scans
+    public float necroUndeadDiploRadius    = 20.0f;// block radius for undead diplomacy
+    public int   necroMaxPets              = 10;   // max undead followers via diplomacy
+    public int   necroSoulDeathDivisor     = 2;    // souls are divided by this on death
 
     // ───────────────────────────── NEURAL HIJACKER ─────────────────────────────
     @ConfigEntry.Category("neural_hijacker")
     public int   neuralHivemindCooldown     = 1800;
     public int   neuralSeizureCooldown      = 600;
     public int   neuralHiveBurstCooldown    = 3600;
-    public int   neuralMaxHosts             = 1;    // quality over quantity vs parasitic_mind
-    public int   neuralHostDuration         = 2400; // ticks host control lasts
+    public int   neuralMaxHosts             = 6;    // max simultaneous hijacked hosts
+    public int   neuralHostDuration         = 500;  // ticks infection lasts (25 s)
     public float neuralMemoryTheftChance    = 0.50f;
     public float neuralParasiticBodyDamage  = 0.5f; // no-armor penalty per 30s
+    public int   neuralHostDebuffInterval   = 40;   // ticks between host debuff applications
+    public int   neuralHostDebuffDuration   = 60;   // ticks of Weakness/Slowness on host
+    public int   neuralHostRegenInterval    = 200;  // ticks between player regen when near a host
+    public float neuralHostRegenAmount      = 2.0f; // HP healed per regen pulse near host
+    public int   neuralStarveInterval       = 400;  // ticks between starvation damage without any host
+    public float neuralStarveDamage         = 1.0f; // HP per starvation tick without host
+    public int   neuralMemoryTheftDuration  = 300;  // ticks of copied effect (memory theft)
+    public float neuralInfectedAttackBonus  = 0.2f; // fractional attack damage boost on infected mob
 
     // ───────────────────────────── BLOOD SMITH ─────────────────────────────────
     @ConfigEntry.Category("blood_smith")
@@ -325,11 +384,18 @@ public class ChaosAddonConfig implements ConfigData {
     public int   starMeteorCooldown         = 1200;
     public int   starApocalypseCooldown     = 12000;
     public int   starForesightCooldown      = 600;
-    public float starMeleeVulnerability     = 1.5f; // incoming melee dmg multiplier
+    public float starMeleeVulnerability     = 1.75f; // incoming melee/fire dmg multiplier
     public float starAuraDamage             = 0.5f;
     public int   starAuraInterval           = 100;
     public int   starAuraRadius             = 8;
     public int   starGuardianCooldown       = 3600;
+    public int   starAuraMeteorInterval     = 400;   // ticks between star aura meteor showers
+    public int   starAuraMeteorCount        = 5;     // meteors per star aura shower
+    public int   starAuraMeteorRadius       = 15;    // block radius of star aura shower
+    public int   starGuardianDailyCooldown  = 24000; // min ticks between celestial guardian summons
+    public int   starGuardianDespawnTicks   = 1200;  // ticks until celestial guardian despawns
+    public int   starDawnLuckDuration       = 1200;  // ticks of Luck II at dawn
+    public float starMeteorImpactDamage     = 2.0f;  // magic damage per meteor impact
 
     // ───────────────────────────── MIRROR PHANTOM ──────────────────────────────
     @ConfigEntry.Category("mirror_phantom")
@@ -340,6 +406,12 @@ public class ChaosAddonConfig implements ConfigData {
     public float mirrorSunVulnerability     = 1.5f; // sun damage multiplier
     public float mirrorFragileFormMult      = 1.3f; // all incoming damage multiplier
     public int   mirrorIdentityDuration     = 1200; // ticks stolen identity lasts
+    public int   mirrorDisguiseCycle        = 600;  // ticks between disguise activations
+    public int   mirrorDisguiseDuration     = 100;  // ticks disguise name stays visible
+    public int   mirrorSunCheckInterval     = 40;   // ticks between sun vulnerability checks
+    public int   mirrorSunDebuffDuration    = 80;   // ticks of Slowness/Weakness in sunlight
+    public int   mirrorReflectExpiry        = 1200; // ticks until reflected effect immunity expires
+    public float mirrorReflectMult          = 2.0f; // damage multiplier when reflecting attacks
 
     // ─────────────────────────────────────────────────────────────────────────
 

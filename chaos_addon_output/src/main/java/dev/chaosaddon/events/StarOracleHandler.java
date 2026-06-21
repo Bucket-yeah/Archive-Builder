@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -106,8 +107,9 @@ public class StarOracleHandler {
 
         // Star Aura: meteor shower every 20 seconds
         if (OriginHelper.hasPower(player, "chaos_addon:star_oracle/star_aura")) {
-            if (player.tickCount % 400 == 0) {
-                fireMeteorShower(player, level, 5, 15);
+            ChaosAddonConfig cfg = ChaosAddonConfig.get();
+            if (player.tickCount % cfg.starAuraMeteorInterval == 0) {
+                fireMeteorShower(player, level, cfg.starAuraMeteorCount, cfg.starAuraMeteorRadius);
             }
         }
 
@@ -130,7 +132,7 @@ public class StarOracleHandler {
             // New moon: summon temporary celestial guardian
             else if (moonPhase == 4 && dayTime > 13000 && dayTime < 14000) {
                 long lastGuardian = player.getPersistentData().getLong("chaos_celestial_guardian_tick");
-                if (level.getGameTime() - lastGuardian > 24000) {
+                if (level.getGameTime() - lastGuardian > ChaosAddonConfig.get().starGuardianDailyCooldown) {
                     summonCelestialGuardian(player, level);
                     player.getPersistentData().putLong("chaos_celestial_guardian_tick", level.getGameTime());
                     player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
@@ -140,7 +142,7 @@ public class StarOracleHandler {
             // Dawn (time ~23500): foresight range doubled for 1 min  
             else if (dayTime > 23000 && dayTime < 23600) {
                 player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
-                    net.minecraft.world.effect.MobEffects.LUCK, 1200, 1, false, false));
+                    net.minecraft.world.effect.MobEffects.LUCK, ChaosAddonConfig.get().starDawnLuckDuration, 1, false, false));
                 level.sendParticles(ParticleTypes.END_ROD,
                     player.getX(), player.getY() + 2.0, player.getZ(), 30, 0.8, 0.3, 0.8, 0.05);
                 player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
@@ -159,7 +161,7 @@ public class StarOracleHandler {
         boolean isMelee = dmgType.equals("mob") || dmgType.equals("player");
         boolean isFire = dmgType.contains("fire") || dmgType.contains("lava") || dmgType.equals("onFire");
         if (isMelee || isFire) {
-            event.setAmount(event.getAmount() * 1.75f);
+            event.setAmount(event.getAmount() * ChaosAddonConfig.get().starMeleeVulnerability);
         }
 
         // Immunity to poison / wither
@@ -182,7 +184,7 @@ public class StarOracleHandler {
         golem.addEffect(new net.minecraft.world.effect.MobEffectInstance(
             net.minecraft.world.effect.MobEffects.GLOWING, Integer.MAX_VALUE, 0, true, false));
         // Store despawn timer
-        golem.getPersistentData().putInt("chaos_despawn_ticks", 1200); // 60s
+        golem.getPersistentData().putInt("chaos_despawn_ticks", ChaosAddonConfig.get().starGuardianDespawnTicks);
         level.addFreshEntity(golem);
         level.sendParticles(ParticleTypes.END_ROD,
             golem.getX(), golem.getY() + 1.0, golem.getZ(), 30, 0.6, 1.0, 0.6, 0.05);
@@ -211,7 +213,7 @@ public class StarOracleHandler {
                 new net.minecraft.world.phys.AABB(tx - 2, ty - 1, tz - 2, tx + 2, ty + 3, tz + 2),
                 e -> e != player && e.isAlive());
             for (LivingEntity v : victims) {
-                v.hurt(player.damageSources().magic(), 2.0f);
+                v.hurt(player.damageSources().magic(), ChaosAddonConfig.get().starMeteorImpactDamage);
             }
 
             // Impact particles

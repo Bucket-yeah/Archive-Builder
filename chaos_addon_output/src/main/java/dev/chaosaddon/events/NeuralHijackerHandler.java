@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
@@ -33,8 +34,6 @@ public class NeuralHijackerHandler {
     static final Map<UUID, Map<UUID, Long>> HIJACK_EXPIRY = new HashMap<>();
 
     private static final Random RNG = new Random();
-    public static final int MAX_HOSTS = 6;  // NH controls many hosts (vs Parasite's deep 1-2)
-    private static final int INFECT_DURATION_TICKS = 500; // 25s
 
     // ── Per-tick passives ──────────────────────────────────────────────────────
     @SubscribeEvent
@@ -77,26 +76,26 @@ public class NeuralHijackerHandler {
                     mob.setTarget(null);
                 }
             }
-            if (player.tickCount % 40 == 0) {
-                host.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 60, 1, false, false));
-                host.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1, false, false));
+            ChaosAddonConfig cfg = ChaosAddonConfig.get();
+            if (player.tickCount % cfg.neuralHostDebuffInterval == 0) {
+                host.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, cfg.neuralHostDebuffDuration, 1, false, false));
+                host.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, cfg.neuralHostDebuffDuration, 1, false, false));
             }
         }
 
         // ── Parasitic Body: regen near host, damage without host ──
         if (OriginHelper.hasPower(player, "chaos_addon:neural_hijacker/parasitic_body")) {
-            if (nearHost && player.tickCount % 200 == 0
+            ChaosAddonConfig cfg = ChaosAddonConfig.get();
+            if (nearHost && player.tickCount % cfg.neuralHostRegenInterval == 0
                     && player.getHealth() < player.getMaxHealth()) {
-                // Regen 1❤ every 10 seconds near a host
-                player.heal(2.0f);
+                player.heal(cfg.neuralHostRegenAmount);
                 level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
                     player.getX(), player.getY() + 1.0, player.getZ(),
                     5, 0.3, 0.4, 0.3, 0.0);
             }
 
-            if (hosts.isEmpty() && player.tickCount % 400 == 0) {
-                // No hosts at all → -0.5❤ (1 HP) every 20 seconds
-                player.hurt(player.damageSources().starve(), 1.0f);
+            if (hosts.isEmpty() && player.tickCount % cfg.neuralStarveInterval == 0) {
+                player.hurt(player.damageSources().starve(), cfg.neuralStarveDamage);
                 level.sendParticles(ParticleTypes.WITCH,
                     player.getX(), player.getY() + 1.0, player.getZ(),
                     6, 0.3, 0.5, 0.3, 0.05);
@@ -119,9 +118,9 @@ public class NeuralHijackerHandler {
         List<MobEffectInstance> effectList = new ArrayList<>(effects);
         MobEffectInstance chosen = effectList.get(RNG.nextInt(effectList.size()));
 
-        // Copy effect for 15 seconds
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         player.addEffect(new MobEffectInstance(
-            chosen.getEffect(), 300, chosen.getAmplifier(), false, true));
+            chosen.getEffect(), cfg.neuralMemoryTheftDuration, chosen.getAmplifier(), false, true));
 
         if (player.level() instanceof ServerLevel level) {
             level.sendParticles(ParticleTypes.WITCH,
@@ -136,7 +135,7 @@ public class NeuralHijackerHandler {
 
     public static boolean canInfect(ServerPlayer player) {
         Set<UUID> hosts = HIJACKED.computeIfAbsent(player.getUUID(), k -> new HashSet<>());
-        return hosts.size() < MAX_HOSTS;
+        return hosts.size() < ChaosAddonConfig.get().neuralMaxHosts;
     }
 
     public static boolean infectTarget(ServerPlayer player, LivingEntity target) {
@@ -146,11 +145,12 @@ public class NeuralHijackerHandler {
         Set<UUID> hosts = HIJACKED.computeIfAbsent(pid, k -> new HashSet<>());
         Map<UUID, Long> expiries = HIJACK_EXPIRY.computeIfAbsent(pid, k -> new HashMap<>());
 
-        if (hosts.size() >= MAX_HOSTS) return false;
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
+        if (hosts.size() >= cfg.neuralMaxHosts) return false;
 
         UUID tid = target.getUUID();
         hosts.add(tid);
-        expiries.put(tid, level.getGameTime() + INFECT_DURATION_TICKS);
+        expiries.put(tid, level.getGameTime() + cfg.neuralHostDuration);
         target.setGlowingTag(true);
 
         // CRITICAL FIX: Clear mob AI goals immediately so the mob never attacks the owner
@@ -167,7 +167,7 @@ public class NeuralHijackerHandler {
                 ResourceLocation modId = ResourceLocation.fromNamespaceAndPath("chaos_addon", "hijack_dmg_boost");
                 atk.removeModifier(modId);
                 atk.addTransientModifier(new AttributeModifier(
-                    modId, atk.getBaseValue() * 0.2,
+                    modId, atk.getBaseValue() * ChaosAddonConfig.get().neuralInfectedAttackBonus,
                     AttributeModifier.Operation.ADD_VALUE));
             }
         }

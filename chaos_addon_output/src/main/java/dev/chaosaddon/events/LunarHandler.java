@@ -37,8 +37,6 @@ public class LunarHandler {
     private static final Random RNG = new Random();
     private static final Map<UUID, Long> RITUAL_COOLDOWN = new HashMap<>();
     private static final Map<UUID, Integer> SNEAK_TICKS = new HashMap<>();
-    private static final long RITUAL_COOLDOWN_TICKS = 72000L; // 1 real hour
-    private static final int RITUAL_SNEAK_REQUIRED = 100; // 5 seconds sneaking
 
     private static final String[] PHASE_NAMES = {
         "🌕 Полнолуние", "🌔 Убывающая", "🌓 Первая четверть", "🌒 Молодой месяц",
@@ -61,7 +59,7 @@ public class LunarHandler {
         long dayTime = level.getDayTime() % 24000;
         // Night runs from ~13000 to ~23000. Phase changes at next midnight.
         // Warn when within 200 ticks (10s) of midnight (24000)
-        if (dayTime >= 23800 && player.tickCount % 20 == 0) {
+        if (dayTime >= cfg.lunarPhaseWarnTime && player.tickCount % 20 == 0) {
             level.sendParticles(ParticleTypes.GLOW,
                 player.getX(), player.getY() + 2.0, player.getZ(),
                 20, 1.0, 1.5, 1.0, 0.05);
@@ -119,7 +117,7 @@ public class LunarHandler {
 
         // Silver Light: Glowing on all entities in radius at night
         if (OriginHelper.hasPower(player, "chaos_addon:lunar_renegade/silver_light")) {
-            int glowRadius = (moonPhase == 0) ? 40 : 20; // full moon = bigger radius
+            int glowRadius = (moonPhase == 0) ? cfg.lunarFullMoonGlowRadius : cfg.lunarGlowRadius;
             level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(glowRadius),
                 e -> e != player && e.isAlive())
                 .forEach(e -> e.addEffect(new MobEffectInstance(MobEffects.GLOWING, 30, 0, true, false)));
@@ -143,7 +141,7 @@ public class LunarHandler {
                 && (moonPhase == 0 || moonPhase == 4)) {
             UUID pid = player.getUUID();
             long lastRitual = RITUAL_COOLDOWN.getOrDefault(pid, 0L);
-            if (now - lastRitual >= RITUAL_COOLDOWN_TICKS) {
+            if (now - lastRitual >= cfg.lunarRitualCooldown) {
                 if (player.isCrouching()) {
                     int sneakCount = SNEAK_TICKS.merge(pid, 1, Integer::sum);
                     if (sneakCount % 20 == 0) { // show progress every second
@@ -151,7 +149,7 @@ public class LunarHandler {
                         player.displayClientMessage(Component.literal(
                             "§9🌙 Лунный Ритуал... " + secs + "/5с"), true);
                     }
-                    if (sneakCount >= RITUAL_SNEAK_REQUIRED) {
+                    if (sneakCount >= cfg.lunarRitualSneakTicks) {
                         SNEAK_TICKS.remove(pid);
                         RITUAL_COOLDOWN.put(pid, now);
                         performMoonRitual(player, level, moonPhase);

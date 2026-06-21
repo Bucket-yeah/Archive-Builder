@@ -28,8 +28,6 @@ public class ChaoticAuraHandler {
 
     // Mad Whisper: separate auto-timer, fires every ~3600 ticks (3 min) independently
     private static final Map<UUID, Long> MAD_WHISPER_TIMER = new HashMap<>();
-    private static final int MAD_WHISPER_BASE = 3000;
-    private static final int MAD_WHISPER_JITTER = 1200; // ±1 min variance
 
     private static final Block[] CHAOS_BLOCKS = {
         Blocks.GRAVEL, Blocks.SAND, Blocks.GLASS, Blocks.OBSIDIAN,
@@ -98,11 +96,11 @@ public class ChaoticAuraHandler {
             UUID pid = player.getUUID();
             long now = level.getGameTime();
             long lastWhisper = MAD_WHISPER_TIMER.getOrDefault(pid, 0L);
-            long whisperInterval = MAD_WHISPER_BASE + (long)(RNG.nextDouble() * MAD_WHISPER_JITTER);
+            long whisperInterval = cfg.eaterMadWhisperInterval + (long)(RNG.nextDouble() * cfg.eaterMadWhisperJitter);
 
             if (now - lastWhisper >= whisperInterval) {
                 MAD_WHISPER_TIMER.put(pid, now);
-                triggerMadWhisper(player, level);
+                triggerMadWhisper(player, level, cfg);
             }
         }
     }
@@ -113,9 +111,9 @@ public class ChaoticAuraHandler {
      * 2) Reality crack — teleport all nearby mobs to random positions
      * 3) Fear wave — all nearby mobs flee from player for 5s
      */
-    private static void triggerMadWhisper(ServerPlayer player, ServerLevel level) {
+    private static void triggerMadWhisper(ServerPlayer player, ServerLevel level, ChaosAddonConfig cfg) {
         List<LivingEntity> nearby = level.getEntitiesOfClass(
-            LivingEntity.class, player.getBoundingBox().inflate(16),
+            LivingEntity.class, player.getBoundingBox().inflate(cfg.eaterMadWhisperRadius),
             e -> e != player && e.isAlive() && e instanceof Mob);
 
         if (nearby.isEmpty()) return;
@@ -165,7 +163,7 @@ public class ChaoticAuraHandler {
                     }
                     net.minecraft.world.effect.MobEffectInstance fear =
                         new net.minecraft.world.effect.MobEffectInstance(
-                            net.minecraft.world.effect.MobEffects.BLINDNESS, 100, 0, false, true);
+                            net.minecraft.world.effect.MobEffects.BLINDNESS, cfg.eaterBlindnessDuration, 0, false, true);
                     mob.addEffect(fear);
                     level.sendParticles(ParticleTypes.SMOKE,
                         mob.getX(), mob.getY() + 1.5, mob.getZ(),

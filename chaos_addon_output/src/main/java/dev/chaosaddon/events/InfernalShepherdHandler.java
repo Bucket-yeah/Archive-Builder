@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -53,12 +54,13 @@ public class InfernalShepherdHandler {
         if (!(player.level() instanceof ServerLevel level)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:infernal_shepherd/lava_feeding")) return;
 
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         long now = level.getGameTime();
         boolean inLava = player.isInLava();
 
         // Lava Feeding: +1 hunger every 2s in lava
-        if (inLava && now % 40 == 0) {
-            player.getFoodData().eat(1, 0.5f);
+        if (inLava && now % cfg.inferLavaFeedInterval == 0) {
+            player.getFoodData().eat(cfg.inferLavaFeedAmount, cfg.inferLavaFeedSaturation);
         }
         // Water drains hunger
         if (player.isInWater() && now % 40 == 0) {
@@ -69,10 +71,10 @@ public class InfernalShepherdHandler {
         if (inLava) {
             int ticks = LAVA_TICKS.getOrDefault(player.getUUID(), 0) + 1;
             LAVA_TICKS.put(player.getUUID(), ticks);
-            if (ticks >= 600) { // 30 seconds
+            if (ticks >= cfg.inferLavaStrengthTicks) {
                 Long lastStrength = STRENGTH_GIVEN.getOrDefault(player.getUUID(), 0L);
-                if (now - lastStrength >= 400) {
-                    player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 300, 1, false, true));
+                if (now - lastStrength >= cfg.inferLavaBuffInterval) {
+                    player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, cfg.inferLavaStrengthDuration, 1, false, true));
                     STRENGTH_GIVEN.put(player.getUUID(), now);
                     player.displayClientMessage(Component.literal("§c☄ Перегрев! Сила усилена!"), true);
                     level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
@@ -97,17 +99,17 @@ public class InfernalShepherdHandler {
                         }
                     }
                 }
-                player.getPersistentData().putInt("infernal_trail_ticks", 100);
+                player.getPersistentData().putInt("infernal_trail_ticks", cfg.inferTrailDuration);
             }
             int trailTicks = player.getPersistentData().getInt("infernal_trail_ticks");
             if (trailTicks > 0) {
                 player.getPersistentData().putInt("infernal_trail_ticks", trailTicks - 1);
-                if (trailTicks % 20 == 0) {
+                if (trailTicks % cfg.inferTrailDamageInterval == 0) {
                     List<LivingEntity> nearby = level.getEntitiesOfClass(LivingEntity.class,
-                        player.getBoundingBox().inflate(2.0), e -> e != player && e.isAlive());
+                        player.getBoundingBox().inflate(cfg.inferTrailRadius), e -> e != player && e.isAlive());
                     nearby.forEach(e -> {
-                        e.hurt(level.damageSources().inFire(), 1.0f);
-                        e.setRemainingFireTicks(Math.max(e.getRemainingFireTicks(), 40));
+                        e.hurt(level.damageSources().inFire(), cfg.inferTrailDamage);
+                        e.setRemainingFireTicks(Math.max(e.getRemainingFireTicks(), cfg.inferTrailFireTicks));
                     });
                 }
             }
@@ -125,8 +127,8 @@ public class InfernalShepherdHandler {
         }
 
         // Fire Diplomacy: nether mobs neutral + follow with gold in hand
-        if (OriginHelper.hasPower(player, "chaos_addon:infernal_shepherd/fire_diplomacy") && now % 20 == 0) {
-            AABB range = player.getBoundingBox().inflate(20);
+        if (OriginHelper.hasPower(player, "chaos_addon:infernal_shepherd/fire_diplomacy") && now % cfg.inferDiplomacyInterval == 0) {
+            AABB range = player.getBoundingBox().inflate(cfg.inferDiplomacyRadius);
             boolean hasGold = player.getMainHandItem().is(Items.GOLD_INGOT)
                 || player.getOffhandItem().is(Items.GOLD_INGOT)
                 || player.getMainHandItem().is(Items.GOLDEN_SWORD)
@@ -136,7 +138,7 @@ public class InfernalShepherdHandler {
                 if (mob instanceof ZombifiedPiglin || mob instanceof Ghast || mob instanceof Blaze) {
                     if (!mob.isPersistenceRequired()) {
                         mob.setTarget(null);
-                        if (hasGold && mob.distanceTo(player) > 3) {
+                        if (hasGold && mob.distanceTo(player) > cfg.inferDiplomacyFollowDist) {
                             mob.getNavigation().moveTo(player, 0.8);
                             level.sendParticles(ParticleTypes.GLOW,
                                 mob.getX(), mob.getY() + 1.5, mob.getZ(),

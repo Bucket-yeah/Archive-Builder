@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -45,6 +46,7 @@ public class MirrorPhantomHandler {
         // Mirror Nature: expire reflected debuff memory after 60 seconds
         long now = level.getGameTime();
         UUID pid = player.getUUID();
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         if (REFLECTED_EXPIRY.getOrDefault(pid, 0L) < now) {
             REFLECTED_EFFECTS.remove(pid);
             REFLECTED_EXPIRY.remove(pid);
@@ -53,7 +55,7 @@ public class MirrorPhantomHandler {
         // Disguise: every 30 seconds change custom name to "???" for 5 seconds
         if (OriginHelper.hasPower(player, "chaos_addon:mirror_phantom/disguise")) {
             Long lastDisguise = DISGUISE_TICK.getOrDefault(pid, 0L);
-            if (now - lastDisguise >= 600) { // 30 seconds
+            if (now - lastDisguise >= cfg.mirrorDisguiseCycle) {
                 player.setCustomName(net.minecraft.network.chat.Component.literal("???")
                     .withStyle(net.minecraft.ChatFormatting.GRAY));
                 player.setCustomNameVisible(true);
@@ -68,8 +70,8 @@ public class MirrorPhantomHandler {
                 level.playSound(null, player.blockPosition(),
                     SoundEvents.ILLUSIONER_PREPARE_MIRROR, SoundSource.PLAYERS, 0.6f, 1.2f);
             }
-            // Remove custom name after 5 seconds
-            if (now - lastDisguise >= 100 && now - lastDisguise < 101) {
+            // Remove custom name after disguise duration
+            if (now - lastDisguise >= cfg.mirrorDisguiseDuration && now - lastDisguise < cfg.mirrorDisguiseDuration + 1) {
                 player.setCustomName(null);
                 player.setCustomNameVisible(false);
             }
@@ -77,14 +79,14 @@ public class MirrorPhantomHandler {
 
         // Sun vulnerability: Slowness III + Weakness II in sunlight
         if (OriginHelper.hasPower(player, "chaos_addon:mirror_phantom/sun_vulnerability")
-                && player.tickCount % 40 == 0) {
+                && player.tickCount % cfg.mirrorSunCheckInterval == 0) {
             boolean inSun = level.canSeeSky(player.blockPosition())
                 && level.isDay()
                 && !player.isInWaterOrRain()
                 && !player.isUnderWater();
             if (inSun) {
-                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 2, false, false));
-                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 80, 1, false, false));
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, cfg.mirrorSunDebuffDuration, 2, false, false));
+                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, cfg.mirrorSunDebuffDuration, 1, false, false));
             }
         }
 
@@ -123,11 +125,12 @@ public class MirrorPhantomHandler {
         reflected.add(dmgId);
 
         if (!(player.level() instanceof ServerLevel level)) return;
-        REFLECTED_EXPIRY.put(pid, level.getGameTime() + 1200);
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
+        REFLECTED_EXPIRY.put(pid, level.getGameTime() + cfg.mirrorReflectExpiry);
 
         // Reflect back to attacker
         if (event.getSource().getEntity() instanceof LivingEntity attacker) {
-            attacker.hurt(player.damageSources().magic(), event.getAmount() * 2.0f);
+            attacker.hurt(player.damageSources().magic(), event.getAmount() * cfg.mirrorReflectMult);
             event.setCanceled(true);
             level.sendParticles(ParticleTypes.ENCHANT,
                 player.getX(), player.getY() + 1.0, player.getZ(),

@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -23,19 +24,20 @@ public class HungerXPHandler {
     private static void handleEaterHunger(ServerPlayer player) {
         if (!OriginHelper.hasPower(player, "chaos_addon:eater_of_worlds/hunger_of_infinity")) return;
 
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         FoodData food = player.getFoodData();
         ServerLevel level = (ServerLevel) player.level();
 
         // Hunger falls twice as fast when no XP
         if (player.tickCount % 20 == 0 && player.experienceLevel <= 0) {
-            player.causeFoodExhaustion(0.025f); // extra exhaustion
+            player.causeFoodExhaustion(cfg.eaterHungerExhaustion);
         }
 
-        // Absorb 1 XP level → +3 hunger every second if hungry
+        // Absorb 1 XP level → hunger every second if hungry
         if (player.tickCount % 20 == 0 && food.getFoodLevel() < 20) {
             if (player.experienceLevel >= 1) {
                 player.giveExperienceLevels(-1);
-                food.eat(3, 0.0f);
+                food.eat(cfg.eaterHungerPerXp, 0.0f);
                 level.sendParticles(ParticleTypes.WITCH,
                     player.getX(), player.getY() + 1.0, player.getZ(),
                     12, 0.4, 0.5, 0.4, 0.05);
@@ -48,7 +50,7 @@ public class HungerXPHandler {
             if (player.experienceLevel >= 1) {
                 player.giveExperienceLevels(-1);
             }
-            player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 60, 0, false, true));
+            player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, cfg.eaterMindFeedRegenDuration, 0, false, true));
             level.sendParticles(ParticleTypes.SCULK_SOUL,
                 player.getX(), player.getY() + 1.5, player.getZ(),
                 8, 0.4, 0.6, 0.4, 0.05);
@@ -58,25 +60,26 @@ public class HungerXPHandler {
     private static void handleInfernalHunger(ServerPlayer player) {
         if (!OriginHelper.hasPower(player, "chaos_addon:infernal_shepherd/lava_feeding")) return;
 
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         FoodData food = player.getFoodData();
         ServerLevel level = (ServerLevel) player.level();
 
         // Lava restores hunger
-        if (player.tickCount % 40 == 0 && player.isInLava()) {
-            food.eat(1, 0.5f);
+        if (player.tickCount % cfg.inferLavaFeedInterval == 0 && player.isInLava()) {
+            food.eat(cfg.inferLavaFeedAmount, cfg.inferLavaFeedSaturation);
         }
 
         // Water causes double hunger drain
         if (player.tickCount % 20 == 0 && player.isInWater()) {
-            player.causeFoodExhaustion(0.025f);
+            player.causeFoodExhaustion(cfg.inferWaterExhaustion);
         }
 
-        // After 30s in lava: Strength II for 15s
+        // After lava strength ticks: Strength II
         int lavaKey = player.getPersistentData().getInt("chaos_lava_ticks");
         if (player.isInLava()) {
             player.getPersistentData().putInt("chaos_lava_ticks", lavaKey + 1);
-            if (lavaKey >= 600) { // 30 seconds
-                player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 300, 1, false, true));
+            if (lavaKey >= cfg.inferLavaStrengthTicks) {
+                player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, cfg.inferLavaStrengthDuration, 1, false, true));
                 player.getPersistentData().putInt("chaos_lava_ticks", 0);
                 level.sendParticles(ParticleTypes.FLAME,
                     player.getX(), player.getY() + 1.0, player.getZ(),

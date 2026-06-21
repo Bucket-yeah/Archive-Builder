@@ -134,7 +134,8 @@ public class BiomorphHandler {
 
         // ── Ecosystem imprinting: speed per mastered biome ──
         if (OriginHelper.hasPower(player, "chaos_addon:biomorph/ecosystem_imprinting")) {
-            int uniqueBiomes = Math.min(data.getUniqueBiomeCount(), 5);
+            ChaosAddonConfig cfg2 = ChaosAddonConfig.get();
+            int uniqueBiomes = Math.min(data.getUniqueBiomeCount(), cfg2.bioMaxBiomesForSpeed);
             if (uniqueBiomes > 0) {
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40,
                     Math.min(uniqueBiomes - 1, 4), true, false));
@@ -211,6 +212,7 @@ public class BiomorphHandler {
     private static void applyDnaPerks(ServerPlayer player, BiomeData data) {
         Set<String> dna = data.getUnlockedDna();
         if (dna.isEmpty()) return;
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         if (dna.contains("nether"))
             player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 40, 0, true, false));
         if (dna.contains("ocean"))
@@ -221,7 +223,7 @@ public class BiomorphHandler {
             player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 40, 0, true, false));
         if (dna.contains("jungle") || dna.contains("forest"))
             player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 40, 0, true, false));
-        if (dna.size() >= 5)
+        if (dna.size() >= cfg.bioDnaLuckThreshold)
             player.addEffect(new MobEffectInstance(MobEffects.LUCK, 40, 0, true, false));
     }
 
@@ -259,7 +261,7 @@ public class BiomorphHandler {
                 player.getFoodData().setFoodLevel(
                     Math.max(0, player.getFoodData().getFoodLevel() - food.nutrition()));
             }
-            player.hurt(player.damageSources().generic(), 2.0f);
+            player.hurt(player.damageSources().generic(), ChaosAddonConfig.get().bioWrongFoodDamage);
             player.sendSystemMessage(Component.literal(
                 "§3🧬 Метаболизм: §7«" + item.getHoverName().getString()
                 + "» не растёт в биоме §b" + biomeType + "§7!"));

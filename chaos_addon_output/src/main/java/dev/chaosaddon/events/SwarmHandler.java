@@ -88,10 +88,10 @@ public class SwarmHandler {
             bugCount++;
         }
 
-        // Weakness when fewer than 4 bugs
+        // Weakness when fewer than cfg.swarmLowBugThreshold bugs
         if (player.tickCount % 40 == 0) {
-            if (bugCount < 4) {
-                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 50, 0, true, false));
+            if (bugCount < cfg.swarmLowBugThreshold) {
+                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, cfg.swarmWeaknessDuration, 0, true, false));
             }
         }
 
@@ -100,8 +100,8 @@ public class SwarmHandler {
         // Swarm Sense: highlight low-HP entities, show HP in name
         if (OriginHelper.hasPower(player, "chaos_addon:swarm_lord/swarm_sense")
                 && player.tickCount % 20 == 0) {
-            level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(15),
-                e -> e != player && e.isAlive() && e.getHealth() < e.getMaxHealth() * 0.40f)
+            level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(cfg.swarmSenseRadius),
+                e -> e != player && e.isAlive() && e.getHealth() < e.getMaxHealth() * cfg.swarmLowHpThreshold)
                 .forEach(e -> {
                     e.addEffect(new MobEffectInstance(MobEffects.GLOWING, 30, 0, true, false));
                     // Show HP in custom name
