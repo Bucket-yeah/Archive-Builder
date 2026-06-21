@@ -10,7 +10,8 @@
     "chaos_addon:star_oracle/meteor_strike",
     "chaos_addon:star_oracle/celestial_guardian",
     "chaos_addon:star_oracle/star_apocalypse",
-    "chaos_addon:star_oracle/visual_marker"
+    "chaos_addon:star_oracle/visual_color",
+    "chaos_addon:star_oracle/visual_particles"
   ],
   "upgrades": [],
   "tier_powers": []

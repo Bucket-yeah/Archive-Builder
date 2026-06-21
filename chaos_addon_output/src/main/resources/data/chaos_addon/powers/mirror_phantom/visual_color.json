@@ -1,0 +1,10 @@
+{
+  "type": "neoorigins:model_color",
+  "red": 0.96,
+  "green": 0.96,
+  "blue": 0.96,
+  "alpha": 0.65,
+  "name": "Призрачный цвет",
+  "description": "Призрачно-белый оттенок Зеркального Фантома.",
+  "hidden": true
+}

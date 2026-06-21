@@ -10,7 +10,8 @@
     "chaos_addon:necrovore/raise_dead",
     "chaos_addon:necrovore/devour_soul",
     "chaos_addon:necrovore/dead_legion",
-    "chaos_addon:necrovore/visual_marker"
+    "chaos_addon:necrovore/visual_color",
+    "chaos_addon:necrovore/visual_particles"
   ],
   "upgrades": [],
   "tier_powers": []

@@ -2,3 +2,4 @@
 - [NeoOrigins 2.2.5 power type quirks](neoorigins-225-quirks.md) — neoorigins:nothing doesn't exist; spawn_particles particle must be string not object; action_over_time → condition_passive.
 - [NeoForge 1.21.1 API quirks](neoforge-1211-quirks.md) — MobEffects are Holder<MobEffect>; BlockParticleOption usage; removed events list; ItemEntityPickupEvent.Pre uses setCanPickup(TriState.FALSE) not setCanceled(boolean).
 - [NeoOrigins resource API](neoorigins-resource-api.md) — neoorigins:resource storage key = power ID string; read/deduct via ResourcePower statics; add/set via CompatAttachments.resourceState() attachment.
+- [NeoOrigins COMPAT_MIN_POWER_RATIO filter](neoorigins-compat-min-power-ratio.md) — origins with >50% neoorigins:multiple powers are silently hidden; split multiple powers into individual files.

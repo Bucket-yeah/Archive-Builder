@@ -1,0 +1,19 @@
+{
+  "type": "neoorigins:condition_passive",
+  "interval": 20,
+  "entity_action": {
+    "type": "neoorigins:spawn_particles",
+    "particle": "minecraft:enchant",
+    "count": 2,
+    "spread": {
+      "x": 0.5,
+      "y": 0.9,
+      "z": 0.5
+    },
+    "speed": 0.05,
+    "force": false
+  },
+  "name": "Призрачная аура",
+  "description": "Призрачно-белые чары Зеркального Фантома.",
+  "hidden": true
+}
