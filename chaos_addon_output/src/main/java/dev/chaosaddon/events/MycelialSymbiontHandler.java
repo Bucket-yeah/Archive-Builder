@@ -152,26 +152,37 @@ public class MycelialSymbiontHandler {
                 if (airAbove && RNG.nextFloat() < 0.30f) {
                     level.setBlock(pos.above(), Blocks.MOSS_CARPET.defaultBlockState(), 3);
                 }
-                level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
-                    pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
-                    3, 0.25, 0.15, 0.25, 0.02);
+                playGrowSound(level, pos);
                 placed++;
 
             } else if (airAbove && (block == Blocks.STONE || block == Blocks.COBBLESTONE
                     || block == Blocks.GRAVEL || block == Blocks.DEEPSLATE
                     || block == Blocks.COBBLED_DEEPSLATE)) {
                 level.setBlock(pos, Blocks.MOSS_BLOCK.defaultBlockState(), 3);
-                level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
-                    pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
-                    3, 0.25, 0.15, 0.25, 0.02);
+                playGrowSound(level, pos);
                 placed++;
 
             } else if (airAbove && (block == Blocks.MYCELIUM || block == Blocks.MOSS_BLOCK)
                     && RNG.nextFloat() < 0.25f) {
                 level.setBlock(pos.above(), Blocks.MOSS_CARPET.defaultBlockState(), 3);
+                playGrowSound(level, pos.above());
                 placed++;
             }
         }
+    }
+
+    /** Plays the moss/mycelium growth sound + spore particles at the converted block. */
+    private static void playGrowSound(ServerLevel level, BlockPos pos) {
+        // Use the moss block's own placement sound (block.moss.place in vanilla)
+        net.minecraft.world.level.block.SoundType sound =
+            Blocks.MOSS_BLOCK.defaultBlockState().getSoundType();
+        level.playSound(null, pos,
+            sound.getPlaceSound(), SoundSource.BLOCKS,
+            0.4f + RNG.nextFloat() * 0.2f,          // volume: 0.4–0.6 (quiet, ambient)
+            0.75f + RNG.nextFloat() * 0.35f);        // pitch: 0.75–1.10 (natural variation)
+        level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
+            pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
+            3, 0.25, 0.15, 0.25, 0.02);
     }
 
     // ── moss_network: register placed blocks as moss network nodes ──
