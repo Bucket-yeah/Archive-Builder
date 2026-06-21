@@ -161,6 +161,7 @@ public class ChaosAddonConfig implements ConfigData {
     // ───────────────────────────── MYCELIAL SYMBIONT ───────────────────────────
     @ConfigEntry.Category("mycelial_symbiont")
     public int   mossHarvestCooldown        = 600;
+    public int   mossGrowNodeCooldown       = 600;
     public int   mossTeleportCooldown       = 1800;
     public int   mossFogCooldown            = 1200;
     public int   mossMaxRange               = 20;
@@ -178,6 +179,7 @@ public class ChaosAddonConfig implements ConfigData {
     public int   geoHeightLimit             = 80;
     public float geoHighAltitudeDamage      = 1.0f;
     public int   geoHighAltitudeInterval    = 600;
+    public int   geoUltimateCooldown        = 6000;
 
     // ───────────────────────────── WANDERING GARDENER ──────────────────────────
     @ConfigEntry.Category("wandering_gardener")
@@ -188,6 +190,7 @@ public class ChaosAddonConfig implements ConfigData {
     public float gardenWoodcutDamage        = 3.0f;
     public float gardenBadBiomeDamage       = 0.5f;
     public int   gardenBadBiomeInterval     = 200;
+    public int   gardenLifeBloomCooldown    = 6000;
 
     // ══════════════════ v3.0.0 NEW RACES (previously unconfigurable) ══════════
 

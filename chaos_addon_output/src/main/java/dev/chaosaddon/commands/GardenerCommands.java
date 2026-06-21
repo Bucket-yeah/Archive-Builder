@@ -27,12 +27,12 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Commands for Wandering Gardener:
- * chaos_addon_plant_trap       — "Шёпот Цветов" (primary active): place a flower trap at current position
- * chaos_addon_beast_friendship — "Дружба Зверя" (secondary active): pacify nearest hostile mob briefly
- * chaos_addon_growth_blessing  — (tertiary): grow plants in radius
- * chaos_addon_summon_rain      — call rain (with weakness cost)
- * chaos_addon_summon_dryad     — summon iron golem companion
+ * chaos_addon_plant_trap       — "Шёпот Цветов"    (LMB primary): place a flower trap
+ * chaos_addon_beast_friendship — "Дружба Зверя"    (RMB secondary): pacify nearest hostile
+ * chaos_addon_growth_blessing  — "Благословение Роста" (primary): grow plants in radius
+ * chaos_addon_summon_rain      — "Призыв Дождя"    (passive trigger): call rain + self-debuff
+ * chaos_addon_summon_dryad     — "Призыв Дриады"   (ternary): summon iron golem companion
+ * chaos_addon_life_bloom       — "Цветение Жизни"  (ternary ULTIMATE, 5-min): heal allies + debuff enemies + grow crops
  */
 public class GardenerCommands {
 
@@ -76,7 +76,7 @@ public class GardenerCommands {
                 if (target == null) return 0;
 
                 target.setTarget(null);
-                target.addEffect(new MobEffectInstance(MobEffects.CONFUSION,      160, 0, false, true));
+                target.addEffect(new MobEffectInstance(MobEffects.CONFUSION,       160, 0, false, true));
                 target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 160, 1, false, true));
 
                 level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
@@ -94,7 +94,7 @@ public class GardenerCommands {
                 return 1;
             }));
 
-        // ── "Благословение Роста": grow plants in 5-block radius (tertiary) ──
+        // ── "Благословение Роста": grow plants in 5-block radius ──
         dispatcher.register(Commands.literal("chaos_addon_growth_blessing")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -127,7 +127,7 @@ public class GardenerCommands {
                 return 1;
             }));
 
-        // ── Призыв Дождя: rain + self-debuff ──
+        // ── "Призыв Дождя": rain + self-debuff ──
         dispatcher.register(Commands.literal("chaos_addon_summon_rain")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -147,7 +147,7 @@ public class GardenerCommands {
                 return 1;
             }));
 
-        // ── Призыв Дриады: summon iron golem companion ──
+        // ── "Призыв Дриады": summon iron golem companion ──
         dispatcher.register(Commands.literal("chaos_addon_summon_dryad")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -172,6 +172,67 @@ public class GardenerCommands {
                     pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5,
                     60, 1.0, 2.0, 1.0, 0.1);
                 level.playSound(null, pos, SoundEvents.IRON_GOLEM_REPAIR, SoundSource.PLAYERS, 1.0f, 0.7f);
+                return 1;
+            }));
+
+        // ── "Цветение Жизни": ULTIMATE — heal allies, debuff enemies, instantly ripen crops (5-min CD) ──
+        dispatcher.register(Commands.literal("chaos_addon_life_bloom")
+            .requires(src -> src.hasPermission(0))
+            .executes(ctx -> {
+                if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                ServerLevel level = player.serverLevel();
+                int radius = 20;
+
+                List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class,
+                    player.getBoundingBox().inflate(radius), e -> e.isAlive());
+
+                int alliesHealed = 0, enemiesHit = 0;
+                for (LivingEntity e : entities) {
+                    if (e instanceof Player ally) {
+                        ally.heal(4.0f);
+                        ally.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 200, 1, false, true));
+                        alliesHealed++;
+                    } else if (!e.getTags().contains("chaos_gardener_pet")
+                            && !e.getTags().contains("chaos_hive_ally")) {
+                        e.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 300, 1, false, true));
+                        e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 300, 1, false, true));
+                        enemiesHit++;
+                    }
+                }
+
+                // Instantly ripen all crops in 10-block radius
+                BlockPos origin = player.blockPosition();
+                int cropRadius = 10;
+                for (int dx = -cropRadius; dx <= cropRadius; dx++) {
+                    for (int dz = -cropRadius; dz <= cropRadius; dz++) {
+                        if (dx * dx + dz * dz > cropRadius * cropRadius) continue;
+                        BlockPos bp = origin.offset(dx, 0, dz);
+                        var state = level.getBlockState(bp);
+                        if (state.getBlock() instanceof net.minecraft.world.level.block.CropBlock crop) {
+                            if (!crop.isMaxAge(state)) {
+                                level.setBlock(bp, crop.getStateForAge(crop.getMaxAge()), 3);
+                            }
+                        }
+                    }
+                }
+
+                level.sendParticles(ParticleTypes.CHERRY_LEAVES,
+                    player.getX(), player.getY() + 2.0, player.getZ(),
+                    200, radius * 0.5, 4.0, radius * 0.5, 0.08);
+                level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
+                    player.getX(), player.getY() + 1.0, player.getZ(),
+                    150, radius * 0.4, 3.0, radius * 0.4, 0.06);
+                level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                    player.getX(), player.getY() + 1.5, player.getZ(),
+                    50, radius * 0.3, 3.0, radius * 0.3, 0.0);
+                level.playSound(null, player.blockPosition(),
+                    SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.2f, 0.7f);
+                level.playSound(null, player.blockPosition(),
+                    SoundEvents.BONE_MEAL_USE, SoundSource.PLAYERS, 1.0f, 0.6f);
+
+                player.displayClientMessage(
+                    Component.literal("§a🌸 §lЦветение Жизни§r§a! §2+" + alliesHealed
+                        + " союзников, §c" + enemiesHit + " врагов замедлено."), true);
                 return 1;
             }));
     }

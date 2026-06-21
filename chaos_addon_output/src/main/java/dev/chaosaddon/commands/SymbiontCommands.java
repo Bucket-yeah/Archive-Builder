@@ -20,13 +20,44 @@ import net.minecraft.world.level.block.Blocks;
 import java.util.List;
 import java.util.Random;
 
-/** chaos_addon_spore_harvest, chaos_addon_moss_teleport, chaos_addon_spore_fog */
+/**
+ * chaos_addon_grow_node    — "Прорастить Узел"  (LMB primary — dedicated node planting)
+ * chaos_addon_spore_harvest — "Споровый Урожай" (LMB primary — resource collection + node)
+ * chaos_addon_moss_teleport — "Тоннели Мицелия" (RMB secondary — teleport to nearest node)
+ * chaos_addon_spore_fog    — "Споровый Туман"   (ternary ultimate — AoE regen/wither)
+ */
 public class SymbiontCommands {
 
     private static final Random RNG = new Random();
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
+        // ── "Прорастить Узел": plant a moss node at current position (LMB – territory control) ──
+        dispatcher.register(Commands.literal("chaos_addon_grow_node")
+            .requires(src -> src.hasPermission(0))
+            .executes(ctx -> {
+                if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                ServerLevel level = player.serverLevel();
+                BlockPos pos = player.blockPosition();
+
+                MossData data = player.getData(ModAttachments.MOSS_DATA);
+                data.addPosition(pos);
+
+                level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
+                    pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                    40, 1.5, 0.5, 1.5, 0.08);
+                level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                    pos.getX() + 0.5, pos.getY() + 0.8, pos.getZ() + 0.5,
+                    10, 0.8, 0.5, 0.8, 0.0);
+                level.playSound(null, pos, SoundEvents.BONE_MEAL_USE, SoundSource.PLAYERS, 0.7f, 0.7f);
+
+                player.displayClientMessage(
+                    net.minecraft.network.chat.Component.literal(
+                        "§a🍄 Узел мха посажен. §2Итого: " + data.getPositions().size()), true);
+                return 1;
+            }));
+
+        // ── "Споровый Урожай": collect resources based on depth + plant a node ──
         dispatcher.register(Commands.literal("chaos_addon_spore_harvest")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -38,7 +69,6 @@ public class SymbiontCommands {
                 net.minecraft.world.item.ItemStack result;
 
                 if (y < -40) {
-                    // Nerfed: was diamond farming; now gives amethyst or echo shard equivalent
                     result = RNG.nextFloat() < 0.4f
                         ? new net.minecraft.world.item.ItemStack(Items.AMETHYST_SHARD, 3)
                         : new net.minecraft.world.item.ItemStack(Items.GOLD_INGOT, 3);
@@ -65,6 +95,7 @@ public class SymbiontCommands {
                 return 1;
             }));
 
+        // ── "Тоннели Мицелия": teleport to nearest moss node (RMB) ──
         dispatcher.register(Commands.literal("chaos_addon_moss_teleport")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -102,6 +133,7 @@ public class SymbiontCommands {
                 return 1;
             }));
 
+        // ── "Споровый Туман": AoE regen allies / wither enemies (ternary ultimate) ──
         dispatcher.register(Commands.literal("chaos_addon_spore_fog")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {

@@ -1,9 +1,7 @@
 {
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
+  "type": "neoorigins:multiple",
+  "powers": [],
   "name": "Нет зелий регенерации",
-  "description": "Зелья регенерации не работают для этой расы.",
+  "description": "Зелья регенерации не действуют — эффект снимается при применении.",
   "hidden": true
 }

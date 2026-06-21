@@ -1,0 +1,54 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_call_of_depths"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:explosion",
+        "count": 8,
+        "spread": {
+          "x": 5.0,
+          "y": 0.5,
+          "z": 5.0
+        },
+        "speed": 0.2,
+        "force": true
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:smoke",
+        "count": 80,
+        "spread": {
+          "x": 5.0,
+          "y": 2.0,
+          "z": 5.0
+        },
+        "speed": 0.08,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.generic.explode",
+        "volume": 1.2,
+        "pitch": 0.4
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.warden.sonic_boom",
+        "volume": 0.9,
+        "pitch": 0.3
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.ternary_active"
+  },
+  "name": "Зов Недр",
+  "description": "УЛЬТИМАТ: Локальное землетрясение в радиусе 12 блоков — все враги подлетают вверх, 4❤ урона + Замедление II + Слабость I на 5 сек. Себе: Стойкость III + Регенерация II на 20 сек.",
+  "cooldown_ticks": 6000
+}

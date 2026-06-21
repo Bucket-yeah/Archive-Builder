@@ -1,0 +1,66 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_life_bloom"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:cherry_leaves",
+        "count": 200,
+        "spread": {
+          "x": 10.0,
+          "y": 4.0,
+          "z": 10.0
+        },
+        "speed": 0.08,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:spore_blossom_air",
+        "count": 100,
+        "spread": {
+          "x": 8.0,
+          "y": 3.0,
+          "z": 8.0
+        },
+        "speed": 0.06,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:happy_villager",
+        "count": 40,
+        "spread": {
+          "x": 6.0,
+          "y": 3.0,
+          "z": 6.0
+        },
+        "speed": 0.0,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.beacon.activate",
+        "volume": 1.2,
+        "pitch": 0.7
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:item.bone_meal.use",
+        "volume": 1.0,
+        "pitch": 0.6
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.ternary_active"
+  },
+  "name": "Цветение Жизни",
+  "description": "УЛЬТИМАТ: Природный взрыв жизни — все игроки-союзники в радиусе 20 блоков исцеляются на 4❤ + Регенерация II, все враги получают Слабость II + Замедление II. Все посевы в радиусе 10 блоков мгновенно созревают.",
+  "cooldown_ticks": 6000
+}

@@ -1,9 +1,7 @@
 {
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
+  "type": "neoorigins:multiple",
+  "powers": [],
   "name": "Чужие блоки",
-  "description": "Блоки из другого биома при размещении разрушаются через 5 сек.",
+  "description": "Попытка поставить блоки из чужого биома даёт Усталость от горных работ — рука отказывается работать с враждебным материалом.",
   "hidden": true
 }

@@ -5,10 +5,13 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -20,27 +23,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-/** chaos_addon_ore_extract, chaos_addon_rock_shift, chaos_addon_stone_fist */
+/**
+ * chaos_addon_ore_extract  — "Вытягивание Руды"   (LMB primary)
+ * chaos_addon_rock_shift   — "Сдвиг Породы"       (RMB secondary)
+ * chaos_addon_stone_fist   — "Каменный Кулак"     (ternary)
+ * chaos_addon_call_of_depths — "Зов Недр"         (ternary ULTIMATE, 5-min cooldown)
+ */
 public class GeomancerCommands {
 
     private static final Random RNG = new Random();
 
     private static final Map<net.minecraft.world.level.block.Block, net.minecraft.world.item.Item> ORE_DROPS = Map.of(
-        Blocks.IRON_ORE, Items.RAW_IRON,
-        Blocks.GOLD_ORE, Items.RAW_GOLD,
-        Blocks.DIAMOND_ORE, Items.DIAMOND,
-        Blocks.EMERALD_ORE, Items.EMERALD,
-        Blocks.COAL_ORE, Items.COAL,
-        Blocks.COPPER_ORE, Items.RAW_COPPER,
-        Blocks.REDSTONE_ORE, Items.REDSTONE,
+        Blocks.IRON_ORE,            Items.RAW_IRON,
+        Blocks.GOLD_ORE,            Items.RAW_GOLD,
+        Blocks.DIAMOND_ORE,         Items.DIAMOND,
+        Blocks.EMERALD_ORE,         Items.EMERALD,
+        Blocks.COAL_ORE,            Items.COAL,
+        Blocks.COPPER_ORE,          Items.RAW_COPPER,
+        Blocks.REDSTONE_ORE,        Items.REDSTONE,
         Blocks.DEEPSLATE_DIAMOND_ORE, Items.DIAMOND,
-        Blocks.DEEPSLATE_IRON_ORE, Items.RAW_IRON,
-        Blocks.NETHER_GOLD_ORE, Items.GOLD_NUGGET
+        Blocks.DEEPSLATE_IRON_ORE,  Items.RAW_IRON,
+        Blocks.NETHER_GOLD_ORE,     Items.GOLD_NUGGET
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
-        // Ore Extract: pull 1-2 resources from ore up to 10 blocks
+        // ── "Вытягивание Руды": pull 1-2 resources from ore up to 10 blocks ──
         dispatcher.register(Commands.literal("chaos_addon_ore_extract")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -63,14 +71,12 @@ public class GeomancerCommands {
                 }
 
                 if (target == null || oreBlock == null) {
-                    player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§cНет руды в прицеле."));
+                    player.sendSystemMessage(Component.literal("§cНет руды в прицеле."));
                     return 0;
                 }
 
-                // Cost: 1 HP
                 player.hurt(player.damageSources().generic(), 1.0f);
 
-                // Extract 1-2 items
                 net.minecraft.world.item.Item drop = ORE_DROPS.get(oreBlock);
                 int count = 1 + (RNG.nextFloat() < 0.5f ? 1 : 0);
                 player.getInventory().add(new ItemStack(drop, count));
@@ -85,7 +91,7 @@ public class GeomancerCommands {
                 return 1;
             }));
 
-        // Rock Shift: tunnel 15 blocks in look direction
+        // ── "Сдвиг Породы": tunnel 15 blocks in look direction ──
         dispatcher.register(Commands.literal("chaos_addon_rock_shift")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -93,7 +99,6 @@ public class GeomancerCommands {
                 ServerLevel level = player.serverLevel();
 
                 Vec3 look = player.getLookAngle().normalize();
-                int modified = 0;
                 float cost = 0;
 
                 for (int step = 1; step <= 15; step++) {
@@ -106,7 +111,6 @@ public class GeomancerCommands {
                             if (!bs.isAir() && !bs.liquid()
                                     && bs.getBlock() != Blocks.BEDROCK) {
                                 level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-                                modified++;
                                 cost += 0.5f;
                             }
                         }
@@ -125,7 +129,7 @@ public class GeomancerCommands {
                 return 1;
             }));
 
-        // Stone Fist: shockwave knockback + damage in look direction
+        // ── "Каменный Кулак": shockwave knockback + damage in look direction ──
         dispatcher.register(Commands.literal("chaos_addon_stone_fist")
             .requires(src -> src.hasPermission(0))
             .executes(ctx -> {
@@ -155,6 +159,52 @@ public class GeomancerCommands {
                     25, 0.5, 0.5, 0.5, 0.1);
                 level.playSound(null, player.blockPosition(),
                     SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 1.0f, 0.8f);
+                return 1;
+            }));
+
+        // ── "Зов Недр": ULTIMATE — seismic shockwave, knock up + debuff all in 12 blocks, self-buff ──
+        dispatcher.register(Commands.literal("chaos_addon_call_of_depths")
+            .requires(src -> src.hasPermission(0))
+            .executes(ctx -> {
+                if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return 0;
+                ServerLevel level = player.serverLevel();
+                int radius = 12;
+
+                List<LivingEntity> targets = level.getEntitiesOfClass(LivingEntity.class,
+                    player.getBoundingBox().inflate(radius),
+                    e -> e != player && e.isAlive());
+
+                for (LivingEntity e : targets) {
+                    e.hurt(player.damageSources().magic(), 4.0f);
+                    e.setDeltaMovement(
+                        e.getDeltaMovement().x * 0.2 + (RNG.nextDouble() - 0.5) * 0.5,
+                        0.7 + RNG.nextDouble() * 0.5,
+                        e.getDeltaMovement().z * 0.2 + (RNG.nextDouble() - 0.5) * 0.5
+                    );
+                    e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1, false, true));
+                    e.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 0, false, true));
+                }
+
+                // Self: stone armor + regen for 20 seconds
+                player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 400, 2, false, true));
+                player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 400, 1, false, true));
+
+                level.sendParticles(ParticleTypes.EXPLOSION,
+                    player.getX(), player.getY(), player.getZ(),
+                    8, radius * 0.4, 0.5, radius * 0.4, 0.2);
+                level.sendParticles(ParticleTypes.SMOKE,
+                    player.getX(), player.getY() + 0.5, player.getZ(),
+                    80, radius * 0.4, 2.0, radius * 0.4, 0.08);
+                level.sendParticles(ParticleTypes.FALLING_DRIPSTONE_LAVA,
+                    player.getX(), player.getY() + 0.5, player.getZ(),
+                    30, radius * 0.3, 1.0, radius * 0.3, 0.0);
+                level.playSound(null, player.blockPosition(),
+                    SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.2f, 0.4f);
+                level.playSound(null, player.blockPosition(),
+                    SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 0.9f, 0.3f);
+
+                player.displayClientMessage(
+                    Component.literal("§6⛏ §lЗов Недр§r§6! §7" + targets.size() + " существ отброшено."), true);
                 return 1;
             }));
     }

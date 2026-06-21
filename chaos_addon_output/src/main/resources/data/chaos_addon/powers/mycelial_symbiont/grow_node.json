@@ -1,0 +1,48 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_grow_node"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:spore_blossom_air",
+        "count": 40,
+        "spread": {
+          "x": 1.5,
+          "y": 0.5,
+          "z": 1.5
+        },
+        "speed": 0.08,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:happy_villager",
+        "count": 10,
+        "spread": {
+          "x": 0.8,
+          "y": 0.5,
+          "z": 0.8
+        },
+        "speed": 0.0,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:item.bone_meal.use",
+        "volume": 0.7,
+        "pitch": 0.7
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.primary_active"
+  },
+  "name": "Прорастить Узел",
+  "description": "Устанавливает узел мицелия на твоей позиции. Узлы позволяют телепортироваться по грибной сети (ПКМ). Используй для контроля территории.",
+  "cooldown_ticks": 600
+}
