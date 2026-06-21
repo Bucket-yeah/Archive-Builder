@@ -1,0 +1,19 @@
+{
+  "type": "neoorigins:condition_passive",
+  "interval": 25,
+  "entity_action": {
+    "type": "neoorigins:spawn_particles",
+    "particle": "minecraft:soul_fire_flame",
+    "count": 2,
+    "spread": {
+      "x": 0.4,
+      "y": 0.8,
+      "z": 0.4
+    },
+    "speed": 0.03,
+    "force": false
+  },
+  "name": "Некротические частицы",
+  "description": "Тёмный огонь Некровора.",
+  "hidden": true
+}

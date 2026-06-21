@@ -1,0 +1,10 @@
+{
+  "type": "neoorigins:model_color",
+  "red": 1.0,
+  "green": 0.98,
+  "blue": 0.8,
+  "alpha": 0.7,
+  "name": "Звёздная аура",
+  "description": "Небесно-кремовый цвет Звёздного Провидца.",
+  "hidden": true
+}
