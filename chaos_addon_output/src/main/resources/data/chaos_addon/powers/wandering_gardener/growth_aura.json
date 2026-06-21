@@ -1,0 +1,9 @@
+{
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
+  "name": "Аура Роста",
+  "description": "Союзники и прирученные существа в радиусе 12 блоков пассивно регенерируют здоровье, пока ты не ведёшь бой — твоё присутствие питает жизнь вокруг.",
+  "hidden": false
+}

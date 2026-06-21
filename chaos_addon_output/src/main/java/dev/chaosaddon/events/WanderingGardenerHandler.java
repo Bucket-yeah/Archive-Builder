@@ -253,6 +253,29 @@ public class WanderingGardenerHandler {
             }
         }
 
+        // ── growth_aura: allies and tamed creatures near gardener slowly regen when not in combat ──
+        if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/growth_aura") && now % 60 == 0) {
+            boolean inCombat = player.getPersistentData().getLong("chaos_garden_last_hit") > 0
+                && (now - player.getPersistentData().getLong("chaos_garden_last_hit")) < 100;
+            if (!inCombat) {
+                level.getEntitiesOfClass(LivingEntity.class,
+                    player.getBoundingBox().inflate(12),
+                    e -> e != player && e.isAlive()
+                        && ((e instanceof net.minecraft.world.entity.TamableAnimal ta && ta.isTame())
+                            || (e instanceof ServerPlayer)))
+                    .forEach(ally -> {
+                        if (ally.getHealth() < ally.getMaxHealth()) {
+                            ally.heal(0.5f);
+                            if (ally.level() instanceof ServerLevel sl) {
+                                sl.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                                    ally.getX(), ally.getY() + 1.0, ally.getZ(),
+                                    3, 0.3, 0.3, 0.3, 0.02);
+                            }
+                        }
+                    });
+            }
+        }
+
         // ── no_weapons: convert held weapons to flowers ──
         if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/no_weapons")) {
             ItemStack held = player.getMainHandItem();
@@ -289,18 +312,23 @@ public class WanderingGardenerHandler {
         event.setAmount(0);
     }
 
-    // ── Thorn Reflect + Undead Drawback: when Gardener is hit ──
+    // ── Thorn Reflect + Undead Drawback + Combat Tracker: when Gardener is hit ──
     @SubscribeEvent
     public static void onGardenerHurt(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/peaceful_soul")) return;
+        // Track last-hit time for growth_aura "not in combat" check
+        if (player.level() instanceof ServerLevel sl) {
+            player.getPersistentData().putLong("chaos_garden_last_hit", sl.getGameTime());
+        }
 
         LivingEntity attacker = event.getSource().getEntity() instanceof LivingEntity le ? le : null;
         if (attacker == null || attacker == player) return;
         if (!(player.level() instanceof ServerLevel level)) return;
 
-        // Undead drawback (woodcutting_damage concept repurposed): undead deal 50% more damage
-        if (attacker instanceof Mob mob && mob.getType().is(EntityTypeTags.UNDEAD)) {
+        // woodcutting_damage drawback: undead deal 50% more damage to Gardener
+        if (attacker instanceof Mob mob && mob.getType().is(EntityTypeTags.UNDEAD)
+                && OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/woodcutting_damage")) {
             event.setAmount(event.getAmount() * 1.5f);
             if (player.tickCount % 40 == 0) {
                 player.displayClientMessage(

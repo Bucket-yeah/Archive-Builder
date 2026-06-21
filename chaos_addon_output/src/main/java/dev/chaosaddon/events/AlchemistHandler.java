@@ -340,7 +340,7 @@ public class AlchemistHandler {
     @SubscribeEvent
     public static void onOverloadedDamage(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/no_armor")) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/overloaded_damage")) return;
         var inv = player.getInventory();
         int filledSlots = 0;
         for (int i = 0; i < inv.items.size(); i++) {
