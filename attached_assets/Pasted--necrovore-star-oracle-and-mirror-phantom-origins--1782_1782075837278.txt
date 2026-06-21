@@ -1,0 +1,36 @@
+В списке во время выбора рассы не доступны  necrovore, star_oracle, and mirror_phantom origins.
+
+Ниже рассказано почему и что нужно сделать
+
+Replaces the `neoorigins:multiple` power type with separate `visual_color` and `visual_particles` powers for necrovore, star_oracle, and mirror_phantom origins. This resolves an issue where origins with a high ratio of `neoorigins:multiple` powers were being hidden due to a compatibility filter. The original `visual_marker.json` files have been removed, and the origin JSONs updated to reference the new individual power files. Documentation files have also been updated to reflect this change and the underlying cause.
+
+Root cause — найден через декомпиляцию NeoOrigins 2.2.5 JAR
+OriginsMultipleExpander обрабатывает тип "neoorigins:multiple" как compat-тип (как и "origins:multiple" из Origins/Fabric). При загрузке мода происходит следующее:
+
+PowerDataManager видит силу с типом neoorigins:multiple (например, visual_marker)
+Удаляет оригинальный ID (chaos_addon:necrovore/visual_marker) из реестра сил
+Добавляет вместо него расширенные под-силы (visual_marker/color, visual_marker/particles)
+hasPower("chaos_addon:necrovore/visual_marker") → false
+После загрузки всех рас OriginDataManager.apply() проверяет каждую addon-расу: загружено_сил / всего_сил. Если результат ниже порога — раса молча скрывается (INFO-лог [Compat] Hiding origin…). Порог по умолчанию: 0.5 (50%), из AdminConfig.COMPAT_MIN_POWER_RATIO.
+
+Ratios трёх скрытых рас:
+
+Раса	Итого	Non-multiple	Ratio	Статус
+necrovore	8	3	37.5%	❌ ниже 50%
+star_oracle	8	3	37.5%	❌ ниже 50%
+mirror_phantom	9	4	44.4%	❌ ниже 50%
+blood_smith	10	5	50.0%	✅ на пороге
+Что было сделано
+Для каждой из трёх рас visual_marker.json (neoorigins:multiple) разбит на два отдельных single-type файла:
+
+visual_color.json — тип neoorigins:model_color (цвет скина)
+visual_particles.json — тип neoorigins:condition_passive (частицы)
+Старый visual_marker.json удалён. Origin JSON каждой расы обновлён на оба новых ID. Результат:
+
+Раса	Было	Стало	Ratio
+necrovore	3/8 = 37.5%	5/9 = 55.6%	✅
+star_oracle	3/8 = 37.5%	5/9 = 55.6%	✅
+mirror_phantom	4/9 = 44.4%	6/10 = 60.0%	✅
+JAR пересобран успешно — все три расы теперь проходят фильтр и должны появиться в экране выбора.
+
+На будущее: если у любой расы суммарный count neoorigins:multiple сил превысит 50% от total powers — раса снова исчезнет. Правило: (total − multiple_count) / total ≥ 0.5. Держи не больше половины сил в виде neoorigins:multiple, или разбивай их на отдельные файлы.
