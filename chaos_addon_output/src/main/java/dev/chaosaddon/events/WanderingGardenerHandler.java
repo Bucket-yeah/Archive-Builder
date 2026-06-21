@@ -8,14 +8,20 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -33,9 +39,11 @@ import java.util.UUID;
 
 /**
  * Handles Wandering Gardener passives:
- * - green_blood: regen on grass/leaves, faster on flowers, none on stone
- * - peaceful_soul: cancel outgoing damage; tamed wolves protect; bonus egg/milk timers
- * - language_of_flowers: auto bone-meal nearby plants + flower traps triggered on nearby enemies
+ * - green_blood:           regen on grass/leaves, faster on flowers, none on stone
+ * - peaceful_soul:         cancel outgoing damage; tamed wolves protect; bonus egg/milk timers
+ * - language_of_flowers:   auto bone-meal nearby plants + flower traps triggered on nearby enemies
+ * - no_weapons:            weapons in mainhand convert to flowers
+ * - woodcutting_damage:    undead deal 50% more damage (drawback)
  */
 public class WanderingGardenerHandler {
 
@@ -50,6 +58,15 @@ public class WanderingGardenerHandler {
     private static final long TRAP_COOLDOWN = 600L; // 30s between placing traps
     private static final Map<UUID, Long> LAST_TRAP_TIME = new HashMap<>();
 
+    // Weapon conversion flowers
+    private static final net.minecraft.world.item.Item[] FLOWERS = {
+        Items.DANDELION, Items.POPPY, Items.AZURE_BLUET, Items.RED_TULIP,
+        Items.ORANGE_TULIP, Items.WHITE_TULIP, Items.PINK_TULIP, Items.OXEYE_DAISY,
+        Items.CORNFLOWER, Items.LILY_OF_THE_VALLEY
+    };
+
+    private static final java.util.Random RNG = new java.util.Random();
+
     /** Called by command/power to place a plant trap at current position */
     public static boolean placePlantTrap(ServerPlayer player) {
         if (!(player.level() instanceof ServerLevel level)) return false;
@@ -60,7 +77,6 @@ public class WanderingGardenerHandler {
             player.sendSystemMessage(Component.literal("§cЛовушка перезаряжается: §e" + left + "с"));
             return false;
         }
-        // Read current traps
         List<long[]> traps = loadTraps(player);
         if (traps.size() >= MAX_TRAPS) {
             player.sendSystemMessage(Component.literal("§cМаксимум §e" + MAX_TRAPS + " §cловушки активны!"));
@@ -70,7 +86,6 @@ public class WanderingGardenerHandler {
         traps.add(new long[]{pos.getX(), pos.getY(), pos.getZ(), now + 6000}); // 5 min expire
         saveTraps(player, traps);
         LAST_TRAP_TIME.put(pid, now);
-        // Visual: place flower particles at trap location
         level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
             pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 20, 0.5, 0.5, 0.5, 0.05);
         level.playSound(null, pos, SoundEvents.GRASS_PLACE, SoundSource.PLAYERS, 0.8f, 1.5f);
@@ -122,10 +137,9 @@ public class WanderingGardenerHandler {
                 || bs.is(Blocks.SAND) || bs.is(Blocks.SANDSTONE)
                 || bs.is(Blocks.RED_SANDSTONE) || bs.is(Blocks.GRAVEL);
 
-            int period = onFlower ? 40 : (onGrass || onLeaves) ? 80 : 0; // ticks between regen
+            int period = onFlower ? 40 : (onGrass || onLeaves) ? 80 : 0;
 
             if (onStoneOrDesert && now % 40 == 0) {
-                // Double hunger drain
                 player.getFoodData().eat(-1, 0);
             }
 
@@ -136,8 +150,6 @@ public class WanderingGardenerHandler {
                     6, 0.4, 0.5, 0.4, 0.02);
             }
 
-            // Actionbar: plant info
-            String block = bs.getBlock().getDescriptionId();
             String surface = onFlower ? "§a🌸 Цветущая земля" : onGrass ? "§2🌿 Трава" :
                 onLeaves ? "§2🍃 Листва" : onStoneOrDesert ? "§7🪨 Камень/пустыня" : "§8?";
             player.displayClientMessage(
@@ -155,8 +167,7 @@ public class WanderingGardenerHandler {
             if (!enemies.isEmpty()) {
                 LivingEntity target = enemies.get(0);
                 wolves.forEach(wolf -> {
-                    if (wolf.getOwnerUUID() != null
-                        && wolf.getOwnerUUID().equals(player.getUUID())) {
+                    if (wolf.getOwnerUUID() != null && wolf.getOwnerUUID().equals(player.getUUID())) {
                         wolf.setTarget(target);
                     }
                 });
@@ -191,7 +202,7 @@ public class WanderingGardenerHandler {
         // ── Plant Traps: check for enemies near active traps ──
         if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/language_of_flowers") && now % 10 == 0) {
             List<long[]> traps = loadTraps(player);
-            boolean changed = traps.removeIf(t -> t[3] < now); // remove expired
+            boolean changed = traps.removeIf(t -> t[3] < now);
             List<long[]> triggeredTraps = new ArrayList<>();
             for (long[] trap : traps) {
                 BlockPos tPos = new BlockPos((int)trap[0], (int)trap[1], (int)trap[2]);
@@ -229,14 +240,41 @@ public class WanderingGardenerHandler {
                         BlockState bs = level.getBlockState(pos);
                         if (bs.is(net.minecraft.tags.BlockTags.CROPS)
                             || bs.is(net.minecraft.tags.BlockTags.SAPLINGS)) {
-                        if (bs.getBlock() instanceof net.minecraft.world.level.block.BonemealableBlock growable
-                                && growable.isValidBonemealTarget(level, pos, bs)) {
-                            growable.performBonemeal(level, level.random, pos, bs);
-                            level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
-                                pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-                                3, 0.3, 0.3, 0.3, 0.05);
+                            if (bs.getBlock() instanceof net.minecraft.world.level.block.BonemealableBlock growable
+                                    && growable.isValidBonemealTarget(level, pos, bs)) {
+                                growable.performBonemeal(level, level.random, pos, bs);
+                                level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                                    pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                                    3, 0.3, 0.3, 0.3, 0.05);
+                            }
                         }
                     }
+                }
+            }
+        }
+
+        // ── no_weapons: convert held weapons to flowers ──
+        if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/no_weapons")) {
+            ItemStack held = player.getMainHandItem();
+            if (!held.isEmpty()) {
+                var item = held.getItem();
+                boolean isWeapon = item instanceof SwordItem || item instanceof AxeItem
+                    || item instanceof BowItem || item instanceof CrossbowItem;
+                if (isWeapon) {
+                    long lastConvert = player.getPersistentData().getLong("chaos_garden_weapon_cd");
+                    if (now - lastConvert >= 60) {
+                        player.getPersistentData().putLong("chaos_garden_weapon_cd", now);
+                        // Drop the weapon and give a flower
+                        level.addFreshEntity(new ItemEntity(level,
+                            player.getX(), player.getY() + 0.5, player.getZ(), held.copy()));
+                        player.getInventory().setItem(player.getInventory().selected, ItemStack.EMPTY);
+                        player.getInventory().add(new ItemStack(FLOWERS[RNG.nextInt(FLOWERS.length)]));
+                        level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
+                            player.getX(), player.getY() + 1.0, player.getZ(), 12, 0.4, 0.5, 0.4, 0.05);
+                        level.playSound(null, player.blockPosition(),
+                            SoundEvents.GRASS_PLACE, SoundSource.PLAYERS, 0.8f, 1.5f);
+                        player.sendSystemMessage(Component.literal(
+                            "§a🌸 Оружие превратилось в цветок! Садовник не может сражаться."));
                     }
                 }
             }
@@ -248,12 +286,10 @@ public class WanderingGardenerHandler {
     public static void onOutgoingDamage(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/peaceful_soul")) return;
-
-        // Cancel direct weapon damage — Gardener cannot fight directly
         event.setAmount(0);
     }
 
-    // ── Thorn Reflect: when Gardener is hit, reflect 50% back to attacker ──
+    // ── Thorn Reflect + Undead Drawback: when Gardener is hit ──
     @SubscribeEvent
     public static void onGardenerHurt(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -263,6 +299,16 @@ public class WanderingGardenerHandler {
         if (attacker == null || attacker == player) return;
         if (!(player.level() instanceof ServerLevel level)) return;
 
+        // Undead drawback (woodcutting_damage concept repurposed): undead deal 50% more damage
+        if (attacker instanceof Mob mob && mob.getType().is(EntityTypeTags.UNDEAD)) {
+            event.setAmount(event.getAmount() * 1.5f);
+            if (player.tickCount % 40 == 0) {
+                player.displayClientMessage(
+                    Component.literal("§c☠ Нежить особо опасна для садовника! (+50% урона)"), true);
+            }
+        }
+
+        // Thorn Reflect: reflect 50% back to attacker
         float reflect = event.getAmount() * 0.5f;
         attacker.hurt(player.damageSources().magic(), reflect);
 

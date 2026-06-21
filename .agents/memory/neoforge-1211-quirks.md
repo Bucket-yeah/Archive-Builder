@@ -24,6 +24,14 @@ description: Compile errors and their fixes specific to NeoForge 21.1.x / MC 1.2
 - Both `SoundEvents.X` (Holder<SoundEvent>) and `SoundEvents.X.value()` (SoundEvent) work in `playSound()` — NeoForge provides overloads for both.
 - `SoundEvents.SCULK_SENSOR_CLICKING` does NOT exist — use `SoundEvents.SCULK_BLOCK_SPREAD` or similar.
 
+## MobEffectEvent.Applicable — denying effects
+
+- `Event.Result.DENY` does NOT exist on `net.neoforged.bus.api.Event` in NeoForge 21.1.72.
+- `MobEffectEvent.Applicable.setResult(DENY)` will not compile.
+- **Fix:** Use a periodic tick check (`player.tickCount % 5 == 0`) to call `player.removeEffect(holder)` immediately after the effect is applied. Functionally equivalent for always-deny semantics.
+
+**Why:** NeoForge migrated off `Event.Result` in the NeoEventBus refactor; the enum was removed from the base `Event` class.
+
 ## Removed Events
 
 - `LivingAttackEvent` removed — use `LivingIncomingDamageEvent`.

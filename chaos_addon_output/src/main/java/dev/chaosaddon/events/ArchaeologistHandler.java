@@ -1,13 +1,22 @@
 package dev.chaosaddon.events;
 
 import dev.chaosaddon.util.OriginHelper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -16,6 +25,9 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * Handles Phantom Archaeologist passives:
  * - Ephemeral Inventory: items don't drop on death; inventory saved and restored on respawn
  * - Mind Backup: 60% of XP is preserved on death
+ * - chunk_vision: show chunk coordinates + load state in actionbar
+ * - no_elytra: elytra dropped from chest slot every tick
+ * - sound_sensitivity: explosions deal 50% more damage
  */
 public class ArchaeologistHandler {
 
@@ -89,18 +101,60 @@ public class ArchaeologistHandler {
         newData.remove(KEY_INVENTORY);
         newData.remove(KEY_TOTAL_XP);
 
-        newPlayer.getPersistentData().putInt("chaos_arch_spawn_lock", 600); // 30s pickup lock
+        newPlayer.getPersistentData().putInt("chaos_arch_spawn_lock", 600);
         newPlayer.sendSystemMessage(Component.literal(
             "§b📦 Данные восстановлены из облачного бэкапа. §7(Синхронизация 30с...)"));
     }
 
-    /** Count down the post-death spawn lock each tick. */
+    /** Count down the post-death spawn lock + handle chunk_vision + no_elytra each tick. */
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        // Spawn lock countdown
         int lock = player.getPersistentData().getInt("chaos_arch_spawn_lock");
         if (lock > 0) {
             player.getPersistentData().putInt("chaos_arch_spawn_lock", lock - 1);
+        }
+
+        // ── chunk_vision: Чанковое Зрение — show chunk coords + loaded state ──
+        if (OriginHelper.hasPower(player, "chaos_addon:phantom_archaeologist/chunk_vision")
+                && player.tickCount % 20 == 0) {
+            BlockPos pos = player.blockPosition();
+            int chunkX = pos.getX() >> 4;
+            int chunkZ = pos.getZ() >> 4;
+            int localX = pos.getX() & 15;
+            int localZ = pos.getZ() & 15;
+            boolean chunkLoaded = level.hasChunk(chunkX, chunkZ);
+            boolean adjacentLoaded =
+                level.hasChunk(chunkX + 1, chunkZ) && level.hasChunk(chunkX - 1, chunkZ)
+                && level.hasChunk(chunkX, chunkZ + 1) && level.hasChunk(chunkX, chunkZ - 1);
+            String loadStatus = !chunkLoaded ? "§c✗ Выгружен"
+                : !adjacentLoaded ? "§e⚠ Граница" : "§a✓ Загружен";
+            String biomeStr = level.getBiome(pos).unwrapKey()
+                .map(k -> k.location().getPath()).orElse("?");
+            player.displayClientMessage(
+                Component.literal("§6📍 Чанк [" + chunkX + "," + chunkZ + "] §8local(" + localX + "," + pos.getY() + "," + localZ + ") "
+                    + loadStatus + " §8| §7" + biomeStr)
+                    .withStyle(ChatFormatting.GOLD), true);
+        }
+
+        // ── no_elytra: remove elytra from chest slot ──
+        if (OriginHelper.hasPower(player, "chaos_addon:phantom_archaeologist/no_elytra")
+                && player.tickCount % 20 == 0) {
+            ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+            if (!chest.isEmpty() && chest.is(Items.ELYTRA)) {
+                level.addFreshEntity(new ItemEntity(level,
+                    player.getX(), player.getY() + 0.5, player.getZ(), chest.copy()));
+                player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+                player.sendSystemMessage(Component.literal(
+                    "§b📦 Археолог не нуждается в элитрах — боится высоты!"));
+            }
+            // Stop gliding if somehow active
+            if (player.isFallFlying()) {
+                player.setDeltaMovement(player.getDeltaMovement().multiply(0.5, 0.1, 0.5));
+            }
         }
     }
 
@@ -116,6 +170,19 @@ public class ArchaeologistHandler {
                 player.displayClientMessage(Component.literal(
                     "§b🔒 Десинхронизация данных — подбор заблокирован на §e" + (lock / 20) + "с"), false);
             }
+        }
+    }
+
+    // ── sound_sensitivity: explosions deal 50% more damage to the Archaeologist ──
+    @SubscribeEvent
+    public static void onSoundSensitivity(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:phantom_archaeologist/sound_sensitivity")) return;
+        if (event.getSource().is(DamageTypeTags.IS_EXPLOSION)) {
+            event.setAmount(event.getAmount() * 1.5f);
+            player.displayClientMessage(
+                Component.literal("§b📢 Звуковая чувствительность: взрывной урон ×1.5!")
+                    .withStyle(ChatFormatting.AQUA), true);
         }
     }
 }

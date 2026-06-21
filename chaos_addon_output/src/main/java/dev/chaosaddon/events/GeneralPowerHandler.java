@@ -2,12 +2,17 @@ package dev.chaosaddon.events;
 
 import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
+import dev.chaosaddon.util.SeismicSenseHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,12 +21,14 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.minecraft.world.level.block.BedBlock;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -31,6 +38,11 @@ import java.util.HashMap;
 public class GeneralPowerHandler {
 
     private static final Random RNG = new Random();
+    private static final Map<UUID, List<Long>> PRECOG_HITS = new HashMap<>();
+    private static final net.minecraft.world.item.Item[] JUNK_ITEMS = {
+        Items.DIRT, Items.GRAVEL, Items.SAND, Items.FLINT, Items.STICK,
+        Items.BONE, Items.ROTTEN_FLESH, Items.STRING, Items.CLAY_BALL
+    };
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -268,6 +280,67 @@ public class GeneralPowerHandler {
                             net.minecraft.world.level.block.Blocks.DEEPSLATE.defaultBlockState()),
                         player.getX(), player.getY() + 0.05, player.getZ(),
                         6, 0.4, 0.05, 0.4, 0.0);
+                }
+            }
+
+            // ── mountain_echo: ping cave entities when underground ──
+            if (OriginHelper.hasPower(player, "chaos_addon:ancient_sentinel/mountain_echo")
+                    && player.blockPosition().getY() < 0 && player.tickCount % 60 == 0) {
+                SeismicSenseHelper.pingNearbyEntities(player, level, 40,
+                    e -> !(e instanceof net.minecraft.world.entity.player.Player),
+                    "§7⛰ Эхо горы: ", net.minecraft.ChatFormatting.GRAY);
+            }
+        }
+
+        // ── no_mobility: Ancient Sentinel can't use elytra ──
+        if (OriginHelper.hasPower(player, "chaos_addon:ancient_sentinel/no_mobility")) {
+            if (player.isFallFlying() && player.tickCount % 10 == 0) {
+                player.hurt(player.damageSources().fall(), 1.0f);
+                player.displayClientMessage(
+                    Component.literal("§7⛰ Страж не может летать!").withStyle(ChatFormatting.GRAY), true);
+            }
+        }
+
+        // ── no_valuables: Nightmare Mimic — diamonds/netherite vanish from mainhand ──
+        if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/no_valuables") && player.tickCount % 20 == 0) {
+            net.minecraft.world.item.ItemStack held = player.getMainHandItem();
+            if (!held.isEmpty()) {
+                String id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(held.getItem()).toString();
+                if (id.contains("diamond") || id.contains("netherite")) {
+                    level.addFreshEntity(new ItemEntity(level,
+                        player.getX(), player.getY() + 0.5, player.getZ(), held.copy()));
+                    player.getInventory().setItem(player.getInventory().selected,
+                        net.minecraft.world.item.ItemStack.EMPTY);
+                    level.sendParticles(ParticleTypes.WITCH,
+                        player.getX(), player.getY() + 1.0, player.getZ(), 10, 0.4, 0.6, 0.4, 0.1);
+                    player.sendSystemMessage(Component.literal(
+                        "§8✦ [Иллюзия] " + held.getHoverName().getString() + " растворился в мираже!"));
+                }
+            }
+        }
+
+        // ── false_loot: periodic "illusory item" removal ──
+        if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/false_loot") && player.tickCount % 1200 == 0) {
+            var inv = player.getInventory();
+            List<Integer> filled = new ArrayList<>();
+            for (int i = 0; i < inv.items.size(); i++) {
+                if (!inv.items.get(i).isEmpty()) filled.add(i);
+            }
+            if (!filled.isEmpty()) {
+                int slot = filled.get(RNG.nextInt(filled.size()));
+                player.displayClientMessage(
+                    Component.literal("§8✦ [Иллюзия] Предмет испарился!").withStyle(ChatFormatting.DARK_GRAY), true);
+                inv.setItem(slot, net.minecraft.world.item.ItemStack.EMPTY);
+            }
+        }
+
+        // ── water_vulnerability: Swarm Lord takes damage in water ──
+        if (OriginHelper.hasPower(player, "chaos_addon:swarm_lord/water_vulnerability") && player.tickCount % 20 == 0) {
+            if (player.isInWater()) {
+                player.hurt(player.damageSources().drown(), 0.5f);
+                if (player.tickCount % 60 == 0) {
+                    player.displayClientMessage(
+                        Component.literal("§9💧 Вода угрожает рою! Найди сушу!").withStyle(ChatFormatting.BLUE), true);
                 }
             }
         }
@@ -699,6 +772,99 @@ public class GeneralPowerHandler {
                         8, 0.3, 0.3, 0.3, 0.02);
                 }
             }
+        }
+    }
+
+    // ── no_clocks: Time Wanderer teleports when looking at a clock ──
+    @SubscribeEvent
+    public static void onNoClocksUse(PlayerInteractEvent.RightClickItem event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:time_wanderer/no_clocks")) return;
+        if (!player.getMainHandItem().is(Items.CLOCK) && !player.getOffhandItem().is(Items.CLOCK)) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        event.setCanceled(true);
+        double angle = RNG.nextDouble() * Math.PI * 2;
+        double dist = 8.0 + RNG.nextDouble() * 8.0;
+        double tx = player.getX() + Math.cos(angle) * dist;
+        double tz = player.getZ() + Math.sin(angle) * dist;
+        net.minecraft.core.BlockPos tryPos = new net.minecraft.core.BlockPos((int)tx, (int)player.getY(), (int)tz);
+        for (int i = 0; i < 10; i++) {
+            if (level.getBlockState(tryPos.above()).isAir() && level.getBlockState(tryPos).isAir()
+                    && !level.getBlockState(tryPos.below()).isAir()) break;
+            tryPos = tryPos.above();
+        }
+        player.teleportTo(tx, tryPos.getY(), tz);
+        level.sendParticles(ParticleTypes.SCULK_SOUL,
+            player.getX(), player.getY() + 1.0, player.getZ(), 15, 0.5, 0.8, 0.5, 0.05);
+        level.playSound(null, player.blockPosition(),
+            SoundEvents.ILLUSIONER_MIRROR_MOVE, SoundSource.PLAYERS, 0.8f, 0.5f);
+        player.displayClientMessage(
+            Component.literal("§b⏰ Нельзя смотреть на часы — время сдвинулось!").withStyle(ChatFormatting.AQUA), true);
+    }
+
+    // ── no_mobility: Ancient Sentinel can't use boats ──
+    @SubscribeEvent
+    public static void onNoMobilityBoat(PlayerInteractEvent.RightClickItem event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:ancient_sentinel/no_mobility")) return;
+        net.minecraft.world.item.ItemStack held = player.getMainHandItem();
+        if (!held.isEmpty() && held.is(net.minecraft.tags.ItemTags.BOATS)) {
+            event.setCanceled(true);
+            player.displayClientMessage(
+                Component.literal("§7⛰ Древний Страж слишком тяжёл для лодки!").withStyle(ChatFormatting.GRAY), true);
+        }
+    }
+
+    // ── false_loot: Nightmare Mimic — add junk item on block break (30% chance) ──
+    @SubscribeEvent
+    public static void onFalseLootBreak(BlockEvent.BreakEvent event) {
+        if (!(event.getPlayer() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/false_loot")) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+        if (RNG.nextFloat() >= 0.3f) return;
+
+        net.minecraft.world.item.ItemStack junk =
+            new net.minecraft.world.item.ItemStack(JUNK_ITEMS[RNG.nextInt(JUNK_ITEMS.length)]);
+        player.getInventory().add(junk);
+        player.displayClientMessage(
+            Component.literal("§8✦ [Иллюзия] Иллюзорный предмет в инвентаре...")
+                .withStyle(ChatFormatting.DARK_GRAY), true);
+    }
+
+    // ── precognition_loop: Time Wanderer — 3 hits in 2s → stasis counter-burst ──
+    @SubscribeEvent
+    public static void onPrecognitionLoop(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:time_wanderer/precognition_loop")) return;
+        if (event.isCanceled() || event.getAmount() <= 0) return;
+
+        long now = player.level().getGameTime();
+        List<Long> hits = PRECOG_HITS.computeIfAbsent(player.getUUID(), k -> new ArrayList<>());
+        hits.add(now);
+        hits.removeIf(t -> now - t > 40);
+
+        if (hits.size() >= 3) {
+            hits.clear();
+            event.setCanceled(true);
+            if (!(player.level() instanceof ServerLevel level)) return;
+
+            player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 100, 1, false, true));
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 80, 1, false, true));
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 80, 1, false, true));
+
+            level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(5),
+                e -> e != player && e.isAlive())
+                .forEach(e -> e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 3, false, true)));
+
+            level.sendParticles(ParticleTypes.SCULK_SOUL,
+                player.getX(), player.getY() + 1.0, player.getZ(), 20, 0.8, 1.0, 0.8, 0.1);
+            level.sendParticles(ParticleTypes.REVERSE_PORTAL,
+                player.getX(), player.getY() + 0.5, player.getZ(), 30, 0.6, 0.8, 0.6, 0.15);
+            level.playSound(null, player.blockPosition(),
+                SoundEvents.ILLUSIONER_PREPARE_MIRROR, SoundSource.PLAYERS, 1.0f, 0.5f);
+            player.displayClientMessage(
+                Component.literal("§b⏰ Петля Предвидения! Предугадал атаку!").withStyle(ChatFormatting.AQUA), true);
         }
     }
 }

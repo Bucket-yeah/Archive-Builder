@@ -139,6 +139,29 @@ public class BiomorphHandler {
                     Math.min(uniqueBiomes - 1, 4), true, false));
             }
         }
+
+        // ── wrong_biome_blocks: Mining Fatigue in a biome mismatched from adaptation ──
+        if (OriginHelper.hasPower(player, "chaos_addon:biomorph/wrong_biome_blocks")) {
+            // The player's "home" biome is whichever biome type they've spent the most time in
+            String bestBiome = null;
+            int bestTime = 0;
+            for (String bt : new String[]{"nether", "end", "ocean", "jungle", "forest",
+                    "desert", "frozen", "mushroom", "swamp", "plains", "savanna", "taiga"}) {
+                // Use the mastered (unlocked) DNA as "home" biomes
+                if (data.getUnlockedDna().contains(bt)) {
+                    bestBiome = bt;
+                    break;
+                }
+            }
+            if (bestBiome != null && !biomeType.equals(bestBiome)) {
+                // Not in home biome: Mining Fatigue I
+                player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 40, 0, true, false));
+                if (player.tickCount % 100 == 0) {
+                    player.displayClientMessage(
+                        Component.literal("§3🧬 Чужой биом — §7замедление горной добычи").withStyle(ChatFormatting.DARK_AQUA), true);
+                }
+            }
+        }
     }
 
     private static void applyBiomeBuff(ServerPlayer player, String biome, int tier) {

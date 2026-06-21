@@ -1,24 +1,30 @@
 package dev.chaosaddon.events;
 
 import dev.chaosaddon.util.OriginHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.List;
 import java.util.Random;
@@ -54,6 +60,32 @@ public class AlchemistHandler {
         new ItemStack(Items.COPPER_INGOT, 4)
     };
 
+    // ── no_armor: tick check — drop non-leather armor from armor slots ──
+    @SubscribeEvent
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/no_armor")) return;
+        if (player.tickCount % 20 != 0) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        EquipmentSlot[] armorSlots = {
+            EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET
+        };
+        for (EquipmentSlot slot : armorSlots) {
+            ItemStack armor = player.getItemBySlot(slot);
+            if (armor.isEmpty()) continue;
+            boolean isLeather = armor.getItem() instanceof ArmorItem armorItem
+                && armorItem.getMaterial().equals(net.minecraft.world.item.ArmorMaterials.LEATHER);
+            if (!isLeather) {
+                level.addFreshEntity(new ItemEntity(level,
+                    player.getX(), player.getY() + 0.5, player.getZ(), armor.copy()));
+                player.setItemSlot(slot, ItemStack.EMPTY);
+                player.sendSystemMessage(Component.literal(
+                    "§c⚗ Монах носит только кожу — броня выброшена!").withStyle(ChatFormatting.DARK_RED));
+            }
+        }
+    }
+
     /** Material Imbalance: block vanilla crafting stations. Enchanting Table = Transmutation Table. */
     @SubscribeEvent
     public static void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
@@ -71,7 +103,7 @@ public class AlchemistHandler {
 
         if (CRAFTING_BLOCKS.contains(block)) {
             event.setCanceled(true);
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+            player.sendSystemMessage(Component.literal(
                 "§c⚗ Алхимический монах не использует обычные станции — только стол трансмутации (стол чар)!"));
         }
     }
@@ -87,20 +119,20 @@ public class AlchemistHandler {
         long lastTransmute = player.getPersistentData().getLong("chaos_transmute_time");
         if (now - lastTransmute < 200L) {
             long remaining = (200L - (now - lastTransmute)) / 20;
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+            player.sendSystemMessage(Component.literal(
                 "§c⚗ Трансмутация перезаряжается: §e" + remaining + "с"));
             return;
         }
 
-        net.minecraft.world.item.ItemStack held = player.getMainHandItem();
+        ItemStack held = player.getMainHandItem();
         if (held.isEmpty()) {
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+            player.sendSystemMessage(Component.literal(
                 "§c⚗ Возьмите предмет в руку для трансмутации!"));
             return;
         }
 
         if (player.getHealth() <= 4.0f) {
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+            player.sendSystemMessage(Component.literal(
                 "§c⚗ Мало HP для трансмутации! Нужно > 2❤."));
             return;
         }
@@ -112,16 +144,14 @@ public class AlchemistHandler {
         String inputId = net.minecraft.core.registries.BuiltInRegistries.ITEM
             .getKey(held.getItem()).toString();
 
-        net.minecraft.world.item.ItemStack output;
+        ItemStack output;
         if (inputId.contains("diamond") || inputId.contains("emerald")) {
-            output = new net.minecraft.world.item.ItemStack(Items.NETHERITE_SCRAP,
-                RNG.nextInt(2) + 1);
+            output = new ItemStack(Items.NETHERITE_SCRAP, RNG.nextInt(2) + 1);
         } else if (inputId.contains("gold") || inputId.contains("iron") || inputId.contains("quartz")) {
-            output = new net.minecraft.world.item.ItemStack(Items.DIAMOND, RNG.nextInt(3) + 1);
+            output = new ItemStack(Items.DIAMOND, RNG.nextInt(3) + 1);
         } else if (inputId.contains("wood") || inputId.contains("stone") || inputId.contains("dirt")) {
-            output = new net.minecraft.world.item.ItemStack(Items.IRON_INGOT, RNG.nextInt(4) + 2);
+            output = new ItemStack(Items.IRON_INGOT, RNG.nextInt(4) + 2);
         } else {
-            // Default: random from cycle drops
             output = CYCLE_DROPS[RNG.nextInt(CYCLE_DROPS.length)].copy();
         }
 
@@ -135,7 +165,7 @@ public class AlchemistHandler {
             40, 0.6, 1.0, 0.6, 0.08);
         level.playSound(null, player.blockPosition(),
             SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.0f, 1.3f);
-        player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+        player.sendSystemMessage(Component.literal(
             "§d⚗ Трансмутация! §e" + held.getItem().getDescriptionId().replace("item.minecraft.", "")
             + " §7→ §a" + output.getItem().getDescriptionId().replace("item.minecraft.", "")
             + " x" + output.getCount() + " §7(-3❤)"));
@@ -150,7 +180,7 @@ public class AlchemistHandler {
 
         if (player.getHealth() <= 2.0f) {
             event.getCrafting().shrink(event.getCrafting().getCount());
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+            player.sendSystemMessage(Component.literal(
                 "§c⚗ Слишком мало HP — цена крови слишком высока!"));
             return;
         }
@@ -162,15 +192,14 @@ public class AlchemistHandler {
         if (isPotion) {
             if (player.getHealth() <= 4.0f) {
                 event.getCrafting().shrink(event.getCrafting().getCount());
-                player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                player.sendSystemMessage(Component.literal(
                     "§c⚗ Нужно > 2❤ для создания зелий!"));
                 return;
             }
             player.hurt(player.damageSources().generic(), 2.0f);
-            // Add an extra potion
             ItemStack bonus = event.getCrafting().copy();
             player.getInventory().add(bonus);
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+            player.sendSystemMessage(Component.literal(
                 "§a⚗ Двойной выход зелий за двойную цену!"));
         } else {
             player.hurt(player.damageSources().generic(), 1.0f);
@@ -199,11 +228,6 @@ public class AlchemistHandler {
     /**
      * Potion-on-Block Reactions: when the Alchemical Monk right-clicks a block while
      * holding a splash/lingering potion, apply a thematic reaction based on the block type.
-     * - Lava/Magma: fire explosion + Strength I to player
-     * - Ice/Snow: freeze nearby entities + Slowness III
-     * - Dirt/Grass: grow nearby plants + Regeneration to player
-     * - Stone/Deepslate: drop random ore + Mining Fatigue removed
-     * - Bookshelf/Enchanting: gain Luck II for 2 min
      */
     @SubscribeEvent
     public static void onPotionBlockReaction(PlayerInteractEvent.RightClickBlock event) {
@@ -211,37 +235,30 @@ public class AlchemistHandler {
         if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/cycle_of_substances")) return;
         if (!(player.level() instanceof ServerLevel level)) return;
 
-        net.minecraft.world.item.ItemStack held = player.getMainHandItem();
-        boolean isSplash = held.is(net.minecraft.world.item.Items.SPLASH_POTION);
-        boolean isLingering = held.is(net.minecraft.world.item.Items.LINGERING_POTION);
+        ItemStack held = player.getMainHandItem();
+        boolean isSplash = held.is(Items.SPLASH_POTION);
+        boolean isLingering = held.is(Items.LINGERING_POTION);
         if (!isSplash && !isLingering) return;
 
         // Check cooldown
         long now = level.getGameTime();
         long lastReaction = player.getPersistentData().getLong("chaos_monk_reaction_cd");
-        if (now - lastReaction < 200) return; // 10s cooldown
+        if (now - lastReaction < 200) return;
 
         BlockPos pos = event.getHitVec().getBlockPos();
         net.minecraft.world.level.block.state.BlockState state = level.getBlockState(pos);
 
         boolean reacted = false;
 
-        if (state.is(net.minecraft.world.level.block.Blocks.LAVA)
-                || state.is(net.minecraft.world.level.block.Blocks.MAGMA_BLOCK)) {
-            // Volcanic Reaction: fire explosion, player gets Strength I 30s
+        if (state.is(Blocks.LAVA) || state.is(Blocks.MAGMA_BLOCK)) {
             level.explode(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
                 1.5f, false, net.minecraft.world.level.Level.ExplosionInteraction.TNT);
             player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
                 net.minecraft.world.effect.MobEffects.DAMAGE_BOOST, 600, 0, false, true));
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                "§c⚗ Вулканическая реакция! §7Сила I 30с"));
+            player.sendSystemMessage(Component.literal("§c⚗ Вулканическая реакция! §7Сила I 30с"));
             reacted = true;
-
-        } else if (state.is(net.minecraft.world.level.block.Blocks.ICE)
-                || state.is(net.minecraft.world.level.block.Blocks.PACKED_ICE)
-                || state.is(net.minecraft.world.level.block.Blocks.BLUE_ICE)
-                || state.is(net.minecraft.world.level.block.Blocks.SNOW_BLOCK)) {
-            // Cryo Reaction: freeze nearby entities
+        } else if (state.is(Blocks.ICE) || state.is(Blocks.PACKED_ICE)
+                || state.is(Blocks.BLUE_ICE) || state.is(Blocks.SNOW_BLOCK)) {
             level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,
                 new net.minecraft.world.phys.AABB(pos).inflate(5),
                 e -> e != player && e.isAlive())
@@ -249,14 +266,10 @@ public class AlchemistHandler {
                     net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 200, 2, false, true)));
             level.sendParticles(ParticleTypes.SNOWFLAKE,
                 pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 40, 2.0, 0.5, 2.0, 0.03);
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                "§b⚗ Криогенная реакция! §7Враги заморожены 10с"));
+            player.sendSystemMessage(Component.literal("§b⚗ Криогенная реакция! §7Враги заморожены 10с"));
             reacted = true;
-
         } else if (state.is(net.minecraft.tags.BlockTags.DIRT)
-                || state.is(net.minecraft.world.level.block.Blocks.GRASS_BLOCK)
-                || state.is(net.minecraft.world.level.block.Blocks.MYCELIUM)) {
-            // Flora Reaction: grow nearby plants, player gets Regeneration
+                || state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.MYCELIUM)) {
             for (int dx = -3; dx <= 3; dx++) for (int dz = -3; dz <= 3; dz++) {
                 BlockPos p2 = pos.offset(dx, 1, dz);
                 var bs = level.getBlockState(p2);
@@ -269,14 +282,11 @@ public class AlchemistHandler {
                 net.minecraft.world.effect.MobEffects.REGENERATION, 400, 1, false, true));
             level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
                 pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5, 20, 1.5, 0.5, 1.5, 0.03);
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                "§a⚗ Флорная реакция! §7Растения выросли, Регенерация II 20с"));
+            player.sendSystemMessage(Component.literal("§a⚗ Флорная реакция! §7Растения выросли, Регенерация II 20с"));
             reacted = true;
-
         } else if (state.is(net.minecraft.tags.BlockTags.BASE_STONE_OVERWORLD)
                 || state.is(net.minecraft.tags.BlockTags.BASE_STONE_NETHER)) {
-            // Geochemical Reaction: drop a random mineral
-            net.minecraft.world.item.ItemStack mineral = CYCLE_DROPS[RNG.nextInt(CYCLE_DROPS.length)].copy();
+            ItemStack mineral = CYCLE_DROPS[RNG.nextInt(CYCLE_DROPS.length)].copy();
             level.addFreshEntity(new ItemEntity(level,
                 pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5, mineral));
             player.removeEffect(net.minecraft.world.effect.MobEffects.DIG_SLOWDOWN);
@@ -284,25 +294,20 @@ public class AlchemistHandler {
                 net.minecraft.world.effect.MobEffects.DIG_SPEED, 400, 1, false, true));
             level.sendParticles(ParticleTypes.GLOW,
                 pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 15, 0.4, 0.4, 0.4, 0.0);
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+            player.sendSystemMessage(Component.literal(
                 "§8⚗ Геохимическая реакция! §7+" + mineral.getCount() + "x " + mineral.getHoverName().getString() + " + Шустрость II"));
             reacted = true;
-
-        } else if (state.is(net.minecraft.world.level.block.Blocks.BOOKSHELF)
-                || state.is(net.minecraft.world.level.block.Blocks.ENCHANTING_TABLE)) {
-            // Arcane Reaction: Luck II + XP bonus
+        } else if (state.is(Blocks.BOOKSHELF) || state.is(Blocks.ENCHANTING_TABLE)) {
             player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
                 net.minecraft.world.effect.MobEffects.LUCK, 2400, 1, false, true));
             player.giveExperiencePoints(20);
             level.sendParticles(ParticleTypes.ENCHANT,
                 pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 30, 0.5, 0.5, 0.5, 0.1);
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                "§6⚗ Магическая реакция! §7Удача II 2мин + 20 XP"));
+            player.sendSystemMessage(Component.literal("§6⚗ Магическая реакция! §7Удача II 2мин + 20 XP"));
             reacted = true;
         }
 
         if (reacted) {
-            // Consume one potion
             held.shrink(1);
             player.getPersistentData().putLong("chaos_monk_reaction_cd", now);
             level.playSound(null, pos, SoundEvents.BREWING_STAND_BREW, SoundSource.PLAYERS, 1.0f, 1.2f);
@@ -326,9 +331,28 @@ public class AlchemistHandler {
             pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, randomDrop));
 
         level.sendParticles(ParticleTypes.GLOW,
-            pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-            12, 0.4, 0.4, 0.4, 0.0);
+            pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 12, 0.4, 0.4, 0.4, 0.0);
         level.playSound(null, pos, SoundEvents.EVOKER_PREPARE_WOLOLO,
             SoundSource.PLAYERS, 0.4f, 1.8f);
+    }
+
+    // ── overloaded_damage: inventory > 10 stacks → +30% incoming damage ──
+    @SubscribeEvent
+    public static void onOverloadedDamage(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/no_armor")) return;
+        var inv = player.getInventory();
+        int filledSlots = 0;
+        for (int i = 0; i < inv.items.size(); i++) {
+            if (!inv.items.get(i).isEmpty()) filledSlots++;
+        }
+        if (filledSlots > 10) {
+            event.setAmount(event.getAmount() * 1.3f);
+            if (player.tickCount % 100 == 0) {
+                player.displayClientMessage(
+                    Component.literal("§c⚗ Перегрузка! (" + filledSlots + " стаков) +30% входящего урона")
+                        .withStyle(ChatFormatting.DARK_RED), true);
+            }
+        }
     }
 }

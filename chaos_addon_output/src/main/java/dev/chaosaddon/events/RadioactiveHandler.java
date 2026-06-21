@@ -3,6 +3,7 @@ package dev.chaosaddon.events;
 import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -10,7 +11,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -40,6 +42,41 @@ public class RadioactiveHandler {
             player.hurt(player.damageSources().magic(), 0.2f);
         }
 
+        // ── material_decay: damage/shrink nearby item entities every 100 ticks ──
+        if (OriginHelper.hasPower(player, "chaos_addon:radioactive_phantom/material_decay")
+                && player.tickCount % 100 == 0) {
+            List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class,
+                player.getBoundingBox().inflate(5), e -> e.isAlive());
+            int decayed = 0;
+            for (ItemEntity itemEnt : items) {
+                ItemStack stack = itemEnt.getItem();
+                if (stack.isDamageableItem()) {
+                    stack.setDamageValue(Math.min(stack.getDamageValue() + 10, stack.getMaxDamage()));
+                    if (stack.getDamageValue() >= stack.getMaxDamage()) {
+                        itemEnt.kill();
+                    } else {
+                        itemEnt.setItem(stack);
+                    }
+                } else {
+                    stack.shrink(1);
+                    if (stack.isEmpty()) {
+                        itemEnt.kill();
+                    } else {
+                        itemEnt.setItem(stack);
+                    }
+                }
+                decayed++;
+            }
+            if (decayed > 0) {
+                level.sendParticles(ParticleTypes.GLOW,
+                    player.getX(), player.getY() + 0.5, player.getZ(),
+                    6, 0.5, 0.4, 0.5, 0.02);
+                player.displayClientMessage(
+                    Component.literal("§2☢ Материальный распад: §8" + decayed + " предм. повреждено")
+                        .withStyle(ChatFormatting.DARK_GREEN), true);
+            }
+        }
+
         if (player.tickCount % interval != 0) return;
 
         List<LivingEntity> nearby = level.getEntitiesOfClass(
@@ -54,6 +91,18 @@ public class RadioactiveHandler {
             player.displayClientMessage(
                 Component.literal("☢ ПЕРЕГРУЗКА! Двойное облучение и двойная регенерация от убийств!")
                     .withStyle(ChatFormatting.GREEN), false);
+        }
+
+        // Geiger counter HUD: radiation intensity display
+        if (player.tickCount % interval == 0) {
+            int nearbyCount = player.getPersistentData().getInt("chaos_radio_nearby");
+            String intensity = nearbyCount == 0 ? "§a● Фон"
+                : nearbyCount < 3 ? "§e●● Повышен"
+                : nearbyCount < 5 ? "§6●●● Высокий"
+                : "§c●●●● КРИТИЧНО";
+            player.displayClientMessage(
+                Component.literal("☢ " + intensity + " §8(" + nearbyCount + " цели)")
+                    .withStyle(ChatFormatting.GREEN), true);
         }
 
         for (LivingEntity target : nearby) {
@@ -85,16 +134,13 @@ public class RadioactiveHandler {
      * Any entity entering within 2 blocks of a saved zone in the next 30 seconds gets Poison + Weakness.
      */
     private static void leaveRadioactiveTrail(ServerPlayer player, ServerLevel level) {
-        // Store up to 10 past positions as "x,y,z,expiry" strings in NBT
         BlockPos cur = player.blockPosition();
         String existing = player.getPersistentData().getString("chaos_radio_trail");
-        long expiry = level.getGameTime() + 600; // 30s
+        long expiry = level.getGameTime() + 600;
 
-        // Append new position
         String entry = cur.getX() + "," + cur.getY() + "," + cur.getZ() + "," + expiry;
         String[] parts = existing.isEmpty() ? new String[0] : existing.split(";");
 
-        // Keep last 10, remove expired
         java.util.List<String> active = new java.util.ArrayList<>();
         long now = level.getGameTime();
         for (String p : parts) {
@@ -109,7 +155,6 @@ public class RadioactiveHandler {
         if (active.size() > 10) active.remove(0);
         player.getPersistentData().putString("chaos_radio_trail", String.join(";", active));
 
-        // Irradiate entities near all active zones
         for (String p : active) {
             String[] sp = p.split(",");
             if (sp.length < 3) continue;
@@ -138,7 +183,6 @@ public class RadioactiveHandler {
         if (!OriginHelper.hasPower(player, "chaos_addon:radioactive_phantom/flesh_rot")) return;
         if (!(player.level() instanceof ServerLevel level)) return;
 
-        // Kill restores 1 HP if target was in radiation zone
         if (event.getEntity().distanceTo(player) <= ChaosAddonConfig.get().radioAuraRadius) {
             player.heal(1.0f);
             level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
@@ -146,10 +190,8 @@ public class RadioactiveHandler {
                 8, 0.4, 0.6, 0.4, 0.03);
         }
 
-        // Hunger from kill
         player.getFoodData().eat(2, 1.0f);
 
-        // Kill counter + radioactive burst every 5 kills
         int kills = player.getPersistentData().getInt("chaos_radio_kills") + 1;
         player.getPersistentData().putInt("chaos_radio_kills", kills);
         if (kills % 5 == 0) {
