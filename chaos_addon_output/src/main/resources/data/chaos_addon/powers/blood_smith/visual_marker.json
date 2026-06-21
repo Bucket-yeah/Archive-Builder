@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 0.55,
+    "green": 0.0,
+    "blue": 0.0,
+    "alpha": 0.8
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 25,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:soul_fire_flame",
+      "count": 2,
+      "spread": {
+        "x": 0.4,
+        "y": 0.8,
+        "z": 0.4
+      },
+      "speed": 0.03,
+      "force": false
+    }
+  },
+  "name": "Кровавая аура",
+  "description": "Кровавый пламень кузнеца, питающегося жизнью.",
+  "hidden": true
+}

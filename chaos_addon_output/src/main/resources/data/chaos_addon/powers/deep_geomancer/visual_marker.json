@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 0.55,
+    "green": 0.45,
+    "blue": 0.33,
+    "alpha": 0.8
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 30,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:ash",
+      "count": 3,
+      "spread": {
+        "x": 0.5,
+        "y": 0.8,
+        "z": 0.5
+      },
+      "speed": 0.02,
+      "force": false
+    }
+  },
+  "name": "Геомантическая аура",
+  "description": "Серо-коричневая земляная пыль глубинного геоманта.",
+  "hidden": true
+}

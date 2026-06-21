@@ -10,7 +10,8 @@
     "chaos_addon:chaos_engineer/golem_assembly",
     "chaos_addon:chaos_engineer/redstone_pulse",
     "chaos_addon:chaos_engineer/no_potions",
-    "chaos_addon:chaos_engineer/no_redstone_penalty"
+    "chaos_addon:chaos_engineer/no_redstone_penalty",
+    "chaos_addon:chaos_engineer/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

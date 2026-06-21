@@ -10,7 +10,8 @@
     "chaos_addon:ancient_sentinel/crystal_armor",
     "chaos_addon:ancient_sentinel/earthquake",
     "chaos_addon:ancient_sentinel/liquid_sinking",
-    "chaos_addon:ancient_sentinel/no_mobility"
+    "chaos_addon:ancient_sentinel/no_mobility",
+    "chaos_addon:ancient_sentinel/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

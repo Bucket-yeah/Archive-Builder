@@ -1,0 +1,66 @@
+Агент, приступай к этапу P3 — Визуальная идентичность.
+
+Согласно ТЗ (раздел 4, P3), необходимо добавить постоянные визуальные маркеры для всех 23 рас, используя нативные типы способностей NeoOrigins. Требования:
+
+Минимум один always-on визуальный эффект на расу (можно комбинировать model_color, overlay, particle, shader — но избегай тяжёлых шейдеров, если они не оптимизированы).
+
+Эффект должен быть заметным, тематическим, не влиять на геймплей и производительность (интервал частиц не менее 20 тиков, если используются частицы).
+
+Все созданные power-файлы должны быть добавлены в соответствующий origins/<race>.json.
+
+Конкретные указания по расам (предлагаемые эффекты)
+Для каждой расы создай JSON-файл в powers/<race>/ с подходящим ID (например, visual_marker) и добавь его в список powers origin-файла. Используй типы:
+
+neoorigins:model_color — изменение цвета модели (RGB).
+
+neoorigins:overlay — наложение текстуры (например, полупрозрачный слой).
+
+neoorigins:particle — спавн частиц вокруг игрока (с интервалом).
+
+Предлагаемые визуальные темы (можешь выбрать другие, но обоснуй):
+
+Раса	Эффект
+Deep Geomancer	model_color серо-коричневый (#8B7355) + частицы minecraft:block каменной крошки каждые 30 тиков
+Mycelial Symbiont	model_color зелёный (#2E8B57) + частицы minecraft:spore_blossom_air раз в 20 тиков
+Dimension Judge	model_color золотистый (#FFD700) + частицы minecraft:end_rod (свет правосудия)
+Wandering Gardener	model_color салатовый (#7CFC00) + частицы minecraft:composter (листья/цветы)
+Time Wanderer	model_color фиолетовый (#9370DB) + частицы minecraft:portal (временная рябь)
+Alchemical Monk	model_color оранжево-медный (#B87333) + частицы minecraft:witch (зельеварение)
+Ancient Sentinel	model_color каменно-серый (#696969) + частицы minecraft:block (каменная пыль)
+Biomorph	model_color меняющийся (по биому) — используй model_color с динамическим цветом, либо просто зелёно-синий (#20B2AA) + частицы minecraft:spore
+Deep Navigator	model_color сине-голубой (#1E90FF) + частицы minecraft:end_rod (пространство)
+Eater of Worlds	model_color тёмно-красный (#8B0000) + частицы minecraft:campfire_cosy (хаос)
+Infernal Shepherd	model_color огненно-оранжевый (#FF4500) + частицы minecraft:flame
+Lunar Renegade	model_color серебристо-лунный (#C0C0C0) + частицы minecraft:glow (лунный свет)
+Mirror Phantom	model_color призрачно-белый (#F5F5F5) + частицы minecraft:effect (отражение)
+Necrovore	model_color тёмно-фиолетовый (#4B0082) + частицы minecraft:soul_fire_flame
+Neural Hijacker	model_color неоново-зелёный (#39FF14) + частицы minecraft:reverse_portal (контроль)
+Nightmare Mimic	model_color иллюзорно-мерцающий (меняющийся) — используй model_color с динамическим RGB, или просто серый (#808080) + частицы minecraft:smoke
+Parasitic Mind	model_color бледно-зелёный (#ADFF2F) + частицы minecraft:spore (паразит)
+Phantom Archaeologist	model_color древне-каменный (#8B8682) + частицы minecraft:block (пыль раскопок)
+Radioactive Phantom	model_color ядовито-зелёный (#7FFF00) + частицы minecraft:end_rod (радиация)
+Star Oracle	model_color звёздный (#FFFACD) + частицы minecraft:end_rod (звёзды)
+Swarm Lord	model_color жёлто-чёрный (#FFD700 с чёрными вкраплениями) + частицы minecraft:bee (рой)
+Blood Smith	model_color кроваво-красный (#8B0000) + частицы minecraft:redstone (кровь)
+Chaos Engineer	model_color хаотично-переливающийся (RGB-цикл) или просто оранжевый (#FF8C00) + частицы minecraft:redstone (электричество)
+Технические требования
+Для каждой расы создай файл powers/<race>/visual_marker.json (или другое осмысленное имя) с типом neoorigins:model_color, neoorigins:overlay или neoorigins:particle.
+
+Добавь ID этого power в origins/<race>.json в массив "powers".
+
+Для частиц используй параметр "interval": 20 (тиков) или больше.
+
+Убедись, что все созданные файлы имеют корректный JSON-синтаксис.
+
+После добавления всех визуальных маркеров — прогони TOR-7.2 скрипты (сверка ID) и убедись, что все новые ID совпадают с Java-кодом (хотя визуальные маркеры не имеют Java-логики, но они должны быть упомянуты в origin JSON).
+
+Выполни чистую сборку (gradlew build) и убедись, что JAR создаётся без ошибок.
+
+Что предоставить в отчёте
+Список всех созданных/изменённых JSON-файлов (по расам).
+
+Краткое описание визуального эффекта для каждой расы.
+
+Результат TOR-7.2 проверки (подтверждение совпадения ID).
+
+Подтверждение успешной сборки.

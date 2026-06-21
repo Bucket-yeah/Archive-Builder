@@ -10,7 +10,8 @@
     "chaos_addon:deep_navigator/reality_anchor",
     "chaos_addon:deep_navigator/void_portal",
     "chaos_addon:deep_navigator/no_natural_regen",
-    "chaos_addon:deep_navigator/portal_decay"
+    "chaos_addon:deep_navigator/portal_decay",
+    "chaos_addon:deep_navigator/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 1.0,
+    "green": 0.55,
+    "blue": 0.0,
+    "alpha": 0.75
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 20,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:crit",
+      "count": 3,
+      "spread": {
+        "x": 0.5,
+        "y": 0.8,
+        "z": 0.5
+      },
+      "speed": 0.1,
+      "force": false
+    }
+  },
+  "name": "Хаотическая аура",
+  "description": "Оранжевые искры перегруженного редстоун-инженера.",
+  "hidden": true
+}

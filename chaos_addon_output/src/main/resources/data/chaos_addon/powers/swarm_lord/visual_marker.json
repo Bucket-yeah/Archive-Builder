@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 1.0,
+    "green": 0.84,
+    "blue": 0.0,
+    "alpha": 0.75
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 25,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:happy_villager",
+      "count": 2,
+      "spread": {
+        "x": 0.5,
+        "y": 0.8,
+        "z": 0.5
+      },
+      "speed": 0.05,
+      "force": false
+    }
+  },
+  "name": "Роевая аура",
+  "description": "Золотые частицы роя Повелителя Роя.",
+  "hidden": true
+}

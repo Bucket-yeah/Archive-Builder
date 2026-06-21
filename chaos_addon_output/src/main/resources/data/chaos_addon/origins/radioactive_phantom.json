@@ -10,7 +10,8 @@
     "chaos_addon:radioactive_phantom/radioactive_leap",
     "chaos_addon:radioactive_phantom/mutagenic_blast",
     "chaos_addon:radioactive_phantom/material_decay",
-    "chaos_addon:radioactive_phantom/rain_damage"
+    "chaos_addon:radioactive_phantom/rain_damage",
+    "chaos_addon:radioactive_phantom/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

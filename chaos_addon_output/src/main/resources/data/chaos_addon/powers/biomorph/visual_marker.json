@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 0.13,
+    "green": 0.7,
+    "blue": 0.67,
+    "alpha": 0.75
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 20,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:spore_blossom_air",
+      "count": 2,
+      "spread": {
+        "x": 0.5,
+        "y": 1.0,
+        "z": 0.5
+      },
+      "speed": 0.01,
+      "force": false
+    }
+  },
+  "name": "Биоморфная аура",
+  "description": "Морская зелень и споры живого биоморфа.",
+  "hidden": true
+}

@@ -10,7 +10,8 @@
     "chaos_addon:neural_hijacker/parasite_hiveburst",
     "chaos_addon:neural_hijacker/hivemind_control",
     "chaos_addon:neural_hijacker/no_armor",
-    "chaos_addon:neural_hijacker/host_dependency"
+    "chaos_addon:neural_hijacker/host_dependency",
+    "chaos_addon:neural_hijacker/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

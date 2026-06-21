@@ -10,7 +10,8 @@
     "chaos_addon:mirror_phantom/mirror_world",
     "chaos_addon:mirror_phantom/stolen_identity",
     "chaos_addon:mirror_phantom/fragile_form",
-    "chaos_addon:mirror_phantom/sun_vulnerability"
+    "chaos_addon:mirror_phantom/sun_vulnerability",
+    "chaos_addon:mirror_phantom/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

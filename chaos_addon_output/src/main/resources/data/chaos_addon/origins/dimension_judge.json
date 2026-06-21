@@ -10,7 +10,8 @@
     "chaos_addon:dimension_judge/confiscation",
     "chaos_addon:dimension_judge/higher_judgment",
     "chaos_addon:dimension_judge/no_totems",
-    "chaos_addon:dimension_judge/no_regen_potion"
+    "chaos_addon:dimension_judge/no_regen_potion",
+    "chaos_addon:dimension_judge/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

@@ -10,7 +10,8 @@
     "chaos_addon:alchemical_monk/philosophers_blast",
     "chaos_addon:alchemical_monk/flesh_transmutation",
     "chaos_addon:alchemical_monk/no_armor",
-    "chaos_addon:alchemical_monk/overloaded_damage"
+    "chaos_addon:alchemical_monk/overloaded_damage",
+    "chaos_addon:alchemical_monk/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

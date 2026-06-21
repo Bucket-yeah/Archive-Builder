@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 0.55,
+    "green": 0.53,
+    "blue": 0.51,
+    "alpha": 0.75
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 30,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:large_smoke",
+      "count": 2,
+      "spread": {
+        "x": 0.5,
+        "y": 0.8,
+        "z": 0.5
+      },
+      "speed": 0.02,
+      "force": false
+    }
+  },
+  "name": "Археологическая аура",
+  "description": "Древняя каменная пыль Фантомного Археолога.",
+  "hidden": true
+}

@@ -10,7 +10,8 @@
     "chaos_addon:lunar_renegade/eclipse",
     "chaos_addon:lunar_renegade/silver_shield",
     "chaos_addon:lunar_renegade/day_penalty",
-    "chaos_addon:lunar_renegade/sun_burn"
+    "chaos_addon:lunar_renegade/sun_burn",
+    "chaos_addon:lunar_renegade/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

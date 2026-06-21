@@ -11,7 +11,8 @@
     "chaos_addon:blood_smith/blood_sacrifice",
     "chaos_addon:blood_smith/blood_sensitivity",
     "chaos_addon:blood_smith/no_natural_regen",
-    "chaos_addon:blood_smith/blood_charge_bar"
+    "chaos_addon:blood_smith/blood_charge_bar",
+    "chaos_addon:blood_smith/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

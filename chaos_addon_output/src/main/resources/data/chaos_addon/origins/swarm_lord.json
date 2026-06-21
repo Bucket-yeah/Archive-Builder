@@ -10,7 +10,8 @@
     "chaos_addon:swarm_lord/hive_fortress",
     "chaos_addon:swarm_lord/swarm_shield",
     "chaos_addon:swarm_lord/no_helmet",
-    "chaos_addon:swarm_lord/water_vulnerability"
+    "chaos_addon:swarm_lord/water_vulnerability",
+    "chaos_addon:swarm_lord/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

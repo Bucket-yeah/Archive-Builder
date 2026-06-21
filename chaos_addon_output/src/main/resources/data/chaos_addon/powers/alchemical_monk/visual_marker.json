@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 0.72,
+    "green": 0.45,
+    "blue": 0.2,
+    "alpha": 0.75
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 25,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:witch",
+      "count": 3,
+      "spread": {
+        "x": 0.5,
+        "y": 0.8,
+        "z": 0.5
+      },
+      "speed": 0.05,
+      "force": false
+    }
+  },
+  "name": "Алхимическая аура",
+  "description": "Медно-оранжевый отблеск алхимии и зельеварения.",
+  "hidden": true
+}

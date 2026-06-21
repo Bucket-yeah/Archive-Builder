@@ -12,7 +12,8 @@
     "chaos_addon:time_wanderer/stasis_field",
     "chaos_addon:time_wanderer/time_loop",
     "chaos_addon:time_wanderer/no_clocks",
-    "chaos_addon:time_wanderer/double_fall_damage"
+    "chaos_addon:time_wanderer/double_fall_damage",
+    "chaos_addon:time_wanderer/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 0.49,
+    "green": 0.99,
+    "blue": 0.0,
+    "alpha": 0.75
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 20,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:spore_blossom_air",
+      "count": 3,
+      "spread": {
+        "x": 0.5,
+        "y": 0.9,
+        "z": 0.5
+      },
+      "speed": 0.01,
+      "force": false
+    }
+  },
+  "name": "Садовническая аура",
+  "description": "Салатово-зелёные споры Странствующего Садовника.",
+  "hidden": true
+}

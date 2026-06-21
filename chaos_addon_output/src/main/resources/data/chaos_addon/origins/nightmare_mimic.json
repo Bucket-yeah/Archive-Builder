@@ -10,7 +10,8 @@
     "chaos_addon:nightmare_mimic/reality_or_dream",
     "chaos_addon:nightmare_mimic/illusory_world",
     "chaos_addon:nightmare_mimic/no_valuables",
-    "chaos_addon:nightmare_mimic/double_hunger"
+    "chaos_addon:nightmare_mimic/double_hunger",
+    "chaos_addon:nightmare_mimic/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

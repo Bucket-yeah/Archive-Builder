@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 1.0,
+    "green": 0.98,
+    "blue": 0.8,
+    "alpha": 0.7
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 20,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:end_rod",
+      "count": 3,
+      "spread": {
+        "x": 0.6,
+        "y": 1.0,
+        "z": 0.6
+      },
+      "speed": 0.05,
+      "force": false
+    }
+  },
+  "name": "Звёздная аура",
+  "description": "Небесно-кремовые звёздные искры Звёздного Оракула.",
+  "hidden": true
+}

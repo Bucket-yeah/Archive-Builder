@@ -10,7 +10,8 @@
     "chaos_addon:parasitic_mind/hivemind",
     "chaos_addon:parasitic_mind/parasite_explosion",
     "chaos_addon:parasitic_mind/no_direct_attack",
-    "chaos_addon:parasitic_mind/no_potions"
+    "chaos_addon:parasitic_mind/no_potions",
+    "chaos_addon:parasitic_mind/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 1.0,
+    "green": 0.84,
+    "blue": 0.0,
+    "alpha": 0.8
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 25,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:end_rod",
+      "count": 3,
+      "spread": {
+        "x": 0.5,
+        "y": 0.9,
+        "z": 0.5
+      },
+      "speed": 0.05,
+      "force": false
+    }
+  },
+  "name": "Судейская аура",
+  "description": "Золотой свет правосудия Судьи Измерений.",
+  "hidden": true
+}

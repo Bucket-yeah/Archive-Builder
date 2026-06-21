@@ -11,7 +11,8 @@
     "chaos_addon:mycelial_symbiont/moss_escape",
     "chaos_addon:mycelial_symbiont/spore_fog",
     "chaos_addon:mycelial_symbiont/moss_tether",
-    "chaos_addon:mycelial_symbiont/water_kills_moss"
+    "chaos_addon:mycelial_symbiont/water_kills_moss",
+    "chaos_addon:mycelial_symbiont/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

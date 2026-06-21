@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 0.5,
+    "green": 1.0,
+    "blue": 0.0,
+    "alpha": 0.75
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 20,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:end_rod",
+      "count": 3,
+      "spread": {
+        "x": 0.5,
+        "y": 0.9,
+        "z": 0.5
+      },
+      "speed": 0.05,
+      "force": false
+    }
+  },
+  "name": "Радиационная аура",
+  "description": "Ядовито-зелёные частицы радиации Радиоактивного Фантома.",
+  "hidden": true
+}

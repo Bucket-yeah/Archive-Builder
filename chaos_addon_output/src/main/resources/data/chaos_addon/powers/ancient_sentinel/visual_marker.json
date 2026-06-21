@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 0.41,
+    "green": 0.41,
+    "blue": 0.41,
+    "alpha": 0.8
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 30,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:large_smoke",
+      "count": 2,
+      "spread": {
+        "x": 0.4,
+        "y": 0.8,
+        "z": 0.4
+      },
+      "speed": 0.03,
+      "force": false
+    }
+  },
+  "name": "Каменная аура",
+  "description": "Серая пыль древнего стража, хранящего время.",
+  "hidden": true
+}

@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 1.0,
+    "green": 0.27,
+    "blue": 0.0,
+    "alpha": 0.75
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 20,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:flame",
+      "count": 4,
+      "spread": {
+        "x": 0.5,
+        "y": 0.8,
+        "z": 0.5
+      },
+      "speed": 0.05,
+      "force": false
+    }
+  },
+  "name": "Адская аура",
+  "description": "Огненно-оранжевое пламя Инфернального Пастыря.",
+  "hidden": true
+}

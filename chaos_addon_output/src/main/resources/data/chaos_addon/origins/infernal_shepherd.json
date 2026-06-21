@@ -10,7 +10,8 @@
     "chaos_addon:infernal_shepherd/volcanic_burst",
     "chaos_addon:infernal_shepherd/nether_portal",
     "chaos_addon:infernal_shepherd/overworld_burn",
-    "chaos_addon:infernal_shepherd/overworld_death_penalty"
+    "chaos_addon:infernal_shepherd/overworld_death_penalty",
+    "chaos_addon:infernal_shepherd/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

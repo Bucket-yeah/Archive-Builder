@@ -10,7 +10,8 @@
     "chaos_addon:biomorph/biome_burst",
     "chaos_addon:biomorph/biome_capture",
     "chaos_addon:biomorph/transition_damage",
-    "chaos_addon:biomorph/wrong_biome_blocks"
+    "chaos_addon:biomorph/wrong_biome_blocks",
+    "chaos_addon:biomorph/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

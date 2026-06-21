@@ -13,7 +13,8 @@
     "chaos_addon:deep_geomancer/stone_fist",
     "chaos_addon:deep_geomancer/call_of_depths",
     "chaos_addon:deep_geomancer/no_pickaxes",
-    "chaos_addon:deep_geomancer/altitude_damage"
+    "chaos_addon:deep_geomancer/altitude_damage",
+    "chaos_addon:deep_geomancer/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

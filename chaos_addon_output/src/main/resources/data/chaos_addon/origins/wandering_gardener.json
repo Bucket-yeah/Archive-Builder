@@ -14,7 +14,8 @@
     "chaos_addon:wandering_gardener/summon_dryad",
     "chaos_addon:wandering_gardener/life_bloom",
     "chaos_addon:wandering_gardener/no_weapons",
-    "chaos_addon:wandering_gardener/woodcutting_damage"
+    "chaos_addon:wandering_gardener/woodcutting_damage",
+    "chaos_addon:wandering_gardener/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []

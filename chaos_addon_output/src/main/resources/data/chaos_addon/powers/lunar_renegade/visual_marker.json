@@ -1,0 +1,29 @@
+{
+  "type": "neoorigins:multiple",
+  "color": {
+    "type": "neoorigins:model_color",
+    "red": 0.75,
+    "green": 0.75,
+    "blue": 0.75,
+    "alpha": 0.7
+  },
+  "particles": {
+    "type": "neoorigins:condition_passive",
+    "interval": 25,
+    "entity_action": {
+      "type": "neoorigins:spawn_particles",
+      "particle": "minecraft:glow",
+      "count": 2,
+      "spread": {
+        "x": 0.5,
+        "y": 0.9,
+        "z": 0.5
+      },
+      "speed": 0.01,
+      "force": false
+    }
+  },
+  "name": "Лунная аура",
+  "description": "Серебристое лунное свечение Лунного Ренегата.",
+  "hidden": true
+}

@@ -10,7 +10,8 @@
     "chaos_addon:eater_of_worlds/abyss_summon",
     "chaos_addon:eater_of_worlds/time_loop",
     "chaos_addon:eater_of_worlds/sun_burn",
-    "chaos_addon:eater_of_worlds/bed_explosion"
+    "chaos_addon:eater_of_worlds/bed_explosion",
+    "chaos_addon:eater_of_worlds/visual_marker"
   ],
   "upgrades": [],
   "tier_powers": []
