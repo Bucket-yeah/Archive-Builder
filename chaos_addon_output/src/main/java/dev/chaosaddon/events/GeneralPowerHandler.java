@@ -170,7 +170,7 @@ public class GeneralPowerHandler {
         }
 
         // ── Dimension Judge: auto "Last Verdict" at < 20% HP ──
-        if (OriginHelper.hasPower(player, "chaos_addon:dimension_judge/balance_of_powers")) {
+        if (OriginHelper.hasPower(player, "chaos_addon:dimension_judge/balance_of_power")) {
             if (player.getHealth() / player.getMaxHealth() < 0.20f) {
                 long lastUsed = player.getPersistentData().getLong("chaos_judge_final_cd");
                 long now = level.getGameTime();

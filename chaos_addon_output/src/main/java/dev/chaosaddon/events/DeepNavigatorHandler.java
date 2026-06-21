@@ -21,7 +21,7 @@ import java.util.*;
 /**
  * Handles Deep Navigator (Dimension Traveler) passives:
  * - spatial_memory: each visited dimension gives a permanent stacking bonus
- * - portal_vision: glow entities near portals; 5s glow after teleport
+ * - dimensional_sight: glow entities near portals; 5s glow after teleport
  * - ephemeral_flesh: lava/fall immunity; potions 30% shorter; can walk on lava (via JSON + partial Java)
  */
 public class DeepNavigatorHandler {
@@ -114,8 +114,8 @@ public class DeepNavigatorHandler {
             }
         }
 
-        // Portal Vision: glow entities near portals (within 5 blocks of portal blocks)
-        if (OriginHelper.hasPower(player, "chaos_addon:deep_navigator/portal_vision") && now % 40 == 0) {
+        // Dimensional Sight: glow entities near portals (within 5 blocks of portal blocks)
+        if (OriginHelper.hasPower(player, "chaos_addon:deep_navigator/dimensional_sight") && now % 40 == 0) {
             // Check post-portal glow
             Long glowExpiry = PORTAL_GLOW_EXPIRY.getOrDefault(pid, 0L);
             if (now < glowExpiry) {
@@ -130,7 +130,7 @@ public class DeepNavigatorHandler {
     @SubscribeEvent
     public static void onDimensionTravel(EntityTravelToDimensionEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (!OriginHelper.hasPower(player, "chaos_addon:deep_navigator/portal_vision")) return;
+        if (!OriginHelper.hasPower(player, "chaos_addon:deep_navigator/dimensional_sight")) return;
 
         UUID pid = player.getUUID();
         if (player.level() instanceof ServerLevel level) {

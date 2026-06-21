@@ -35,7 +35,7 @@ import java.util.UUID;
  * Handles Wandering Gardener passives:
  * - green_blood: regen on grass/leaves, faster on flowers, none on stone
  * - peaceful_soul: cancel outgoing damage; tamed wolves protect; bonus egg/milk timers
- * - flower_tongue: actionbar plant info; plants "grow toward" player (bone-meal nearby plants)
+ * - language_of_flowers: auto bone-meal nearby plants + flower traps triggered on nearby enemies
  */
 public class WanderingGardenerHandler {
 
@@ -189,7 +189,7 @@ public class WanderingGardenerHandler {
         }
 
         // ── Plant Traps: check for enemies near active traps ──
-        if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/flower_tongue") && now % 10 == 0) {
+        if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/language_of_flowers") && now % 10 == 0) {
             List<long[]> traps = loadTraps(player);
             boolean changed = traps.removeIf(t -> t[3] < now); // remove expired
             List<long[]> triggeredTraps = new ArrayList<>();
@@ -218,8 +218,8 @@ public class WanderingGardenerHandler {
             }
         }
 
-        // ── Flower Tongue: bone-meal nearby plants periodically ──
-        if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/flower_tongue") && now % 100 == 0) {
+        // ── Language of Flowers: bone-meal nearby plants periodically ──
+        if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/language_of_flowers") && now % 100 == 0) {
             BlockPos origin = player.blockPosition();
             int radius = 5;
             for (int dx = -radius; dx <= radius; dx++) {
