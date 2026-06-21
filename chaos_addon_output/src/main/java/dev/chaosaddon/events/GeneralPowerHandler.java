@@ -80,28 +80,7 @@ public class GeneralPowerHandler {
         if (OriginHelper.hasOrigin(player, "chaos_addon:ancient_sentinel")
                 && !player.isSprinting() && !player.isCrouching() && player.onGround()
                 && player.tickCount % 20 == 0) {
-            List<net.minecraft.world.entity.player.Player> nearbyPlayers =
-                level.getEntitiesOfClass(net.minecraft.world.entity.player.Player.class,
-                    player.getBoundingBox().inflate(50),
-                    e -> e != player && e.isAlive() && e.onGround());
-            if (!nearbyPlayers.isEmpty()) {
-                var closest = nearbyPlayers.stream()
-                    .min((a, b) -> Double.compare(a.distanceTo(player), b.distanceTo(player)))
-                    .orElse(null);
-                if (closest != null) {
-                    double dist = closest.distanceTo(player);
-                    String dir = getCardinalDirection(player, closest);
-                    player.displayClientMessage(
-                        net.minecraft.network.chat.Component.literal(
-                            "§6🌍 Сейсмо: " + dir + " §8(" + (int)dist + "м)")
-                            .withStyle(net.minecraft.ChatFormatting.GOLD), true);
-                    level.sendParticles(
-                        new net.minecraft.core.particles.BlockParticleOption(
-                            ParticleTypes.BLOCK, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()),
-                        player.getX(), player.getY() + 0.05, player.getZ(),
-                        8, 0.5, 0.05, 0.5, 0.0);
-                }
-            }
+            dev.chaosaddon.util.SeismicSenseHelper.pingNearbyPlayers(player, level, 50, "§6🌍 Сейсмо: ");
         }
 
         // ── Green Blood bad-biome damage + grass regen ──
@@ -697,22 +676,6 @@ public class GeneralPowerHandler {
 
         target.addTag("chaos_blood_cloud");
         target.getPersistentData().putInt("chaos_blood_cloud_ticks", 60);
-    }
-
-    // ── Cardinal direction helper for Seismic Sense ───────────────────────────
-    private static String getCardinalDirection(net.minecraft.world.entity.Entity from, net.minecraft.world.entity.Entity to) {
-        double dx = to.getX() - from.getX();
-        double dz = to.getZ() - from.getZ();
-        double angle = Math.toDegrees(Math.atan2(dz, dx));
-        if (angle < 0) angle += 360;
-        if (angle < 22.5 || angle >= 337.5) return "→ В";
-        if (angle < 67.5)  return "↘ ЮВ";
-        if (angle < 112.5) return "↓ Ю";
-        if (angle < 157.5) return "↙ ЮЗ";
-        if (angle < 202.5) return "← З";
-        if (angle < 247.5) return "↖ СЗ";
-        if (angle < 292.5) return "↑ С";
-        return "↗ СВ";
     }
 
     /** Blood cloud tick: deal 1 HP/s + Slowness II to entities in cloud. */

@@ -44,13 +44,12 @@ public class HudHandler {
 
     private static Component buildHud(ServerPlayer player, ServerLevel level) {
         // ──────── BLOOD SMITH ────────
+        // Charge counter is now rendered natively by neoorigins:resource (blood_charge_bar).
+        // Actionbar shows only ability hints + low-HP cost discount reminder.
         if (OriginHelper.hasOrigin(player, "chaos_addon:blood_smith")) {
-            int charges = BloodSmithHandler.getCharges(player);
-            int max = 100;
-            String bar = buildBar(charges, max, 10, "§c", "§8");
             boolean low = player.getHealth() <= 4.0f;
             String bonus = low ? " §4⬇ HP<3❤ → Скидка 50%!" : "";
-            return line("§c🩸", "Заряды: " + charges + "/" + max + "  " + bar + bonus,
+            return line("§c🩸", "Кровавый Кузнец" + bonus,
                 "§e[G]§7 Голем", "§e[V]§7 Клинок", "§e[B]§7 Жертва");
         }
 

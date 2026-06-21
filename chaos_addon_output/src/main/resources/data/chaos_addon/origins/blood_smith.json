@@ -10,7 +10,8 @@
     "chaos_addon:blood_smith/blood_blade",
     "chaos_addon:blood_smith/blood_sacrifice",
     "chaos_addon:blood_smith/blood_sensitivity",
-    "chaos_addon:blood_smith/no_natural_regen"
+    "chaos_addon:blood_smith/no_natural_regen",
+    "chaos_addon:blood_smith/blood_charge_bar"
   ],
   "upgrades": [],
   "tier_powers": []
