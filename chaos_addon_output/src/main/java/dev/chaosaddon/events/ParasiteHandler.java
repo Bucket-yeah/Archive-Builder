@@ -98,8 +98,9 @@ public class ParasiteHandler {
         }
 
         // ── telepathic_network: show direction to nearest infected host ──
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         if (OriginHelper.hasPower(player, "chaos_addon:parasitic_mind/telepathic_network")
-                && player.tickCount % 20 == 0) {
+                && player.tickCount % cfg.telepathicNetworkInterval == 0) {
             if (nearestInfected != null) {
                 double dx = nearestInfected.getX() - player.getX();
                 double dz = nearestInfected.getZ() - player.getZ();
@@ -130,9 +131,9 @@ public class ParasiteHandler {
 
         // ── parasite_sense: HP of nearest entity ──
         if (OriginHelper.hasPower(player, "chaos_addon:parasitic_mind/parasite_sense")
-                && player.tickCount % 40 == 0) {
+                && player.tickCount % cfg.parasiteSenseInterval == 0) {
             List<LivingEntity> nearbyEntities = level.getEntitiesOfClass(LivingEntity.class,
-                player.getBoundingBox().inflate(20),
+                player.getBoundingBox().inflate(cfg.parasiteSenseRange),
                 e -> e != player && e.isAlive());
             if (!nearbyEntities.isEmpty()) {
                 LivingEntity closest = nearbyEntities.stream()

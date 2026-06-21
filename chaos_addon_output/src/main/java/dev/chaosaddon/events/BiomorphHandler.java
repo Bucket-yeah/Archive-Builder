@@ -57,9 +57,6 @@ public class BiomorphHandler {
         OUR_EFFECTS.add(MobEffects.LUCK);
     }
 
-    private static final int TIER2 = 1200;  // 1 min
-    private static final int TIER3 = 3600;  // 3 min
-    private static final long SHOCK_GRACE = 200L; // 10s between shocks
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -81,7 +78,7 @@ public class BiomorphHandler {
                 && OriginHelper.hasPower(player, "chaos_addon:biomorph/transition_damage")) {
             long now = level.getGameTime();
             long lastShock = LAST_SHOCK_TIME.getOrDefault(player.getUUID(), 0L);
-            if (now - lastShock >= SHOCK_GRACE) {
+            if (now - lastShock >= cfg.bioShockGraceTicks) {
                 LAST_SHOCK_TIME.put(player.getUUID(), now);
                 player.hurt(player.damageSources().generic(), cfg.bioTransitionDamage);
                 player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0, false, true));
@@ -105,10 +102,10 @@ public class BiomorphHandler {
         if (player.tickCount % 20 != 0) return;
 
         int biomeTime = data.getBiomeTime(biomeName);
-        int tier = biomeTime >= TIER3 ? 3 : (biomeTime >= TIER2 ? 2 : 1);
+        int tier = biomeTime >= cfg.bioTier3Ticks ? 3 : (biomeTime >= cfg.bioTier2Ticks ? 2 : 1);
 
         // ── DNA unlock: after 3 min in biome type, permanently unlock it ──
-        if (biomeTime >= TIER3) {
+        if (biomeTime >= cfg.bioTier3Ticks) {
             boolean newUnlock = data.unlockDna(biomeType);
             if (newUnlock) {
                 player.sendSystemMessage(Component.literal(
@@ -159,8 +156,8 @@ public class BiomorphHandler {
             }
             if (bestBiome != null && !biomeType.equals(bestBiome)) {
                 // Not in home biome: Mining Fatigue I
-                player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 40, 0, true, false));
-                if (player.tickCount % 100 == 0) {
+                player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 40, cfg.bioWrongBiomeFatigueLevel, true, false));
+                if (player.tickCount % cfg.bioWrongBiomeCheckInterval == 0) {
                     player.displayClientMessage(
                         Component.literal("§3🧬 Чужой биом — §7замедление горной добычи").withStyle(ChatFormatting.DARK_AQUA), true);
                 }

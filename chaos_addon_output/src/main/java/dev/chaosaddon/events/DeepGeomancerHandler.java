@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import dev.chaosaddon.util.SeismicSenseHelper;
 import net.minecraft.ChatFormatting;
@@ -53,10 +54,11 @@ public class DeepGeomancerHandler {
         if (!(player.level() instanceof ServerLevel level)) return;
 
         // ── ore_vision: Жилы Земли — direction ping to nearest ore every 4s ──
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         if (OriginHelper.hasPower(player, "chaos_addon:deep_geomancer/ore_vision")
-                && player.tickCount % 80 == 0) {
+                && player.tickCount % cfg.geoOreVisionInterval == 0) {
             BlockPos center = player.blockPosition();
-            int radius = 20;
+            int radius = cfg.geoOreVisionRadius;
             BlockPos nearest = null;
             double nearestDistSq = Double.MAX_VALUE;
             for (BlockPos pos : BlockPos.betweenClosed(
@@ -97,15 +99,15 @@ public class DeepGeomancerHandler {
                     6, 0.4, 0.05, 0.4, 0.0);
             } else if (player.tickCount % 160 == 0) {
                 player.displayClientMessage(
-                    Component.literal("§8🪨 Жилы Земли: руда не найдена в радиусе 20м"), true);
+                    Component.literal("§8🪨 Жилы Земли: руда не найдена в радиусе " + radius + "м"), true);
             }
         }
 
         // ── earth_hearing: Земляной Слух — seismic sense for nearby mobs ──
         if (OriginHelper.hasPower(player, "chaos_addon:deep_geomancer/earth_hearing")
                 && !player.isSprinting() && player.onGround()
-                && player.tickCount % 40 == 0) {
-            SeismicSenseHelper.pingNearbyEntities(player, level, 30,
+                && player.tickCount % cfg.geoEarthHearingInterval == 0) {
+            SeismicSenseHelper.pingNearbyEntities(player, level, cfg.geoEarthHearingRadius,
                 e -> !(e instanceof Player),
                 "§e⛰ Земляной Слух: ", ChatFormatting.YELLOW);
         }
@@ -113,7 +115,7 @@ public class DeepGeomancerHandler {
         // ── altitude_damage (repurposed: Оторванность от Земли) ──
         // Standing on non-stone/earth surface → Slowness I; airborne → Weakness I
         if (OriginHelper.hasPower(player, "chaos_addon:deep_geomancer/altitude_damage")
-                && player.tickCount % 40 == 0) {
+                && player.tickCount % cfg.geoAltitudeDamageInterval == 0) {
             BlockPos below = player.blockPosition().below();
             BlockState stateBelow = level.getBlockState(below);
             boolean onEarth = stateBelow.is(BlockTags.BASE_STONE_OVERWORLD)

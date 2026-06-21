@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -101,7 +102,7 @@ public class ArchaeologistHandler {
         newData.remove(KEY_INVENTORY);
         newData.remove(KEY_TOTAL_XP);
 
-        newPlayer.getPersistentData().putInt("chaos_arch_spawn_lock", 600);
+        newPlayer.getPersistentData().putInt("chaos_arch_spawn_lock", ChaosAddonConfig.get().archSpawnLockTicks);
         newPlayer.sendSystemMessage(Component.literal(
             "§b📦 Данные восстановлены из облачного бэкапа. §7(Синхронизация 30с...)"));
     }
@@ -119,8 +120,9 @@ public class ArchaeologistHandler {
         }
 
         // ── chunk_vision → "Чутьё Раскопок": detect nearby generated structures ──
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         if (OriginHelper.hasPower(player, "chaos_addon:phantom_archaeologist/chunk_vision")
-                && player.tickCount % 60 == 0) {
+                && player.tickCount % cfg.chunkVisionInterval == 0) {
             BlockPos pos = player.blockPosition();
             int chunkX = pos.getX() >> 4;
             int chunkZ = pos.getZ() >> 4;
@@ -200,7 +202,7 @@ public class ArchaeologistHandler {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:phantom_archaeologist/sound_sensitivity")) return;
         if (event.getSource().is(DamageTypeTags.IS_EXPLOSION)) {
-            event.setAmount(event.getAmount() * 1.5f);
+            event.setAmount(event.getAmount() * ChaosAddonConfig.get().soundSensitivityMultiplier);
             player.displayClientMessage(
                 Component.literal("§b📢 Звуковая чувствительность: взрывной урон ×1.5!")
                     .withStyle(ChatFormatting.AQUA), true);

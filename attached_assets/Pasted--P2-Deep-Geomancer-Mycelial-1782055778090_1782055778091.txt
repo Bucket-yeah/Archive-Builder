@@ -1,0 +1,95 @@
+Агент, заверши P2 согласно ТЗ. Текущий статус: все активные способности для Deep Geomancer, Mycelial Symbiont, Dimension Judge и Wandering Gardener реализованы. Остаются две обязательные задачи:
+
+1. Time Wanderer — реконсиляция осиротевших файлов
+В powers/time_wanderer/ есть два JSON-файла, которые НЕ включены в origins/time_wanderer.json:
+
+stasis_field.json
+
+time_loop.json
+
+Что сделать:
+
+time_loop.json → превратить в активную способность Петля (ЛКМ или ПКМ, кулдаун ~25с = 500 тиков).
+Механика: при активации сохранить позицию и HP игрока, через 3 секунды (60 тиков) телепортировать обратно и восстановить HP до сохранённого значения.
+
+Изменить "type" на "neoorigins:active_ability".
+
+Добавить "key": {"key": "key.primary"} (или secondary).
+
+Добавить "command": "chaos_addon_time_loop".
+
+Добавить "cooldown": 500.
+
+В init/ModCommands.java зарегистрировать команду chaos_addon_time_loop, которая вызывает метод TimeWandererHandler.activateTimeLoop(player).
+
+Создать TimeWandererHandler (если его нет) или добавить логику в GeneralPowerHandler (но лучше выделенный хендлер). Реализовать сохранение состояния и откат через scheduled task.
+
+stasis_field.json → превратить в ультимативную способность Поле Стазиса (кулдаун 5 минут = 6000 тиков).
+Механика: создать область (радиус 8 блоков) вокруг игрока, в которой все мобы и снаряды замедляются на 80% и получают лёгкий урон (или просто замедление) на 5 секунд. Использовать существующую систему chaos_stasis (теги) или реализовать через эффекты.
+
+Изменить "type" на "neoorigins:active_ability".
+
+Добавить "key": {"key": "key.tertiary"}.
+
+Добавить "command": "chaos_addon_stasis_field".
+
+Добавить "cooldown": 6000.
+
+Зарегистрировать команду chaos_addon_stasis_field в ModCommands.java, логику разместить в том же хендлере.
+
+Добавить оба ID в origins/time_wanderer.json в список "powers".
+
+2. Вынос всех числовых параметров в конфиг (обязательно для всех рас)
+Проведи инвентаризацию всех хендлеров (*Handler.java) и GeneralPowerHandler.java. Найди все числовые литералы (интервалы, радиусы, проценты, длительности, урон, количество тиков), которые используются в механиках, и замени их на ссылки на поля конфига.
+
+Что добавлять в ChaosAddonConfig.java:
+Для каждой новой/переработанной механики создай поле с осмысленным именем (например, geoClawCooldown, geoClawBonusDamage, geoDashMaxThickness, judgeConfiscationCooldown, mountainEchoInterval, geigerScanRadius, materialDecayInterval, parasiteSenseRange, noValuablesInterval, falseLootInterval, falseLootDamage, chunkVisionInterval, soundSensitivityMultiplier, transitionDamageThreshold, waterKillsMossInterval, stoneContactDebuffDuration, growthAuraRadius и т.д.).
+Значения по умолчанию бери из существующего хардкода (если он есть) или из ТЗ (если указано). Все новые поля должны быть доступны через геттеры.
+
+Обязательные для проверки (все хендлеры):
+
+DeepGeomancerHandler — все числа (кулдауны, дальность, урон, длительности).
+
+DimensionJudgeHandler — все числа (кулдауны, радиусы, урон, длительности).
+
+MycelialSymbiontHandler — все числа (интервалы, урон, радиусы).
+
+WanderingGardenerHandler — все числа (радиусы, лечение, интервалы).
+
+GeneralPowerHandler — mountain_echo, no_valuables, false_loot, precognition_loop, water_vulnerability, moss_escape (если там что-то есть), no_clocks (радиус телепортации).
+
+RadioactiveHandler — geiger_counter, material_decay.
+
+ParasiteHandler — telepathic_network, parasite_sense, no_potions (отмена зелий может не иметь чисел, но проверь).
+
+ArchaeologistHandler — chunk_vision, sound_sensitivity.
+
+BiomorphHandler — transition_damage, wrong_biome_blocks.
+
+AlchemistHandler — overloaded_damage (процент бонуса за эффект, максимум).
+
+Другие хендлеры, если есть.
+
+После замены убедись, что сборка проходит (импорты и типы данных корректны).
+
+3. Проверка Biomorph (wrong_biome_blocks)
+Убедись, что механика wrong_biome_blocks (снижение скорости добычи блоков не из текущего биома) действительно работает:
+
+В BiomorphHandler.java должна быть проверка hasPower("chaos_addon:biomorph/wrong_biome_blocks").
+
+Применяется Mining Fatigue или другой эффект, если игрок находится в биоме, отличном от адаптированного.
+
+Все числа (уровень эффекта, интервал проверки) вынесены в конфиг.
+
+JSON powers/biomorph/wrong_biome_blocks.json существует и описан как реальный драбэк.
+
+Если нет — реализовать.
+
+4. Финальная проверка
+После выполнения всех пунктов:
+
+Запусти сборку (gradlew build) — должна быть успешной.
+
+Прогони TOR-7.2 скрипты сверки ID (сравни все hasPower(...) в Java с ID в JSON). Убедись, что все новые ID совпадают.
+
+Предоставь краткий отчёт: список созданных/изменённых файлов, добавленных конфиг-параметров, и подтверждение успешной сборки.

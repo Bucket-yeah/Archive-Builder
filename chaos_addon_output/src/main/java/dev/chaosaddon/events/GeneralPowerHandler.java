@@ -161,16 +161,16 @@ public class GeneralPowerHandler {
             }
         }
 
-        // ── Dimension Judge: auto "Last Verdict" at < 20% HP ──
+        // ── Dimension Judge: auto "Last Verdict" at low HP ──
         if (OriginHelper.hasPower(player, "chaos_addon:dimension_judge/balance_of_power")) {
-            if (player.getHealth() / player.getMaxHealth() < 0.20f) {
+            if (player.getHealth() / player.getMaxHealth() < cfg.judgeLastVerdictThreshold) {
                 long lastUsed = player.getPersistentData().getLong("chaos_judge_final_cd");
                 long now = level.getGameTime();
-                if (now - lastUsed >= 6000) { // 5 min cooldown
+                if (now - lastUsed >= cfg.judgeLastVerdictCooldown) {
                     player.getPersistentData().putLong("chaos_judge_final_cd", now);
                     // Find nearest enemy and deal damage equal to difference of max HP - player current HP
                     List<LivingEntity> enemies = level.getEntitiesOfClass(LivingEntity.class,
-                        player.getBoundingBox().inflate(15),
+                        player.getBoundingBox().inflate(cfg.judgeLastVerdictRadius),
                         e -> e != player && e.isAlive());
                     if (!enemies.isEmpty()) {
                         LivingEntity nearest = enemies.stream()
@@ -286,12 +286,12 @@ public class GeneralPowerHandler {
 
             // ── mountain_echo: scan for cave air pockets/voids underground (not entities — that's seismic sense) ──
             if (OriginHelper.hasPower(player, "chaos_addon:ancient_sentinel/mountain_echo")
-                    && player.tickCount % 80 == 0) {
+                    && player.tickCount % cfg.mountainEchoInterval == 0) {
                 net.minecraft.core.BlockPos mpos = player.blockPosition();
                 int caveCount = 0;
                 double nearestDistSq = Double.MAX_VALUE;
                 double ncx = 0, ncy = 0, ncz = 0;
-                int radius = 18;
+                int radius = cfg.mountainEchoRadius;
                 for (int mdx = -radius; mdx <= radius; mdx += 3) {
                     for (int mdz = -radius; mdz <= radius; mdz += 3) {
                         if (mdx * mdx + mdz * mdz > radius * radius) continue;
@@ -332,7 +332,7 @@ public class GeneralPowerHandler {
         }
 
         // ── no_valuables: Nightmare Mimic — valuable items degrade across full inventory ──
-        if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/no_valuables") && player.tickCount % 60 == 0) {
+        if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/no_valuables") && player.tickCount % cfg.noValuablesInterval == 0) {
             var inv = player.getInventory();
             for (int i = 0; i < inv.items.size(); i++) {
                 net.minecraft.world.item.ItemStack stack = inv.items.get(i);
@@ -352,7 +352,7 @@ public class GeneralPowerHandler {
                                 + " §8рассыпался в пыль!").withStyle(ChatFormatting.DARK_GRAY), true);
                         inv.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
                     }
-                } else if (RNG.nextFloat() < 0.08f) {
+                } else if (RNG.nextFloat() < cfg.noValuablesChance) {
                     stack.shrink(1);
                     if (stack.isEmpty()) inv.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
                     player.displayClientMessage(
@@ -363,7 +363,7 @@ public class GeneralPowerHandler {
         }
 
         // ── false_loot: drop a trap bait item every 3 minutes ──
-        if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/false_loot") && player.tickCount % 3600 == 0) {
+        if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/false_loot") && player.tickCount % cfg.falseLootInterval == 0) {
             net.minecraft.world.item.ItemStack bait = new net.minecraft.world.item.ItemStack(Items.EMERALD);
             ItemEntity baitEntity = new ItemEntity(level,
                 player.getX() + (RNG.nextDouble() - 0.5) * 3,
@@ -381,10 +381,10 @@ public class GeneralPowerHandler {
         }
 
         // ── water_vulnerability: Swarm Lord takes damage in water ──
-        if (OriginHelper.hasPower(player, "chaos_addon:swarm_lord/water_vulnerability") && player.tickCount % 20 == 0) {
+        if (OriginHelper.hasPower(player, "chaos_addon:swarm_lord/water_vulnerability") && player.tickCount % cfg.swarmWaterVulnInterval == 0) {
             if (player.isInWater()) {
-                player.hurt(player.damageSources().drown(), 0.5f);
-                if (player.tickCount % 60 == 0) {
+                player.hurt(player.damageSources().drown(), cfg.swarmWaterVulnDamage);
+                if (player.tickCount % (cfg.swarmWaterVulnInterval * 3) == 0) {
                     player.displayClientMessage(
                         Component.literal("§9💧 Вода угрожает рою! Найди сушу!").withStyle(ChatFormatting.BLUE), true);
                 }

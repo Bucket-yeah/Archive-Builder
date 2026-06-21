@@ -34,17 +34,17 @@ public class RadioactiveHandler {
 
         // Rain damage
         if (player.tickCount % 20 == 0 && level.isRaining()) {
-            player.hurt(player.damageSources().generic(), 0.5f);
+            player.hurt(player.damageSources().generic(), cfg.radioRainDamage);
         }
 
-        // Self-radiation: 0.2 HP every 20 seconds
-        if (player.tickCount % 400 == 0) {
-            player.hurt(player.damageSources().magic(), 0.2f);
+        // Self-radiation: passive HP loss
+        if (player.tickCount % cfg.radioSelfDamageInterval == 0) {
+            player.hurt(player.damageSources().magic(), cfg.radioSelfDamage);
         }
 
         // ── material_decay: degrade armor/tools worn by nearby entities (not dropped items) ──
         if (OriginHelper.hasPower(player, "chaos_addon:radioactive_phantom/material_decay")
-                && player.tickCount % 200 == 0) {
+                && player.tickCount % cfg.materialDecayInterval == 0) {
             List<LivingEntity> decayTargets = level.getEntitiesOfClass(LivingEntity.class,
                 player.getBoundingBox().inflate(radius + 2), e -> e != player && e.isAlive());
             int decayed = 0;
@@ -52,7 +52,7 @@ public class RadioactiveHandler {
                 for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.values()) {
                     ItemStack eq = target.getItemBySlot(slot);
                     if (!eq.isEmpty() && eq.isDamageableItem()) {
-                        eq.setDamageValue(Math.min(eq.getDamageValue() + 4, eq.getMaxDamage()));
+                        eq.setDamageValue(Math.min(eq.getDamageValue() + cfg.materialDecayAmount, eq.getMaxDamage()));
                         target.setItemSlot(slot, eq);
                         decayed++;
                     }
@@ -73,7 +73,7 @@ public class RadioactiveHandler {
         if (OriginHelper.hasPower(player, "chaos_addon:radioactive_phantom/geiger_counter")
                 && player.tickCount % interval == 0) {
             List<LivingEntity> sensed = level.getEntitiesOfClass(LivingEntity.class,
-                player.getBoundingBox().inflate(radius + 5), e -> e != player && e.isAlive());
+                player.getBoundingBox().inflate(radius + cfg.geigerScanBonus), e -> e != player && e.isAlive());
             for (LivingEntity target : sensed) {
                 target.addEffect(new MobEffectInstance(MobEffects.GLOWING, interval * 2, 0, false, false));
             }

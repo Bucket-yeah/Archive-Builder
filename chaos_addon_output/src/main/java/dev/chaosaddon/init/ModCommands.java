@@ -80,6 +80,7 @@ public class ModCommands {
         // ── Time Wanderer (merged/new abilities) ──
         TemporalDominionCommand.register(dispatcher);
         TemporalEchoCommand.register(dispatcher);
+        StasisFieldCommand.register(dispatcher);
 
         // ── Admin & utility ──
         BalanceReportCommand.register(dispatcher);

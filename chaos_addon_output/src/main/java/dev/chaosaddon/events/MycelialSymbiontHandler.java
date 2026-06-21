@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.data.MossData;
 import dev.chaosaddon.init.ModAttachments;
 import dev.chaosaddon.util.OriginHelper;
@@ -30,8 +31,6 @@ import java.util.List;
  */
 public class MycelialSymbiontHandler {
 
-    private static final int MOSS_TETHER_RADIUS = 20;
-    private static final int MOSS_BUFF_RADIUS    = 15;
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -45,6 +44,7 @@ public class MycelialSymbiontHandler {
 
         if (!hasNetwork && !hasTether && !hasWater) return;
 
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         MossData data = player.getData(ModAttachments.MOSS_DATA);
         List<BlockPos> nodes = data.getPositions();
         BlockPos playerPos = player.blockPosition();
@@ -54,8 +54,8 @@ public class MycelialSymbiontHandler {
             boolean inWater = player.isInWater();
             boolean rainExposed = level.isRaining() && level.canSeeSky(playerPos);
             if (inWater || rainExposed) {
-                if (player.tickCount % 20 == 0) {
-                    player.hurt(player.damageSources().drown(), 1.0f);
+                if (player.tickCount % cfg.waterKillsMossInterval == 0) {
+                    player.hurt(player.damageSources().drown(), cfg.waterKillsMossDamage);
                     // Clear all moss nodes
                     if (!nodes.isEmpty()) {
                         nodes.clear();
@@ -68,7 +68,7 @@ public class MycelialSymbiontHandler {
                         player.removeEffect(MobEffects.REGENERATION);
                         player.removeEffect(MobEffects.MOVEMENT_SPEED);
                     }
-                    if (player.tickCount % 60 == 0) {
+                    if (player.tickCount % cfg.waterKillsMossWarnInterval == 0) {
                         player.displayClientMessage(
                             Component.literal("§c💧 Вода разрушает сеть мха! Найди укрытие!")
                                 .withStyle(ChatFormatting.RED), true);
@@ -80,7 +80,7 @@ public class MycelialSymbiontHandler {
 
         // ── moss_network: buff player when near any moss node ──
         if (hasNetwork && player.tickCount % 20 == 0) {
-            boolean nearNode = data.isNearAnyMoss(playerPos, MOSS_BUFF_RADIUS);
+            boolean nearNode = data.isNearAnyMoss(playerPos, cfg.mossBuffRadius);
             if (nearNode) {
                 player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 400, 0, true, false));
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 40, 0, true, false));
@@ -100,14 +100,14 @@ public class MycelialSymbiontHandler {
             }
         }
 
-        // ── moss_tether: damage if > 20 blocks from all nodes ──
-        if (hasTether && player.tickCount % 20 == 0) {
-            if (!nodes.isEmpty() && !data.isNearAnyMoss(playerPos, MOSS_TETHER_RADIUS)) {
-                player.hurt(player.damageSources().magic(), 0.5f);
+        // ── moss_tether: damage if > mossMaxRange blocks from all nodes ──
+        if (hasTether && player.tickCount % cfg.mossDetachInterval == 0) {
+            if (!nodes.isEmpty() && !data.isNearAnyMoss(playerPos, cfg.mossMaxRange)) {
+                player.hurt(player.damageSources().magic(), cfg.mossDetachDamage);
                 level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
                     player.getX(), player.getY() + 0.5, player.getZ(),
                     8, 0.4, 0.5, 0.4, 0.02);
-                if (player.tickCount % 60 == 0) {
+                if (player.tickCount % (cfg.mossDetachInterval * 3) == 0) {
                     player.displayClientMessage(
                         Component.literal("§c🍄 Привязь: слишком далеко от мицелиальной сети!")
                             .withStyle(ChatFormatting.RED), true);

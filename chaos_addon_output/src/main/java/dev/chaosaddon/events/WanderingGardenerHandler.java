@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -54,8 +55,6 @@ public class WanderingGardenerHandler {
 
     // Plant Trap system
     private static final String TRAP_KEY = "chaos_garden_traps";
-    private static final int MAX_TRAPS = 3;
-    private static final long TRAP_COOLDOWN = 600L; // 30s between placing traps
     private static final Map<UUID, Long> LAST_TRAP_TIME = new HashMap<>();
 
     // Weapon conversion flowers
@@ -72,24 +71,25 @@ public class WanderingGardenerHandler {
         if (!(player.level() instanceof ServerLevel level)) return false;
         UUID pid = player.getUUID();
         long now = level.getGameTime();
-        if (now - LAST_TRAP_TIME.getOrDefault(pid, 0L) < TRAP_COOLDOWN) {
-            long left = (TRAP_COOLDOWN - (now - LAST_TRAP_TIME.getOrDefault(pid, 0L))) / 20;
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
+        if (now - LAST_TRAP_TIME.getOrDefault(pid, 0L) < cfg.gardenTrapCooldown) {
+            long left = (cfg.gardenTrapCooldown - (now - LAST_TRAP_TIME.getOrDefault(pid, 0L))) / 20;
             player.sendSystemMessage(Component.literal("§cЛовушка перезаряжается: §e" + left + "с"));
             return false;
         }
         List<long[]> traps = loadTraps(player);
-        if (traps.size() >= MAX_TRAPS) {
-            player.sendSystemMessage(Component.literal("§cМаксимум §e" + MAX_TRAPS + " §cловушки активны!"));
+        if (traps.size() >= cfg.gardenMaxTraps) {
+            player.sendSystemMessage(Component.literal("§cМаксимум §e" + cfg.gardenMaxTraps + " §cловушки активны!"));
             return false;
         }
         BlockPos pos = player.blockPosition();
-        traps.add(new long[]{pos.getX(), pos.getY(), pos.getZ(), now + 6000}); // 5 min expire
+        traps.add(new long[]{pos.getX(), pos.getY(), pos.getZ(), now + cfg.gardenTrapExpireTicks});
         saveTraps(player, traps);
         LAST_TRAP_TIME.put(pid, now);
         level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
             pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 20, 0.5, 0.5, 0.5, 0.05);
         level.playSound(null, pos, SoundEvents.GRASS_PLACE, SoundSource.PLAYERS, 0.8f, 1.5f);
-        player.sendSystemMessage(Component.literal("§a🌸 Растительная ловушка установлена! §8(" + traps.size() + "/" + MAX_TRAPS + ")"));
+        player.sendSystemMessage(Component.literal("§a🌸 Растительная ловушка установлена! §8(" + traps.size() + "/" + cfg.gardenMaxTraps + ")"));
         return true;
     }
 
@@ -157,11 +157,12 @@ public class WanderingGardenerHandler {
         }
 
         // ── Peaceful Soul: tamed wolves attack enemies ──
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/peaceful_soul") && now % 40 == 0) {
             List<Wolf> wolves = level.getEntitiesOfClass(Wolf.class,
-                player.getBoundingBox().inflate(20), w -> w.isAlive() && w.isTame());
+                player.getBoundingBox().inflate(cfg.gardenWolfRadius), w -> w.isAlive() && w.isTame());
             List<LivingEntity> enemies = level.getEntitiesOfClass(LivingEntity.class,
-                player.getBoundingBox().inflate(15),
+                player.getBoundingBox().inflate(cfg.gardenEnemyRadius),
                 e -> e.isAlive() && e != player && !(e instanceof Player) && !(e instanceof Wolf));
 
             if (!enemies.isEmpty()) {
@@ -175,9 +176,9 @@ public class WanderingGardenerHandler {
 
             // Chicken egg timer: every 30s give an egg from nearby chickens
             Long lastEgg = EGG_TIMER.getOrDefault(player.getUUID(), 0L);
-            if (now - lastEgg >= 600) {
+            if (now - lastEgg >= cfg.gardenEggInterval) {
                 List<Chicken> chickens = level.getEntitiesOfClass(Chicken.class,
-                    player.getBoundingBox().inflate(20), c -> c.isAlive());
+                    player.getBoundingBox().inflate(cfg.gardenWolfRadius), c -> c.isAlive());
                 if (!chickens.isEmpty()) {
                     player.getInventory().add(new ItemStack(Items.EGG, chickens.size()));
                     EGG_TIMER.put(player.getUUID(), now);
@@ -189,9 +190,9 @@ public class WanderingGardenerHandler {
 
             // Cow milk timer: every 60s give milk
             Long lastMilk = MILK_TIMER.getOrDefault(player.getUUID(), 0L);
-            if (now - lastMilk >= 1200) {
+            if (now - lastMilk >= cfg.gardenMilkInterval) {
                 List<Cow> cows = level.getEntitiesOfClass(Cow.class,
-                    player.getBoundingBox().inflate(20), c -> c.isAlive());
+                    player.getBoundingBox().inflate(cfg.gardenWolfRadius), c -> c.isAlive());
                 if (!cows.isEmpty()) {
                     player.getInventory().add(new ItemStack(Items.MILK_BUCKET));
                     MILK_TIMER.put(player.getUUID(), now);
@@ -207,12 +208,12 @@ public class WanderingGardenerHandler {
             for (long[] trap : traps) {
                 BlockPos tPos = new BlockPos((int)trap[0], (int)trap[1], (int)trap[2]);
                 List<LivingEntity> victims = level.getEntitiesOfClass(LivingEntity.class,
-                    new net.minecraft.world.phys.AABB(tPos).inflate(2.0),
+                    new net.minecraft.world.phys.AABB(tPos).inflate(cfg.gardenTrapTriggerRadius),
                     e -> e != player && e.isAlive() && !(e instanceof Player));
                 if (!victims.isEmpty()) {
                     triggeredTraps.add(trap);
                     for (LivingEntity v : victims) {
-                        v.hurt(player.damageSources().magic(), 4.0f);
+                        v.hurt(player.damageSources().magic(), cfg.gardenTrapDamage);
                         v.addEffect(new MobEffectInstance(MobEffects.POISON, 60, 1));
                         v.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 2));
                     }
@@ -220,7 +221,7 @@ public class WanderingGardenerHandler {
                         tPos.getX() + 0.5, tPos.getY() + 1.0, tPos.getZ() + 0.5, 30, 1.0, 0.5, 1.0, 0.05);
                     level.playSound(null, tPos, SoundEvents.SLIME_SQUISH_SMALL, SoundSource.PLAYERS, 1.0f, 0.5f);
                     player.displayClientMessage(Component.literal(
-                        "§a🌸 Ловушка сработала! §7(-4❤ + Яд)"), true);
+                        "§a🌸 Ловушка сработала! §7(-" + (int)cfg.gardenTrapDamage + "❤ + Яд)"), true);
                 }
             }
             if (!triggeredTraps.isEmpty() || changed) {
@@ -230,9 +231,9 @@ public class WanderingGardenerHandler {
         }
 
         // ── Language of Flowers: bone-meal nearby plants periodically ──
-        if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/language_of_flowers") && now % 100 == 0) {
+        if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/language_of_flowers") && now % cfg.gardenBoneMealInterval == 0) {
             BlockPos origin = player.blockPosition();
-            int radius = 5;
+            int radius = cfg.gardenBoneMealRadius;
             for (int dx = -radius; dx <= radius; dx++) {
                 for (int dz = -radius; dz <= radius; dz++) {
                     for (int dy = -1; dy <= 2; dy++) {
@@ -254,12 +255,12 @@ public class WanderingGardenerHandler {
         }
 
         // ── growth_aura: allies and tamed creatures near gardener slowly regen when not in combat ──
-        if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/growth_aura") && now % 60 == 0) {
+        if (OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/growth_aura") && now % cfg.gardenGrowthAuraInterval == 0) {
             boolean inCombat = player.getPersistentData().getLong("chaos_garden_last_hit") > 0
                 && (now - player.getPersistentData().getLong("chaos_garden_last_hit")) < 100;
             if (!inCombat) {
                 level.getEntitiesOfClass(LivingEntity.class,
-                    player.getBoundingBox().inflate(12),
+                    player.getBoundingBox().inflate(cfg.gardenGrowthAuraRadius),
                     e -> e != player && e.isAlive()
                         && ((e instanceof net.minecraft.world.entity.TamableAnimal ta && ta.isTame())
                             || (e instanceof ServerPlayer)))
@@ -285,7 +286,7 @@ public class WanderingGardenerHandler {
                     || item instanceof BowItem || item instanceof CrossbowItem;
                 if (isWeapon) {
                     long lastConvert = player.getPersistentData().getLong("chaos_garden_weapon_cd");
-                    if (now - lastConvert >= 60) {
+                    if (now - lastConvert >= cfg.gardenWeaponConvertCooldown) {
                         player.getPersistentData().putLong("chaos_garden_weapon_cd", now);
                         // Drop the weapon and give a flower
                         level.addFreshEntity(new ItemEntity(level,
@@ -327,17 +328,18 @@ public class WanderingGardenerHandler {
         if (!(player.level() instanceof ServerLevel level)) return;
 
         // woodcutting_damage drawback: undead deal 50% more damage to Gardener
+        ChaosAddonConfig wCfg = ChaosAddonConfig.get();
         if (attacker instanceof Mob mob && mob.getType().is(EntityTypeTags.UNDEAD)
                 && OriginHelper.hasPower(player, "chaos_addon:wandering_gardener/woodcutting_damage")) {
-            event.setAmount(event.getAmount() * 1.5f);
+            event.setAmount(event.getAmount() * wCfg.gardenWoodcuttingMult);
             if (player.tickCount % 40 == 0) {
                 player.displayClientMessage(
                     Component.literal("§c☠ Нежить особо опасна для садовника! (+50% урона)"), true);
             }
         }
 
-        // Thorn Reflect: reflect 50% back to attacker
-        float reflect = event.getAmount() * 0.5f;
+        // Thorn Reflect: reflect back to attacker
+        float reflect = event.getAmount() * wCfg.gardenThornReflect;
         attacker.hurt(player.damageSources().magic(), reflect);
 
         level.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,

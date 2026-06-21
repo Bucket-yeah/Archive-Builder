@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import dev.chaosaddon.util.SeismicSenseHelper;
 import net.minecraft.ChatFormatting;
@@ -46,15 +47,16 @@ public class DimensionJudgeHandler {
         if (!(player.level() instanceof ServerLevel level)) return;
 
         // ── all_seeing_eye: Всевидящее Oko — ping nearby entities every 3s ──
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         if (OriginHelper.hasPower(player, "chaos_addon:dimension_judge/all_seeing_eye")
-                && player.tickCount % 60 == 0) {
-            SeismicSenseHelper.pingNearbyEntities(player, level, 50,
+                && player.tickCount % cfg.judgeAllSeeingEyeInterval == 0) {
+            SeismicSenseHelper.pingNearbyEntities(player, level, cfg.judgeAllSeeingEyeRadius,
                 e -> e instanceof Mob mob && mob.getTarget() != null
                     || (e instanceof Player p && p != player),
                 "§4⚖ Всевидящее Oko: ", ChatFormatting.DARK_RED);
 
             List<LivingEntity> nearby = level.getEntitiesOfClass(LivingEntity.class,
-                player.getBoundingBox().inflate(30),
+                player.getBoundingBox().inflate(cfg.judgeAllSeeingEyeNearby),
                 e -> e != player && e.isAlive());
             if (!nearby.isEmpty()) {
                 LivingEntity nearest = nearby.stream()
@@ -73,7 +75,7 @@ public class DimensionJudgeHandler {
 
         // ── no_totems: remove totems from both hands every second ──
         if (OriginHelper.hasPower(player, "chaos_addon:dimension_judge/no_totems")
-                && player.tickCount % 20 == 0) {
+                && player.tickCount % cfg.judgeAllSeeingEyeInterval == 0) {
             removeItemFromPlayer(player, level, Items.TOTEM_OF_UNDYING,
                 "§4⚖ Судья не нуждается в тотемах — предмет выброшен!");
         }

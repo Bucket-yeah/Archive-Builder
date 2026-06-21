@@ -1,5 +1,6 @@
 package dev.chaosaddon.events;
 
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -114,11 +115,12 @@ public class AlchemistHandler {
         if (player.level().isClientSide()) return;
         ServerLevel level = (ServerLevel) player.level();
 
-        // Cooldown check (10s = 200 ticks)
+        // Cooldown check
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         long now = level.getGameTime();
         long lastTransmute = player.getPersistentData().getLong("chaos_transmute_time");
-        if (now - lastTransmute < 200L) {
-            long remaining = (200L - (now - lastTransmute)) / 20;
+        if (now - lastTransmute < cfg.monkReactionCooldown) {
+            long remaining = (cfg.monkReactionCooldown - (now - lastTransmute)) / 20;
             player.sendSystemMessage(Component.literal(
                 "§c⚗ Трансмутация перезаряжается: §e" + remaining + "с"));
             return;
@@ -131,14 +133,13 @@ public class AlchemistHandler {
             return;
         }
 
-        if (player.getHealth() <= 4.0f) {
+        if (player.getHealth() <= cfg.monkTransmuteHpThreshold) {
             player.sendSystemMessage(Component.literal(
                 "§c⚗ Мало HP для трансмутации! Нужно > 2❤."));
             return;
         }
 
-        // Cost: 3 HP
-        player.hurt(player.damageSources().generic(), 3.0f);
+        player.hurt(player.damageSources().generic(), cfg.monkTransmuteHpCost);
 
         // Determine output by input rarity
         String inputId = net.minecraft.core.registries.BuiltInRegistries.ITEM
@@ -241,9 +242,10 @@ public class AlchemistHandler {
         if (!isSplash && !isLingering) return;
 
         // Check cooldown
+        ChaosAddonConfig aCfg = ChaosAddonConfig.get();
         long now = level.getGameTime();
         long lastReaction = player.getPersistentData().getLong("chaos_monk_reaction_cd");
-        if (now - lastReaction < 200) return;
+        if (now - lastReaction < aCfg.monkReactionCooldown) return;
 
         BlockPos pos = event.getHitVec().getBlockPos();
         net.minecraft.world.level.block.state.BlockState state = level.getBlockState(pos);
@@ -343,7 +345,8 @@ public class AlchemistHandler {
         if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/overloaded_damage")) return;
         int activeEffects = player.getActiveEffects().size();
         if (activeEffects <= 0) return;
-        float bonus = Math.min(activeEffects * 0.20f, 1.50f);
+        ChaosAddonConfig oCfg = ChaosAddonConfig.get();
+        float bonus = Math.min(activeEffects * oCfg.monkOverloadBonusPerEffect, oCfg.monkOverloadMaxBonus);
         event.setAmount(event.getAmount() * (1.0f + bonus));
         if (player.tickCount % 60 == 0) {
             player.displayClientMessage(

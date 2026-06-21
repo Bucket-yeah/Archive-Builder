@@ -38,6 +38,8 @@ public class ChaosAddonConfig implements ConfigData {
     public int   swarmShieldDuration        = 300;
     public float swarmWaterBugDamage        = 1.0f;
     public float swarmFireDamageMult        = 2.0f;
+    public int   swarmWaterVulnInterval     = 20;   // ticks between water damage checks
+    public float swarmWaterVulnDamage       = 0.5f; // HP per interval in water
 
     // ───────────────────────────── DEEP NAVIGATOR ──────────────────────────────
     @ConfigEntry.Category("deep_navigator")
@@ -58,7 +60,11 @@ public class ChaosAddonConfig implements ConfigData {
     public int   monkTransmuteCooldown      = 1200;
     public float monkCraftDamageCost        = 1.0f;
     public float monkResourceChance         = 0.05f;
-    public float monkTransmuteHpCost        = 4.0f;
+    public float monkTransmuteHpCost        = 3.0f;     // HP cost per transmutation
+    public float monkTransmuteHpThreshold   = 4.0f;     // min HP to allow transmutation
+    public int   monkReactionCooldown       = 200;      // ticks between potion-block reactions
+    public float monkOverloadBonusPerEffect = 0.20f;    // damage bonus per active potion effect
+    public float monkOverloadMaxBonus       = 1.50f;    // cap on overloaded_damage bonus (150%)
 
     // ───────────────────────────── PHANTOM ARCHAEOLOGIST ───────────────────────
     @ConfigEntry.Category("phantom_archaeologist")
@@ -66,6 +72,9 @@ public class ChaosAddonConfig implements ConfigData {
     public int   archDefragCooldown         = 6000;
     public int   archScannerCooldown        = 1200;
     public float archSoundDamage            = 0.5f;
+    public int   chunkVisionInterval        = 60;    // ticks between structure scans
+    public float soundSensitivityMultiplier = 1.5f;  // explosion damage multiplier
+    public int   archSpawnLockTicks         = 600;   // post-death item-pickup lock duration
 
     // ───────────────────────────── TIME WANDERER ───────────────────────────────
     @ConfigEntry.Category("time_wanderer")
@@ -75,6 +84,9 @@ public class ChaosAddonConfig implements ConfigData {
     public int   timeInstabilityInterval    = 200;
     public int   timeRewindWindow           = 600;
     public int   timeXpLossOnRewind         = 10;
+    public int   stasisFieldRadius          = 8;
+    public int   stasisFieldDuration        = 100;  // 5 seconds
+    public float stasisFieldDamage          = 1.0f;
 
     // ───────────────────────────── BIOMORPH ────────────────────────────────────
     @ConfigEntry.Category("biomorph")
@@ -84,6 +96,11 @@ public class ChaosAddonConfig implements ConfigData {
     public float bioTransitionDamage        = 1.0f;
     public float bioImprintBonus            = 0.05f;
     public int   bioImprintTime             = 6000;
+    public int   bioTier2Ticks              = 1200;  // ticks in biome to reach tier 2
+    public int   bioTier3Ticks              = 3600;  // ticks in biome to reach tier 3
+    public int   bioShockGraceTicks         = 200;   // min ticks between biome-change shocks
+    public int   bioWrongBiomeCheckInterval = 100;   // ticks between mining fatigue checks
+    public int   bioWrongBiomeFatigueLevel  = 0;     // Mining Fatigue amplifier (0 = level I)
 
     // ───────────────────────────── PARASITIC MIND ──────────────────────────────
     @ConfigEntry.Category("parasitic_mind")
@@ -93,6 +110,9 @@ public class ChaosAddonConfig implements ConfigData {
     public int   paraHivemindCooldown       = 1800;
     public int   paraExplosionCooldown      = 2400;
     public float paraWithdrawalDamage       = 5.0f;
+    public int   telepathicNetworkInterval  = 20;   // ticks between telepathic direction updates
+    public int   parasiteSenseInterval      = 40;   // ticks between parasite sense HP readouts
+    public int   parasiteSenseRange         = 20;   // block radius for parasite sense
 
     // ───────────────────────────── CHAOS ENGINEER ──────────────────────────────
     @ConfigEntry.Category("chaos_engineer")
@@ -128,6 +148,9 @@ public class ChaosAddonConfig implements ConfigData {
     public int   mimicIllusionCooldown      = 3600;
     public float mimicPhantomChance         = 0.40f;
     public int   mimicPhantomCount          = 5;
+    public int   noValuablesInterval        = 60;   // ticks between valuable item degradation checks
+    public float noValuablesChance          = 0.08f; // chance per tick to shrink non-damageable valuables
+    public int   falseLootInterval          = 3600; // ticks between trap bait drops
 
     // ───────────────────────────── ANCIENT SENTINEL ────────────────────────────
     @ConfigEntry.Category("ancient_sentinel")
@@ -140,6 +163,8 @@ public class ChaosAddonConfig implements ConfigData {
     /** Gradual liquid damage (replaces old 4.0f/10t instant death). */
     public float sentinelLiquidDamage       = 0.5f; // 0.25 hearts per tick cycle
     public int   sentinelLiquidInterval     = 60;   // every 3 seconds — escapable
+    public int   mountainEchoInterval       = 80;   // ticks between cave scans
+    public int   mountainEchoRadius         = 18;   // horizontal scan radius in blocks
 
     // ───────────────────────────── RADIOACTIVE PHANTOM ─────────────────────────
     @ConfigEntry.Category("radioactive_phantom")
@@ -150,6 +175,12 @@ public class ChaosAddonConfig implements ConfigData {
     public int   radioAuraInterval          = 100;
     public int   radioAuraRadius            = 5;
     public float radioDayWaveDamage         = 6.0f;
+    public float radioRainDamage            = 0.5f;  // HP per 20t when raining
+    public float radioSelfDamage            = 0.2f;  // passive self-irradiation damage
+    public int   radioSelfDamageInterval    = 400;   // ticks between self-damage
+    public int   materialDecayInterval      = 200;   // ticks between gear decay checks
+    public int   materialDecayAmount        = 4;     // durability removed per item per decay
+    public int   geigerScanBonus            = 5;     // extra radius beyond radioAuraRadius for geiger
 
     // ───────────────────────────── DIMENSION JUDGE ─────────────────────────────
     @ConfigEntry.Category("dimension_judge")
@@ -161,6 +192,12 @@ public class ChaosAddonConfig implements ConfigData {
     public int   judgeHigherJudgmentCooldown= 6000;
     public float judgeHigherJudgmentRadius  = 15.0f;
     public float judgeHigherJudgmentDmgPerHit = 2.0f;
+    public float judgeLastVerdictThreshold  = 0.20f; // HP fraction triggering auto-verdict
+    public float judgeLastVerdictRadius     = 15.0f; // block radius to find target
+    public int   judgeLastVerdictCooldown   = 6000;  // ticks between auto-verdict fires
+    public int   judgeAllSeeingEyeInterval  = 60;    // ticks between all_seeing_eye pings
+    public int   judgeAllSeeingEyeRadius    = 50;    // block radius for seismic-sense ping
+    public int   judgeAllSeeingEyeNearby    = 30;    // block radius for HP display
 
     // ───────────────────────────── MYCELIAL SYMBIONT ───────────────────────────
     @ConfigEntry.Category("mycelial_symbiont")
@@ -171,6 +208,10 @@ public class ChaosAddonConfig implements ConfigData {
     public int   mossMaxRange               = 20;
     public float mossDetachDamage           = 0.5f;
     public int   mossDetachInterval         = 20;
+    public int   mossBuffRadius             = 15;        // block radius for network buff
+    public float waterKillsMossDamage       = 1.0f;     // HP per interval while in water/rain
+    public int   waterKillsMossInterval     = 20;       // ticks between water damage
+    public int   waterKillsMossWarnInterval = 200;      // ticks between rain warning in GeneralPowerHandler
 
     // ───────────────────────────── DEEP GEOMANCER ──────────────────────────────
     @ConfigEntry.Category("deep_geomancer")
@@ -188,6 +229,11 @@ public class ChaosAddonConfig implements ConfigData {
     public float geoClawBonusDamage         = 3.0f;
     public int   geoDashCooldown            = 400;
     public int   geoDashMaxThickness        = 8;
+    public int   geoOreVisionInterval       = 80;   // ticks between ore direction pings
+    public int   geoOreVisionRadius         = 20;   // block radius for ore scan
+    public int   geoEarthHearingInterval    = 40;   // ticks between earth_hearing pings
+    public int   geoEarthHearingRadius      = 30;   // block radius for entity detection
+    public int   geoAltitudeDamageInterval  = 40;   // ticks between altitude_damage effect checks
 
     // ───────────────────────────── WANDERING GARDENER ──────────────────────────
     @ConfigEntry.Category("wandering_gardener")
@@ -199,6 +245,22 @@ public class ChaosAddonConfig implements ConfigData {
     public float gardenBadBiomeDamage       = 0.5f;
     public int   gardenBadBiomeInterval     = 200;
     public int   gardenLifeBloomCooldown    = 6000;
+    public int   gardenMaxTraps             = 3;         // max simultaneous plant traps
+    public int   gardenTrapCooldown         = 600;       // ticks between trap placements
+    public int   gardenTrapExpireTicks      = 6000;      // ticks until placed trap expires
+    public float gardenWolfRadius           = 20.0f;     // block radius to find tamed wolves
+    public float gardenEnemyRadius          = 15.0f;     // block radius to find enemies for wolves
+    public int   gardenEggInterval          = 600;       // ticks between chicken egg handouts
+    public int   gardenMilkInterval         = 1200;      // ticks between cow milk handouts
+    public float gardenTrapTriggerRadius    = 2.0f;      // block radius for trap trigger
+    public float gardenTrapDamage           = 4.0f;      // magic damage on trap trigger
+    public int   gardenBoneMealInterval     = 100;       // ticks between bone-meal pulses
+    public int   gardenBoneMealRadius       = 5;         // block radius for bone-meal
+    public int   gardenGrowthAuraInterval   = 60;        // ticks between growth aura heals
+    public float gardenGrowthAuraRadius     = 12.0f;     // block radius for growth aura
+    public int   gardenWeaponConvertCooldown= 60;        // ticks between weapon→flower conversions
+    public float gardenWoodcuttingMult      = 1.5f;      // incoming damage multiplier from undead
+    public float gardenThornReflect         = 0.5f;      // fraction of incoming damage reflected
 
     // ══════════════════ v3.0.0 NEW RACES (previously unconfigurable) ══════════
 
