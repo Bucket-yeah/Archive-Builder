@@ -1,0 +1,36 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_beast_friendship"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:happy_villager",
+        "count": 20,
+        "spread": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "speed": 0.05,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.wolf.ambient",
+        "volume": 0.6,
+        "pitch": 1.2
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.secondary_active"
+  },
+  "name": "Дружба Зверя",
+  "description": "Успокаивает ближайшее враждебное существо в радиусе 15 блоков на 8 секунд — снимает агрессию, применяет Замешательство и Замедление. Пацифизм в действии.",
+  "cooldown_ticks": 500
+}

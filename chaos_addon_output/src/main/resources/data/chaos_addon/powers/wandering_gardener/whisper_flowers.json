@@ -1,0 +1,36 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_plant_trap"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:spore_blossom_air",
+        "count": 30,
+        "spread": {
+          "x": 0.5,
+          "y": 0.5,
+          "z": 0.5
+        },
+        "speed": 0.05,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.grass.place",
+        "volume": 0.8,
+        "pitch": 1.5
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.primary_active"
+  },
+  "name": "Шёпот Цветов",
+  "description": "Устанавливает цветочную ловушку на своей позиции. Враги, наступившие в радиусе 2 блоков, получают 4❤ урона + Яд + Замедление. До 3 ловушек одновременно, срок жизни 5 минут.",
+  "cooldown_ticks": 240
+}

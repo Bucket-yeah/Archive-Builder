@@ -39,7 +39,8 @@ public class MycelialSymbiontHandler {
         if (!(player.level() instanceof ServerLevel level)) return;
 
         boolean hasNetwork = OriginHelper.hasPower(player, "chaos_addon:mycelial_symbiont/moss_network");
-        boolean hasTether  = OriginHelper.hasPower(player, "chaos_addon:mycelial_symbiont/moss_tether");
+        // moss_tether is now the active teleport; moss_escape is the passive damage drawback
+        boolean hasTether  = OriginHelper.hasPower(player, "chaos_addon:mycelial_symbiont/moss_escape");
         boolean hasWater   = OriginHelper.hasPower(player, "chaos_addon:mycelial_symbiont/water_kills_moss");
 
         if (!hasNetwork && !hasTether && !hasWater) return;

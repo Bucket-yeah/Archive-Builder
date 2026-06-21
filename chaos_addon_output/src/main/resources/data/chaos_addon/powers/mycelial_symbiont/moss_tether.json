@@ -1,9 +1,54 @@
 {
-  "type": "neoorigins:attribute_modifier",
-  "attribute": "minecraft:max_health",
-  "amount": 0.0,
-  "operation": "add_value",
-  "name": "Привязь Мха",
-  "description": "Нельзя удаляться от мха более чем на 20 блоков — иначе 0.5❤/сек. Вода смывает мох и наносит урон.",
-  "hidden": false
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_moss_teleport"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:portal",
+        "count": 40,
+        "spread": {
+          "x": 1.0,
+          "y": 1.5,
+          "z": 1.0
+        },
+        "speed": 0.2,
+        "force": false
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:spore_blossom_air",
+        "count": 25,
+        "spread": {
+          "x": 0.8,
+          "y": 1.0,
+          "z": 0.8
+        },
+        "speed": 0.06,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.portal.trigger",
+        "volume": 0.7,
+        "pitch": 1.1
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:entity.enderman.teleport",
+        "volume": 0.6,
+        "pitch": 0.9
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.secondary_active"
+  },
+  "name": "Тоннели Мицелия",
+  "description": "Мгновенно перемещает тебя к ближайшему узлу мха в радиусе 50 блоков (нужна костная мука). Телепорт между узлами — сигнатурная механика грибницы.",
+  "cooldown_ticks": 1800
 }

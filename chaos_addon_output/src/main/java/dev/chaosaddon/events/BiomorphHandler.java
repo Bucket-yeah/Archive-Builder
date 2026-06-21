@@ -75,9 +75,10 @@ public class BiomorphHandler {
             .map(k -> k.location().toString()).orElse("unknown");
         String biomeType = getBiomeType(biomeName);
 
-        // ── Transition shock with 10s grace period ──
+        // ── Transition shock with 10s grace period (transition_damage power) ──
         String lastBiome = LAST_BIOME.get(player.getUUID());
-        if (lastBiome != null && !lastBiome.equals(biomeName)) {
+        if (lastBiome != null && !lastBiome.equals(biomeName)
+                && OriginHelper.hasPower(player, "chaos_addon:biomorph/transition_damage")) {
             long now = level.getGameTime();
             long lastShock = LAST_SHOCK_TIME.getOrDefault(player.getUUID(), 0L);
             if (now - lastShock >= SHOCK_GRACE) {
@@ -89,6 +90,9 @@ public class BiomorphHandler {
                     player.getX(), player.getY() + 1.0, player.getZ(), 10, 0.4, 0.5, 0.4, 0.05);
                 level.playSound(null, player.blockPosition(),
                     SoundEvents.ILLUSIONER_PREPARE_MIRROR, SoundSource.PLAYERS, 0.6f, 1.5f);
+                player.displayClientMessage(
+                    net.minecraft.network.chat.Component.literal(
+                        "§c⚡ Шок перехода! Тело не успело адаптироваться к новому биому."), true);
             }
         }
         LAST_BIOME.put(player.getUUID(), biomeName);
