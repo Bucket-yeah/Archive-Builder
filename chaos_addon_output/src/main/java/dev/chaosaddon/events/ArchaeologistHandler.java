@@ -57,7 +57,7 @@ public class ArchaeologistHandler {
         }
 
         if (hasMindBackup) {
-            data.putInt(KEY_TOTAL_XP, (int)(player.totalExperience * 0.6));
+            data.putInt(KEY_TOTAL_XP, (int)(player.totalExperience * ChaosAddonConfig.get().archXpPreservation));
         }
     }
 

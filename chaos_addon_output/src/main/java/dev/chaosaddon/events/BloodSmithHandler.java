@@ -2,6 +2,7 @@ package dev.chaosaddon.events;
 
 import com.cyberday1.neoorigins.compat.CompatAttachments;
 import com.cyberday1.neoorigins.power.builtin.ResourcePower;
+import dev.chaosaddon.config.ChaosAddonConfig;
 import dev.chaosaddon.util.OriginHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -54,9 +55,7 @@ public class BloodSmithHandler {
     /** UUIDs allowed to heal this tick (bypass no_natural_regen for our own ability heals). */
     private static final Set<UUID> HEALING_ALLOWED = new HashSet<>();
 
-    private static final String LAST_FULL_KEY          = "chaos_blood_last_full_tick";
-    private static final int    OVERLOAD_WARN_TICKS    = 400; // 20 s
-    private static final int    OVERLOAD_EXPLODE_TICKS = 600; // 30 s → explode
+    private static final String LAST_FULL_KEY = "chaos_blood_last_full_tick";
 
     // ── Per-tick passives ──────────────────────────────────────────────────────
     @SubscribeEvent
@@ -65,9 +64,10 @@ public class BloodSmithHandler {
         if (!(player.level() instanceof ServerLevel level)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:blood_smith/blood_bank")) return;
 
+        ChaosAddonConfig cfg = ChaosAddonConfig.get();
         long now     = level.getGameTime();
         int  charges = getCharges(player);
-        boolean lowHp = player.getHealth() <= 6.0f; // < 3❤
+        boolean lowHp = player.getHealth() <= cfg.bloodLowHpThreshold; // < 3❤
 
         // ── OVERLOAD: charges capped at 100 for 30 s → discharge explosion ──
         if (charges >= MAX_CHARGES) {
@@ -76,10 +76,10 @@ public class BloodSmithHandler {
                 player.getPersistentData().putLong(LAST_FULL_KEY, now);
             } else {
                 long held = now - lastFull;
-                if (held >= OVERLOAD_EXPLODE_TICKS) {
+                if (held >= cfg.bloodOverloadExplodeTicks) {
                     setCharges(player, 0);
                     player.getPersistentData().putLong(LAST_FULL_KEY, 0);
-                    player.hurt(player.damageSources().generic(), 8.0f);
+                    player.hurt(player.damageSources().generic(), cfg.bloodOverloadDamage);
                     level.sendParticles(ParticleTypes.EXPLOSION,
                         player.getX(), player.getY() + 1.0, player.getZ(), 5, 0.6, 0.6, 0.6, 0.05);
                     level.sendParticles(ParticleTypes.FALLING_DRIPSTONE_LAVA,
@@ -88,8 +88,8 @@ public class BloodSmithHandler {
                         SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.0f, 0.5f);
                     player.displayClientMessage(Component.literal(
                         "§c💥 ПЕРЕГРУЗКА КРОВИ! Все заряды потеряны!").withStyle(ChatFormatting.RED), false);
-                } else if (held >= OVERLOAD_WARN_TICKS && player.tickCount % 20 == 0) {
-                    long secsLeft = (OVERLOAD_EXPLODE_TICKS - held) / 20;
+                } else if (held >= cfg.bloodOverloadWarnTicks && player.tickCount % 20 == 0) {
+                    long secsLeft = (cfg.bloodOverloadExplodeTicks - held) / 20;
                     level.sendParticles(ParticleTypes.FALLING_DRIPSTONE_LAVA,
                         player.getX(), player.getY() + 1.0, player.getZ(), 20, 0.5, 0.7, 0.5, 0.1);
                     level.playSound(null, player.blockPosition(),
@@ -105,7 +105,7 @@ public class BloodSmithHandler {
         // ── Blood Armor: Absorption every 10 s, scales with charge count ──
         if (OriginHelper.hasPower(player, "chaos_addon:blood_smith/blood_armor")) {
             long lastRegen = ARMOR_REGEN_TICK.getOrDefault(player.getUUID(), 0L);
-            if (now - lastRegen >= 200) {
+            if (now - lastRegen >= cfg.bloodArmorRegenInterval) {
                 int absLevel = Math.max(0, (charges - 40) / 20);
                 player.addEffect(new MobEffectInstance(
                     MobEffects.ABSORPTION, 220, absLevel, false, false));
@@ -120,7 +120,7 @@ public class BloodSmithHandler {
         // ── Survival instinct: Speed III at low HP (< 3❤) ──
         if (OriginHelper.hasPower(player, "chaos_addon:blood_smith/survival_instinct") && lowHp) {
             long cooldown = INSTINCT_COOLDOWN.getOrDefault(player.getUUID(), 0L);
-            if (now - cooldown >= 600) {
+            if (now - cooldown >= cfg.bloodSacrificeCooldown) {
                 player.addEffect(new MobEffectInstance(
                     MobEffects.MOVEMENT_SPEED, 100, 2, false, true));
                 INSTINCT_COOLDOWN.put(player.getUUID(), now);
@@ -214,7 +214,7 @@ public class BloodSmithHandler {
             addCharges(player, -amount);
             return true;
         }
-        boolean lowHp = player.getHealth() <= 6.0f;
+        boolean lowHp = player.getHealth() <= ChaosAddonConfig.get().bloodLowHpThreshold;
         int     cost  = lowHp ? Math.max(1, amount / 2) : amount;
         boolean ok    = ResourcePower.deduct(player, RESOURCE_KEY, cost);
         if (ok) player.getPersistentData().putLong(LAST_FULL_KEY, 0); // reset overload timer
@@ -222,7 +222,7 @@ public class BloodSmithHandler {
     }
 
     public static boolean isLowHp(ServerPlayer player) {
-        return player.getHealth() <= 6.0f;
+        return player.getHealth() <= ChaosAddonConfig.get().bloodLowHpThreshold;
     }
 
     // ── private helpers ────────────────────────────────────────────────────────

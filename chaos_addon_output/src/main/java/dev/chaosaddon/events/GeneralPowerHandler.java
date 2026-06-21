@@ -75,7 +75,7 @@ public class GeneralPowerHandler {
                 }
             }
             // Stone Flesh regen: standing on any stone-type block — uses tags for mod compat
-            if (player.tickCount % 160 == 0 && player.getHealth() >= 8.0f) {
+            if (player.tickCount % cfg.geoStoneFleshRegenInterval == 0 && player.getHealth() >= cfg.geoStoneFleshRegenThreshold) {
                 var stateBelow = level.getBlockState(player.blockPosition().below());
                 boolean onStone = stateBelow.is(net.minecraft.tags.BlockTags.BASE_STONE_OVERWORLD)
                     || stateBelow.is(net.minecraft.tags.BlockTags.BASE_STONE_NETHER)
@@ -93,7 +93,7 @@ public class GeneralPowerHandler {
         if (OriginHelper.hasOrigin(player, "chaos_addon:ancient_sentinel")
                 && !player.isSprinting() && !player.isCrouching() && player.onGround()
                 && player.tickCount % 20 == 0) {
-            dev.chaosaddon.util.SeismicSenseHelper.pingNearbyPlayers(player, level, 50, "§6🌍 Сейсмо: ");
+            dev.chaosaddon.util.SeismicSenseHelper.pingNearbyPlayers(player, level, cfg.sentinelSeismicRadius, "§6🌍 Сейсмо: ");
         }
 
         // ── Green Blood bad-biome damage + grass regen ──
@@ -109,7 +109,7 @@ public class GeneralPowerHandler {
             // Grass regen
             boolean goodBiome = biome.contains("forest") || biome.contains("jungle")
                 || biome.contains("meadow") || biome.contains("flower") || biome.contains("plains");
-            if (goodBiome && player.tickCount % 80 == 0) {
+            if (goodBiome && player.tickCount % cfg.gardenGrassRegenInterval == 0) {
                 player.heal(1.0f);
             }
         }
@@ -261,9 +261,9 @@ public class GeneralPowerHandler {
                 }
             }
             if (!player.isCrouching() && !player.isSprinting() && player.onGround()) {
-                if (player.tickCount % 100 == 0) {
+                if (player.tickCount % cfg.sentinelStoneStackInterval == 0) {
                     int stacks = player.getPersistentData().getInt("chaos_stone_stacks");
-                    if (stacks < 10) {
+                    if (stacks < cfg.sentinelMaxStoneStacks) {
                         stacks++;
                         player.getPersistentData().putInt("chaos_stone_stacks", stacks);
                         player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION,
@@ -324,8 +324,8 @@ public class GeneralPowerHandler {
 
         // ── no_mobility: Ancient Sentinel can't use elytra ──
         if (OriginHelper.hasPower(player, "chaos_addon:ancient_sentinel/no_mobility")) {
-            if (player.isFallFlying() && player.tickCount % 10 == 0) {
-                player.hurt(player.damageSources().fall(), 1.0f);
+            if (player.isFallFlying() && player.tickCount % cfg.sentinelElytraInterval == 0) {
+                player.hurt(player.damageSources().fall(), cfg.sentinelElytraDamage);
                 player.displayClientMessage(
                     Component.literal("§7⛰ Страж не может летать!").withStyle(ChatFormatting.GRAY), true);
             }

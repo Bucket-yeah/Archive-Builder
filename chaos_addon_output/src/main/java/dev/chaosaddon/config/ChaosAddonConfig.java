@@ -75,6 +75,7 @@ public class ChaosAddonConfig implements ConfigData {
     public int   chunkVisionInterval        = 60;    // ticks between structure scans
     public float soundSensitivityMultiplier = 1.5f;  // explosion damage multiplier
     public int   archSpawnLockTicks         = 600;   // post-death item-pickup lock duration
+    public float archXpPreservation         = 0.60f; // fraction of XP preserved on death (mind_backup)
 
     // ───────────────────────────── TIME WANDERER ───────────────────────────────
     @ConfigEntry.Category("time_wanderer")
@@ -165,6 +166,11 @@ public class ChaosAddonConfig implements ConfigData {
     public int   sentinelLiquidInterval     = 60;   // every 3 seconds — escapable
     public int   mountainEchoInterval       = 80;   // ticks between cave scans
     public int   mountainEchoRadius         = 18;   // horizontal scan radius in blocks
+    public int   sentinelSeismicRadius      = 50;   // block radius for seismic sense ping
+    public int   sentinelStoneStackInterval = 100;  // ticks between stone armor stack gains
+    public int   sentinelMaxStoneStacks     = 10;   // max stone armor stacks
+    public int   sentinelElytraInterval     = 10;   // ticks between elytra-flight damage ticks
+    public float sentinelElytraDamage       = 1.0f; // HP per interval when gliding
 
     // ───────────────────────────── RADIOACTIVE PHANTOM ─────────────────────────
     @ConfigEntry.Category("radioactive_phantom")
@@ -181,6 +187,11 @@ public class ChaosAddonConfig implements ConfigData {
     public int   materialDecayInterval      = 200;   // ticks between gear decay checks
     public int   materialDecayAmount        = 4;     // durability removed per item per decay
     public int   geigerScanBonus            = 5;     // extra radius beyond radioAuraRadius for geiger
+    public int   radioOverloadThreshold     = 5;     // nearby entities triggering overload
+    public int   radioOverloadDisplayInterval = 200; // ticks between overload message displays
+    public int   radioTrailInterval         = 60;    // ticks between trail zone updates
+    public int   radioTrailExpiry           = 600;   // ticks a trail zone remains active (30 s)
+    public int   radioTrailMaxEntries       = 10;    // max saved trail positions
 
     // ───────────────────────────── DIMENSION JUDGE ─────────────────────────────
     @ConfigEntry.Category("dimension_judge")
@@ -212,6 +223,12 @@ public class ChaosAddonConfig implements ConfigData {
     public float waterKillsMossDamage       = 1.0f;     // HP per interval while in water/rain
     public int   waterKillsMossInterval     = 20;       // ticks between water damage
     public int   waterKillsMossWarnInterval = 200;      // ticks between rain warning in GeneralPowerHandler
+    // bloom (ultimate ability)
+    public int   mossBloomCooldown          = 6000;     // ticks (mirrors bloom.json cooldown_ticks)
+    public int   mossBloomRadius            = 12;       // block radius for bloom effect
+    public int   mossBloomAllyRegenDuration = 200;      // ticks of Regen II for allies (10 s)
+    public int   mossBloomEnemyDebuffDuration = 160;    // ticks of Slowness+Weakness for enemies (8 s)
+    public int   mossBloomSuperNodeDuration = 600;      // ticks the supernode lasts (30 s)
 
     // ───────────────────────────── DEEP GEOMANCER ──────────────────────────────
     @ConfigEntry.Category("deep_geomancer")
@@ -234,6 +251,8 @@ public class ChaosAddonConfig implements ConfigData {
     public int   geoEarthHearingInterval    = 40;   // ticks between earth_hearing pings
     public int   geoEarthHearingRadius      = 30;   // block radius for entity detection
     public int   geoAltitudeDamageInterval  = 40;   // ticks between altitude_damage effect checks
+    public int   geoStoneFleshRegenInterval = 160;  // ticks between stone_flesh passive regen pulses
+    public float geoStoneFleshRegenThreshold= 8.0f; // min HP for stone_flesh standing regen to fire
 
     // ───────────────────────────── WANDERING GARDENER ──────────────────────────
     @ConfigEntry.Category("wandering_gardener")
@@ -244,6 +263,7 @@ public class ChaosAddonConfig implements ConfigData {
     public float gardenWoodcutDamage        = 3.0f;
     public float gardenBadBiomeDamage       = 0.5f;
     public int   gardenBadBiomeInterval     = 200;
+    public int   gardenGrassRegenInterval   = 80;   // ticks between good-biome grass regen heals
     public int   gardenLifeBloomCooldown    = 6000;
     public int   gardenMaxTraps             = 3;         // max simultaneous plant traps
     public int   gardenTrapCooldown         = 600;       // ticks between trap placements
@@ -294,6 +314,11 @@ public class ChaosAddonConfig implements ConfigData {
     public float bloodArmorPerCharge        = 0.5f; // armor points per blood charge
     public float bloodBladeHpCost           = 1.0f; // HP to activate blade
     public int   bloodRegenInterval         = 200;  // natural regen blocked; timer for check
+    public int   bloodOverloadWarnTicks     = 400;  // ticks at max charges before overload warning
+    public int   bloodOverloadExplodeTicks  = 600;  // ticks at max charges before discharge explosion
+    public float bloodOverloadDamage        = 8.0f; // HP lost in overload explosion
+    public int   bloodArmorRegenInterval    = 200;  // ticks between Absorption refreshes
+    public float bloodLowHpThreshold        = 6.0f; // HP (≤ this = "low HP") for survival_instinct
 
     // ───────────────────────────── STAR ORACLE ─────────────────────────────────
     @ConfigEntry.Category("star_oracle")

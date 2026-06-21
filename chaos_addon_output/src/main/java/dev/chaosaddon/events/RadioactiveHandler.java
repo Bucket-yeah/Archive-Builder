@@ -94,11 +94,11 @@ public class RadioactiveHandler {
             LivingEntity.class, player.getBoundingBox().inflate(radius),
             e -> e != player && e.isAlive());
 
-        boolean overload = nearby.size() >= 5;
+        boolean overload = nearby.size() >= cfg.radioOverloadThreshold;
 
         // Geiger counter overload: double damage + double kill regen
         float actualDmg = overload ? dmg * 2 : dmg;
-        if (overload && player.tickCount % 200 == 0) {
+        if (overload && player.tickCount % cfg.radioOverloadDisplayInterval == 0) {
             player.displayClientMessage(
                 Component.literal("☢ ПЕРЕГРУЗКА! Двойное облучение!")
                     .withStyle(ChatFormatting.GREEN), false);
@@ -123,7 +123,7 @@ public class RadioactiveHandler {
         player.getPersistentData().putInt("chaos_radio_nearby", nearby.size());
 
         // ── Radioactive Trail: irradiate entities near previously visited positions ──
-        if (player.tickCount % 60 == 0) {
+        if (player.tickCount % cfg.radioTrailInterval == 0) {
             leaveRadioactiveTrail(player, level);
         }
     }
@@ -135,7 +135,8 @@ public class RadioactiveHandler {
     private static void leaveRadioactiveTrail(ServerPlayer player, ServerLevel level) {
         BlockPos cur = player.blockPosition();
         String existing = player.getPersistentData().getString("chaos_radio_trail");
-        long expiry = level.getGameTime() + 600;
+        ChaosAddonConfig trailCfg = ChaosAddonConfig.get();
+        long expiry = level.getGameTime() + trailCfg.radioTrailExpiry;
 
         String entry = cur.getX() + "," + cur.getY() + "," + cur.getZ() + "," + expiry;
         String[] parts = existing.isEmpty() ? new String[0] : existing.split(";");
@@ -151,7 +152,7 @@ public class RadioactiveHandler {
             }
         }
         active.add(entry);
-        if (active.size() > 10) active.remove(0);
+        if (active.size() > trailCfg.radioTrailMaxEntries) active.remove(0);
         player.getPersistentData().putString("chaos_radio_trail", String.join(";", active));
 
         for (String p : active) {

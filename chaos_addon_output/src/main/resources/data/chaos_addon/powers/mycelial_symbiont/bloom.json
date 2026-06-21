@@ -1,0 +1,54 @@
+{
+  "type": "neoorigins:active_ability",
+  "entity_action": {
+    "type": "neoorigins:and",
+    "actions": [
+      {
+        "type": "neoorigins:execute_command",
+        "command": "chaos_addon_bloom"
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:spore_blossom_air",
+        "count": 200,
+        "spread": {
+          "x": 8.0,
+          "y": 4.0,
+          "z": 8.0
+        },
+        "speed": 0.08,
+        "force": true
+      },
+      {
+        "type": "neoorigins:spawn_particles",
+        "particle": "minecraft:happy_villager",
+        "count": 60,
+        "spread": {
+          "x": 6.0,
+          "y": 2.5,
+          "z": 6.0
+        },
+        "speed": 0.05,
+        "force": false
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.moss.place",
+        "volume": 1.0,
+        "pitch": 0.6
+      },
+      {
+        "type": "neoorigins:play_sound",
+        "sound": "minecraft:block.beacon.activate",
+        "volume": 0.8,
+        "pitch": 0.7
+      }
+    ]
+  },
+  "key": {
+    "key": "key.origins.tertiary_active"
+  },
+  "name": "Мицелиальное Цветение",
+  "description": "Взрывной рост мха в радиусе 12 блоков: союзники получают Регенерацию II, враги — Замедление III и Слабость II. На 30 секунд создаётся суперузел с удвоенным радиусом баффа сети. Кулдаун 5 минут.",
+  "cooldown_ticks": 6000
+}

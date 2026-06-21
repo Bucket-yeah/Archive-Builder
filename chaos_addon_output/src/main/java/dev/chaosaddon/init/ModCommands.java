@@ -56,6 +56,7 @@ public class ModCommands {
 
         // ── Mycelial Symbiont ──
         SymbiontCommands.register(dispatcher);
+        BloomCommand.register(dispatcher);
 
         // ── Deep Geomancer ──
         GeomancerCommands.register(dispatcher);
