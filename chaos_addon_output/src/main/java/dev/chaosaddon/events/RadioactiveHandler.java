@@ -42,39 +42,50 @@ public class RadioactiveHandler {
             player.hurt(player.damageSources().magic(), 0.2f);
         }
 
-        // ── material_decay: damage/shrink nearby item entities every 100 ticks ──
+        // ── material_decay: degrade armor/tools worn by nearby entities (not dropped items) ──
         if (OriginHelper.hasPower(player, "chaos_addon:radioactive_phantom/material_decay")
-                && player.tickCount % 100 == 0) {
-            List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class,
-                player.getBoundingBox().inflate(5), e -> e.isAlive());
+                && player.tickCount % 200 == 0) {
+            List<LivingEntity> decayTargets = level.getEntitiesOfClass(LivingEntity.class,
+                player.getBoundingBox().inflate(radius + 2), e -> e != player && e.isAlive());
             int decayed = 0;
-            for (ItemEntity itemEnt : items) {
-                ItemStack stack = itemEnt.getItem();
-                if (stack.isDamageableItem()) {
-                    stack.setDamageValue(Math.min(stack.getDamageValue() + 10, stack.getMaxDamage()));
-                    if (stack.getDamageValue() >= stack.getMaxDamage()) {
-                        itemEnt.kill();
-                    } else {
-                        itemEnt.setItem(stack);
-                    }
-                } else {
-                    stack.shrink(1);
-                    if (stack.isEmpty()) {
-                        itemEnt.kill();
-                    } else {
-                        itemEnt.setItem(stack);
+            for (LivingEntity target : decayTargets) {
+                for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.values()) {
+                    ItemStack eq = target.getItemBySlot(slot);
+                    if (!eq.isEmpty() && eq.isDamageableItem()) {
+                        eq.setDamageValue(Math.min(eq.getDamageValue() + 4, eq.getMaxDamage()));
+                        target.setItemSlot(slot, eq);
+                        decayed++;
                     }
                 }
-                decayed++;
+                if (decayed > 0) {
+                    level.sendParticles(ParticleTypes.WITCH,
+                        target.getX(), target.getY() + 1.0, target.getZ(), 4, 0.3, 0.5, 0.3, 0.06);
+                }
             }
             if (decayed > 0) {
-                level.sendParticles(ParticleTypes.GLOW,
-                    player.getX(), player.getY() + 0.5, player.getZ(),
-                    6, 0.5, 0.4, 0.5, 0.02);
                 player.displayClientMessage(
-                    Component.literal("§2☢ Материальный распад: §8" + decayed + " предм. повреждено")
+                    Component.literal("§2☢ Материальный распад: §8" + decayed + " ед. снаряжения повреждено")
                         .withStyle(ChatFormatting.DARK_GREEN), true);
             }
+        }
+
+        // ── geiger_counter: apply Glowing to nearby living entities (biomass sensor) ──
+        if (OriginHelper.hasPower(player, "chaos_addon:radioactive_phantom/geiger_counter")
+                && player.tickCount % interval == 0) {
+            List<LivingEntity> sensed = level.getEntitiesOfClass(LivingEntity.class,
+                player.getBoundingBox().inflate(radius + 5), e -> e != player && e.isAlive());
+            for (LivingEntity target : sensed) {
+                target.addEffect(new MobEffectInstance(MobEffects.GLOWING, interval * 2, 0, false, false));
+            }
+            int nearbyCount = sensed.size();
+            player.getPersistentData().putInt("chaos_radio_nearby", nearbyCount);
+            String intensity = nearbyCount == 0 ? "§a● Фон"
+                : nearbyCount < 3 ? "§e●● Повышен"
+                : nearbyCount < 5 ? "§6●●● Высокий"
+                : "§c●●●● КРИТИЧНО";
+            player.displayClientMessage(
+                Component.literal("☢ " + intensity + " §8(" + nearbyCount + " биомасс)")
+                    .withStyle(ChatFormatting.GREEN), true);
         }
 
         if (player.tickCount % interval != 0) return;
@@ -89,20 +100,8 @@ public class RadioactiveHandler {
         float actualDmg = overload ? dmg * 2 : dmg;
         if (overload && player.tickCount % 200 == 0) {
             player.displayClientMessage(
-                Component.literal("☢ ПЕРЕГРУЗКА! Двойное облучение и двойная регенерация от убийств!")
+                Component.literal("☢ ПЕРЕГРУЗКА! Двойное облучение!")
                     .withStyle(ChatFormatting.GREEN), false);
-        }
-
-        // Geiger counter HUD: radiation intensity display
-        if (player.tickCount % interval == 0) {
-            int nearbyCount = player.getPersistentData().getInt("chaos_radio_nearby");
-            String intensity = nearbyCount == 0 ? "§a● Фон"
-                : nearbyCount < 3 ? "§e●● Повышен"
-                : nearbyCount < 5 ? "§6●●● Высокий"
-                : "§c●●●● КРИТИЧНО";
-            player.displayClientMessage(
-                Component.literal("☢ " + intensity + " §8(" + nearbyCount + " цели)")
-                    .withStyle(ChatFormatting.GREEN), true);
         }
 
         for (LivingEntity target : nearby) {

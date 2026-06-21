@@ -118,26 +118,47 @@ public class ArchaeologistHandler {
             player.getPersistentData().putInt("chaos_arch_spawn_lock", lock - 1);
         }
 
-        // ── chunk_vision: Чанковое Зрение — show chunk coords + loaded state ──
+        // ── chunk_vision → "Чутьё Раскопок": detect nearby generated structures ──
         if (OriginHelper.hasPower(player, "chaos_addon:phantom_archaeologist/chunk_vision")
-                && player.tickCount % 20 == 0) {
+                && player.tickCount % 60 == 0) {
             BlockPos pos = player.blockPosition();
             int chunkX = pos.getX() >> 4;
             int chunkZ = pos.getZ() >> 4;
-            int localX = pos.getX() & 15;
-            int localZ = pos.getZ() & 15;
-            boolean chunkLoaded = level.hasChunk(chunkX, chunkZ);
-            boolean adjacentLoaded =
-                level.hasChunk(chunkX + 1, chunkZ) && level.hasChunk(chunkX - 1, chunkZ)
-                && level.hasChunk(chunkX, chunkZ + 1) && level.hasChunk(chunkX, chunkZ - 1);
-            String loadStatus = !chunkLoaded ? "§c✗ Выгружен"
-                : !adjacentLoaded ? "§e⚠ Граница" : "§a✓ Загружен";
-            String biomeStr = level.getBiome(pos).unwrapKey()
-                .map(k -> k.location().getPath()).orElse("?");
-            player.displayClientMessage(
-                Component.literal("§6📍 Чанк [" + chunkX + "," + chunkZ + "] §8local(" + localX + "," + pos.getY() + "," + localZ + ") "
-                    + loadStatus + " §8| §7" + biomeStr)
-                    .withStyle(ChatFormatting.GOLD), true);
+            String foundStructure = null;
+            int foundDist = Integer.MAX_VALUE;
+            outer: for (int dx = -4; dx <= 4; dx++) {
+                for (int dz = -4; dz <= 4; dz++) {
+                    try {
+                        net.minecraft.world.level.chunk.ChunkAccess chunk =
+                            level.getChunk(chunkX + dx, chunkZ + dz);
+                        for (var entry : chunk.getAllStarts().entrySet()) {
+                            if (!entry.getValue().isValid()) continue;
+                            var reg = level.registryAccess()
+                                .registryOrThrow(net.minecraft.core.registries.Registries.STRUCTURE);
+                            var key = reg.getKey(entry.getKey());
+                            if (key != null) {
+                                int d = Math.abs(dx) + Math.abs(dz);
+                                if (d < foundDist) {
+                                    foundDist = d;
+                                    foundStructure = key.getPath().replace("_", " ");
+                                }
+                                break outer;
+                            }
+                        }
+                    } catch (Exception ignored) {}
+                }
+            }
+            if (foundStructure != null) {
+                player.displayClientMessage(
+                    Component.literal("§6🏺 Чутьё раскопок: §e" + foundStructure
+                        + " §8(~" + (foundDist * 16) + " блоков)")
+                        .withStyle(ChatFormatting.GOLD), true);
+            } else {
+                if (player.tickCount % 300 == 0) {
+                    player.displayClientMessage(
+                        Component.literal("§8🏺 Чутьё раскопок: §7нет структур поблизости"), true);
+                }
+            }
         }
 
         // ── no_elytra: remove elytra from chest slot ──

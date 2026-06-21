@@ -1,20 +1,9 @@
 {
-  "type": "neoorigins:multiple",
-  "no_elytra": {
-    "type": "neoorigins:attribute_modifier",
-    "attribute": "minecraft:max_health",
-    "amount": 0.0,
-    "operation": "add_value",
-    "hidden": true
-  },
-  "no_boat": {
-    "type": "neoorigins:attribute_modifier",
-    "attribute": "minecraft:max_health",
-    "amount": 0.0,
-    "operation": "add_value",
-    "hidden": true
-  },
+  "type": "neoorigins:attribute_modifier",
+  "attribute": "minecraft:max_health",
+  "amount": 0.0,
+  "operation": "add_value",
   "name": "Нет мобильности",
-  "description": "Нет элитры, нет лодок, нет зелий скорости.",
+  "description": "Страж слишком тяжёл для полёта и плавания. Попытка использовать элитру причиняет урон каждые полсекунды. Правый клик лодкой отменяется. Страж навсегда прикован к земле.",
   "hidden": true
 }

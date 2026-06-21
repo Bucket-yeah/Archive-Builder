@@ -336,23 +336,19 @@ public class AlchemistHandler {
             SoundSource.PLAYERS, 0.4f, 1.8f);
     }
 
-    // ── overloaded_damage: inventory > 10 stacks → +30% incoming damage ──
+    // ── overloaded_damage: each active potion effect on player → +20% bonus outgoing damage (max +150%) ──
     @SubscribeEvent
     public static void onOverloadedDamage(LivingIncomingDamageEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
         if (!OriginHelper.hasPower(player, "chaos_addon:alchemical_monk/overloaded_damage")) return;
-        var inv = player.getInventory();
-        int filledSlots = 0;
-        for (int i = 0; i < inv.items.size(); i++) {
-            if (!inv.items.get(i).isEmpty()) filledSlots++;
-        }
-        if (filledSlots > 10) {
-            event.setAmount(event.getAmount() * 1.3f);
-            if (player.tickCount % 100 == 0) {
-                player.displayClientMessage(
-                    Component.literal("§c⚗ Перегрузка! (" + filledSlots + " стаков) +30% входящего урона")
-                        .withStyle(ChatFormatting.DARK_RED), true);
-            }
+        int activeEffects = player.getActiveEffects().size();
+        if (activeEffects <= 0) return;
+        float bonus = Math.min(activeEffects * 0.20f, 1.50f);
+        event.setAmount(event.getAmount() * (1.0f + bonus));
+        if (player.tickCount % 60 == 0) {
+            player.displayClientMessage(
+                Component.literal("§6⚗ Перегрузка! §e+" + (int)(bonus * 100) + "% §8урона ×" + activeEffects + " веществ")
+                    .withStyle(ChatFormatting.GOLD), true);
         }
     }
 }

@@ -21,6 +21,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -283,12 +284,41 @@ public class GeneralPowerHandler {
                 }
             }
 
-            // ── mountain_echo: ping cave entities when underground ──
+            // ── mountain_echo: scan for cave air pockets/voids underground (not entities — that's seismic sense) ──
             if (OriginHelper.hasPower(player, "chaos_addon:ancient_sentinel/mountain_echo")
-                    && player.blockPosition().getY() < 0 && player.tickCount % 60 == 0) {
-                SeismicSenseHelper.pingNearbyEntities(player, level, 40,
-                    e -> !(e instanceof net.minecraft.world.entity.player.Player),
-                    "§7⛰ Эхо горы: ", net.minecraft.ChatFormatting.GRAY);
+                    && player.tickCount % 80 == 0) {
+                net.minecraft.core.BlockPos mpos = player.blockPosition();
+                int caveCount = 0;
+                double nearestDistSq = Double.MAX_VALUE;
+                double ncx = 0, ncy = 0, ncz = 0;
+                int radius = 18;
+                for (int mdx = -radius; mdx <= radius; mdx += 3) {
+                    for (int mdz = -radius; mdz <= radius; mdz += 3) {
+                        if (mdx * mdx + mdz * mdz > radius * radius) continue;
+                        for (int mdy = -14; mdy <= -1; mdy += 2) {
+                            net.minecraft.core.BlockPos check = mpos.offset(mdx, mdy, mdz);
+                            if (level.getBlockState(check).isAir()
+                                    && !level.getBlockState(check.below()).isAir()) {
+                                caveCount++;
+                                double dSq = check.distSqr(mpos);
+                                if (dSq < nearestDistSq) {
+                                    nearestDistSq = dSq;
+                                    ncx = check.getX() + 0.5; ncy = check.getY() + 0.5; ncz = check.getZ() + 0.5;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (caveCount > 3) {
+                    int distB = (int) Math.sqrt(nearestDistSq);
+                    player.displayClientMessage(
+                        Component.literal("§7⛰ Горное Эхо: §8пещера в ~" + distB + " блоках (" + caveCount + " возд. пустот)")
+                            .withStyle(net.minecraft.ChatFormatting.GRAY), true);
+                    level.sendParticles(ParticleTypes.GLOW, ncx, ncy, ncz, 4, 0.5, 0.5, 0.5, 0.0);
+                } else if (player.tickCount % 400 == 0) {
+                    player.displayClientMessage(
+                        Component.literal("§8⛰ Горное Эхо: §7пещер не обнаружено"), true);
+                }
             }
         }
 
@@ -301,37 +331,53 @@ public class GeneralPowerHandler {
             }
         }
 
-        // ── no_valuables: Nightmare Mimic — diamonds/netherite vanish from mainhand ──
-        if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/no_valuables") && player.tickCount % 20 == 0) {
-            net.minecraft.world.item.ItemStack held = player.getMainHandItem();
-            if (!held.isEmpty()) {
-                String id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(held.getItem()).toString();
-                if (id.contains("diamond") || id.contains("netherite")) {
-                    level.addFreshEntity(new ItemEntity(level,
-                        player.getX(), player.getY() + 0.5, player.getZ(), held.copy()));
-                    player.getInventory().setItem(player.getInventory().selected,
-                        net.minecraft.world.item.ItemStack.EMPTY);
-                    level.sendParticles(ParticleTypes.WITCH,
-                        player.getX(), player.getY() + 1.0, player.getZ(), 10, 0.4, 0.6, 0.4, 0.1);
-                    player.sendSystemMessage(Component.literal(
-                        "§8✦ [Иллюзия] " + held.getHoverName().getString() + " растворился в мираже!"));
+        // ── no_valuables: Nightmare Mimic — valuable items degrade across full inventory ──
+        if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/no_valuables") && player.tickCount % 60 == 0) {
+            var inv = player.getInventory();
+            for (int i = 0; i < inv.items.size(); i++) {
+                net.minecraft.world.item.ItemStack stack = inv.items.get(i);
+                if (stack.isEmpty()) continue;
+                String sid = net.minecraft.core.registries.BuiltInRegistries.ITEM
+                    .getKey(stack.getItem()).toString();
+                boolean isValuable = sid.contains("diamond") || sid.contains("gold")
+                    || sid.contains("emerald") || sid.contains("netherite");
+                if (!isValuable) continue;
+                if (stack.isDamageableItem()) {
+                    stack.setDamageValue(Math.min(stack.getDamageValue() + 3, stack.getMaxDamage()));
+                    if (stack.getDamageValue() >= stack.getMaxDamage()) {
+                        level.sendParticles(ParticleTypes.WITCH,
+                            player.getX(), player.getY() + 1.0, player.getZ(), 8, 0.4, 0.6, 0.4, 0.1);
+                        player.displayClientMessage(
+                            Component.literal("§8✦ [Иллюзия] §7" + stack.getHoverName().getString()
+                                + " §8рассыпался в пыль!").withStyle(ChatFormatting.DARK_GRAY), true);
+                        inv.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
+                    }
+                } else if (RNG.nextFloat() < 0.08f) {
+                    stack.shrink(1);
+                    if (stack.isEmpty()) inv.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
+                    player.displayClientMessage(
+                        Component.literal("§8✦ [Иллюзия] §7Ценность испарилась...")
+                            .withStyle(ChatFormatting.DARK_GRAY), true);
                 }
             }
         }
 
-        // ── false_loot: periodic "illusory item" removal ──
-        if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/false_loot") && player.tickCount % 1200 == 0) {
-            var inv = player.getInventory();
-            List<Integer> filled = new ArrayList<>();
-            for (int i = 0; i < inv.items.size(); i++) {
-                if (!inv.items.get(i).isEmpty()) filled.add(i);
-            }
-            if (!filled.isEmpty()) {
-                int slot = filled.get(RNG.nextInt(filled.size()));
-                player.displayClientMessage(
-                    Component.literal("§8✦ [Иллюзия] Предмет испарился!").withStyle(ChatFormatting.DARK_GRAY), true);
-                inv.setItem(slot, net.minecraft.world.item.ItemStack.EMPTY);
-            }
+        // ── false_loot: drop a trap bait item every 3 minutes ──
+        if (OriginHelper.hasPower(player, "chaos_addon:nightmare_mimic/false_loot") && player.tickCount % 3600 == 0) {
+            net.minecraft.world.item.ItemStack bait = new net.minecraft.world.item.ItemStack(Items.EMERALD);
+            ItemEntity baitEntity = new ItemEntity(level,
+                player.getX() + (RNG.nextDouble() - 0.5) * 3,
+                player.getY() + 0.5,
+                player.getZ() + (RNG.nextDouble() - 0.5) * 3, bait);
+            baitEntity.addTag("chaos_mimic_trap");
+            baitEntity.getPersistentData().putUUID("chaos_trap_owner", player.getUUID());
+            baitEntity.setPickUpDelay(20);
+            level.addFreshEntity(baitEntity);
+            level.sendParticles(ParticleTypes.WITCH,
+                baitEntity.getX(), baitEntity.getY() + 0.5, baitEntity.getZ(), 6, 0.3, 0.5, 0.3, 0.05);
+            player.displayClientMessage(
+                Component.literal("§8✦ [Иллюзия] §7Ловушка расставлена...")
+                    .withStyle(ChatFormatting.DARK_GRAY), true);
         }
 
         // ── water_vulnerability: Swarm Lord takes damage in water ──
@@ -830,6 +876,32 @@ public class GeneralPowerHandler {
         player.displayClientMessage(
             Component.literal("§8✦ [Иллюзия] Иллюзорный предмет в инвентаре...")
                 .withStyle(ChatFormatting.DARK_GRAY), true);
+    }
+
+    // ── false_loot trap: any non-owner player who picks up the bait item gets hit ──
+    @SubscribeEvent
+    public static void onMimicTrapPickup(ItemEntityPickupEvent.Pre event) {
+        if (!(event.getPlayer() instanceof ServerPlayer picker)) return;
+        ItemEntity trapEnt = event.getItemEntity();
+        if (!trapEnt.getTags().contains("chaos_mimic_trap")) return;
+        if (!(trapEnt.level() instanceof ServerLevel level)) return;
+
+        java.util.UUID ownerUUID = trapEnt.getPersistentData().hasUUID("chaos_trap_owner")
+            ? trapEnt.getPersistentData().getUUID("chaos_trap_owner") : null;
+        if (ownerUUID != null && picker.getUUID().equals(ownerUUID)) return;
+
+        event.setCanPickup(net.neoforged.neoforge.common.util.TriState.FALSE);
+        trapEnt.kill();
+
+        picker.hurt(picker.damageSources().magic(), 4.0f);
+        picker.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 1, false, true));
+        picker.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, true));
+        picker.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 1, false, true));
+        level.sendParticles(ParticleTypes.WITCH,
+            picker.getX(), picker.getY() + 1.0, picker.getZ(), 30, 0.5, 0.8, 0.5, 0.1);
+        level.playSound(null, picker.blockPosition(),
+            SoundEvents.ILLUSIONER_MIRROR_MOVE, SoundSource.PLAYERS, 1.0f, 0.5f);
+        picker.sendSystemMessage(Component.literal("§8✦ [Ловушка Мимика] §cЭто была приманка!"));
     }
 
     // ── precognition_loop: Time Wanderer — 3 hits in 2s → stasis counter-burst ──
